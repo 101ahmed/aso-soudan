@@ -15,14 +15,18 @@ Architecture : **un seul service Docker** (Vue SPA + API Laravel `/api`) + **Pos
 
 ---
 
-## 2. Générer `APP_KEY` (local)
+## 2. `APP_KEY` (recommandé, plus obligatoire au 1er boot)
+
+Si `APP_KEY` est vide, le conteneur génère une clé temporaire au démarrage (le site peut démarrer).  
+Pour éviter de casser les sessions à chaque redéploiement, définissez une clé fixe :
 
 ```bash
 cd backend
 php artisan key:generate --show
 ```
 
-Copiez la valeur (`base64:...`) — elle sera collée dans Render.
+Puis Render → **rdp-web** → **Environment** → `APP_KEY` = `base64:...` → Save → Redeploy.  
+Ne mettez **pas** de guillemets autour de la valeur.
 
 ---
 
@@ -44,8 +48,7 @@ Committez puis poussez vers GitHub (fichiers utiles déjà dans le repo) :
 3. Render lit `render.yaml` et propose :
    - base **rdp-db** (PostgreSQL free)
    - service **rdp-web** (Docker free)
-4. Pour la variable **`APP_KEY`** (sync: false) : coller la clé générée à l’étape 2
-5. Appliquer / Create
+4. Appliquer / Create
 
 Au premier démarrage, `RUN_SEEDERS=true` crée le Super Admin :
 

@@ -23,9 +23,8 @@ services:
         value: production
       - key: APP_DEBUG
         value: "false"
-      # Obligatoire : coller la valeur de `php artisan key:generate --show` (local)
-      - key: APP_KEY
-        sync: false
+      # Optionnel : si vide, entrypoint génère une clé au boot.
+      # Pour la stabilité (sessions), définissez APP_KEY dans le dashboard Render.
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_URL

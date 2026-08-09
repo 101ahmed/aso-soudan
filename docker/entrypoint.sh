@@ -30,9 +30,21 @@ cd /var/www/html
 mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache
 chown -R www-data:www-data storage bootstrap/cache || true
 
+# Strip accidental quotes from dashboard paste
+if [[ -n "${APP_KEY:-}" ]]; then
+  APP_KEY="${APP_KEY%\"}"
+  APP_KEY="${APP_KEY#\"}"
+  APP_KEY="${APP_KEY%\'}"
+  APP_KEY="${APP_KEY#\'}"
+  export APP_KEY
+fi
+
+# If APP_KEY still missing, generate one so the container can boot.
+# Prefer setting a stable APP_KEY in the Render dashboard for production.
 if [[ -z "${APP_KEY:-}" ]]; then
-  echo "ERROR: APP_KEY is not set. Generate one locally with: php artisan key:generate --show"
-  exit 1
+  export APP_KEY="$(php -r "echo 'base64:' . base64_encode(random_bytes(32));")"
+  echo "WARNING: APP_KEY was empty — generated a temporary key for this boot."
+  echo "WARNING: Set a permanent APP_KEY in Render → Environment to keep sessions stable."
 fi
 
 php artisan config:clear || true
