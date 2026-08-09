@@ -1,0 +1,17 @@
+﻿# Rabta Digital Platform (RDP)
+node_modules/
+vendor/
+.env
+.env.local
+.env.production
+.env.*.local
+dist/
+public/build/
+storage/*.key
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/
+*.sqlite
+coverage/

@@ -1,0 +1,53 @@
+# Blueprint Render — https://render.com/docs/blueprint-spec
+# Web Service Docker (Vue SPA + API Laravel) + PostgreSQL (free)
+
+databases:
+  - name: rdp-db
+    plan: free
+    databaseName: rdp
+    user: rdp
+
+services:
+  - type: web
+    name: rdp-web
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    envVars:
+      - key: APP_NAME
+        value: رابطة الجالية السودانية برين
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      # Obligatoire : coller la valeur de `php artisan key:generate --show` (local)
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        fromDatabase:
+          name: rdp-db
+          property: connectionString
+      - key: DB_SSLMODE
+        value: require
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: error
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_ENCRYPT
+        value: "true"
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: FILESYSTEM_DISK
+        value: local
+      # true au 1er déploiement (admin), puis repasser à false
+      - key: RUN_SEEDERS
+        value: "true"

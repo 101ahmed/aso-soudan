@@ -1,0 +1,69 @@
+@import 'tailwindcss';
+
+:root {
+  --rdp-ink: #1a1f16;
+  --rdp-forest: #1f4d3a;
+  --rdp-leaf: #2f6b4f;
+  --rdp-gold: #c4a35a;
+  --rdp-cream: #f3efe6;
+  --rdp-mist: #e7ece8;
+  --font-display: 'Fraunces', 'Cairo', serif;
+  --font-body: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+}
+
+html,
+body,
+#app {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--rdp-ink);
+  background: var(--rdp-cream);
+  font-family: var(--font-body);
+}
+
+body[dir='ltr'] {
+  font-family: var(--font-body);
+}
+
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-pan {
+  from {
+    transform: scale(1.08);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.hero-copy > * {
+  animation: hero-rise 0.9s ease both;
+}
+
+.hero-copy > *:nth-child(2) {
+  animation-delay: 0.12s;
+}
+
+.hero-copy > *:nth-child(3) {
+  animation-delay: 0.22s;
+}
+
+.hero-copy > *:nth-child(4) {
+  animation-delay: 0.32s;
+}
+
+.hero-media {
+  animation: hero-pan 8s ease-out both;
+}

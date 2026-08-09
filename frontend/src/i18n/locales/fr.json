@@ -1,0 +1,396 @@
+{
+  "app": {
+    "name": "Association de la Communauté Soudanaise de Rennes",
+    "tagline": "Fraternité | Solidarité | Amour",
+    "motto": "Une seule communauté, un seul cœur."
+  },
+  "nav": {
+    "home": "Accueil",
+    "about": "Qui sommes-nous",
+    "secretariats": "Secrétariats",
+    "shura": "Conseil de la Choura",
+    "parents": "Conseil des parents",
+    "news": "Actualités",
+    "events": "Événements",
+    "gallery": "Galerie",
+    "contact": "Contact",
+    "status": "État du système",
+    "login": "Connexion",
+    "menu": "Menu",
+    "close": "Fermer"
+  },
+  "org": {
+    "president": "Président de la Rabta",
+    "general": "Secrétariat général",
+    "academic": "Secrétariat académique",
+    "social": "Secrétariat social",
+    "media": "Secrétariat médias",
+    "womenChildren": "Femmes & Enfants",
+    "statistics": "Secrétariat statistiques",
+    "external": "Relations extérieures",
+    "shura": "Conseil de la Choura",
+    "parents": "Conseil des parents"
+  },
+  "home": {
+    "welcome": "Bienvenue sur le site officiel de la Rabta",
+    "lead": "Une plateforme numérique au service de la communauté, pour renforcer le lien, l’accompagnement académique et l’action culturelle et sociale.",
+    "ctaAbout": "Nous découvrir",
+    "ctaStudent": "Inscrire un élève",
+    "ctaMember": "Demander l’adhésion",
+    "aboutTitle": "La Rabta en bref",
+    "aboutText": "L’Association de la Communauté Soudanaise de Rennes regroupe les familles et les acteurs associatifs autour d’objectifs éducatifs, sociaux et culturels.",
+    "readMore": "Lire la suite",
+    "orgTitle": "Organisation",
+    "orgSubtitle": "Les principaux organes de la Rabta",
+    "newsTitle": "Dernières actualités",
+    "eventsTitle": "Événements à venir",
+    "eventsSubtitle": "Retrouvez les prochaines activités ouvertes au public",
+    "eventDetails": "Voir les détails",
+    "eventRegister": "S’inscrire à l’événement",
+    "statsTitle": "Chiffres publics",
+    "statsSubtitle": "Indicateurs généraux sans données personnelles",
+    "stats": {
+      "members": "Membres",
+      "students": "Élèves",
+      "teachers": "Enseignants & bénévoles",
+      "events": "Événements",
+      "initiatives": "Initiatives"
+    },
+    "activitiesTitle": "Activités récentes",
+    "activities": {
+      "academic": "Activités académiques",
+      "social": "Activités sociales",
+      "womenChildren": "Femmes & enfants",
+      "cultural": "Activités culturelles"
+    },
+    "galleryTitle": "Galerie photos",
+    "galleryCta": "Voir la galerie",
+    "registerTitle": "Inscriptions en ligne",
+    "registerSubtitle": "Aucune connexion n’est requise pour déposer une demande.",
+    "seeAll": "Tout voir",
+    "footerPlace": "Rennes, Bretagne — France",
+    "footerContact": "Écrire à la Rabta",
+    "footerNote": "Site public ouvert à tous · espace interne réservé aux comptes autorisés.",
+    "title": "Association de la Communauté Soudanaise de Rennes",
+    "subtitle": "Plateforme numérique pour la gestion administrative et académique de la Rabta.",
+    "cta": "Vérifier la connexion API"
+  },
+  "pages": {
+    "notFound": "Page introuvable.",
+    "about": {
+      "subtitle": "Identité, vision et mission",
+      "body": "La Rabta est une association communautaire basée à Rennes.\nElle vise à accompagner les familles, soutenir l’éducation et favoriser la cohésion sociale.\nSa vision : une communauté soudanaise solidaire, éduquée et engagée.\nSa mission : offrir des services associatifs, académiques et culturels accessibles à tous."
+    },
+    "president": {
+      "subtitle": "Mot et présentation",
+      "body": "Le président représente la Rabta et veille à la coordination générale des secrétariats, du Conseil de la Choura et des initiatives communautaires."
+    },
+    "secretariats": {
+      "subtitle": "Découvrez les secrétariats de la Rabta, leurs missions et leurs programmes publics.",
+      "learnMore": "En savoir plus"
+    },
+    "secretariat": {
+      "general": "L’aménée générale assure la coordination administrative, le suivi des décisions et la correspondance officielle.",
+      "academic": "Le secrétariat académique gère les inscriptions scolaires, les classes, les enseignants et le suivi pédagogique.",
+      "social": "Le secrétariat social développe les programmes d’entraide et les initiatives solidaires.",
+      "media": "Le secrétariat médias couvre l’actualité, la communication et la présence numérique de la Rabta.",
+      "womenChildren": "Ce pôle accompagne les programmes dédiés aux femmes et aux enfants.",
+      "statistics": "Le secrétariat statistiques produit les indicateurs et rapports utiles au pilotage.",
+      "external": "Les relations extérieures gèrent les partenariats et les contacts institutionnels."
+    },
+    "shura": {
+      "subtitle": "Conseil consultatif",
+      "body": "Le Conseil de la Choura contribue aux orientations stratégiques et aux recommandations adressées à la direction de la Rabta."
+    },
+    "parents": {
+      "subtitle": "Lien familles–école",
+      "body": "Le Conseil des parents favorise le dialogue entre les familles et le système académique de la Rabta."
+    },
+    "news": {
+      "subtitle": "Actualités publiques de la Rabta",
+      "detailExtra": "Le contenu complet sera alimenté depuis le module Actualités de la plateforme."
+    },
+    "events": {
+      "subtitle": "Événements ouverts au public",
+      "registered": "Votre inscription a bien été enregistrée. Nous vous recontacterons si nécessaire."
+    },
+    "gallery": {
+      "subtitle": "Souvenirs et moments de la vie associative"
+    },
+    "contact": {
+      "subtitle": "Écrivez-nous sans créer de compte",
+      "success": "Message envoyé. Un responsable vous répondra prochainement."
+    }
+  },
+  "about": {
+    "introTitle": "Présentation de la Rabta",
+    "history": "Notre histoire",
+    "vision": "Notre vision",
+    "mission": "Notre mission",
+    "goals": "Nos objectifs",
+    "values": "Nos valeurs",
+    "domains": "Domaines d’action",
+    "organization": "Organisation",
+    "councils": "Les conseils",
+    "achievements": "Nos réalisations",
+    "activities": "Activités principales",
+    "exploreActivities": "Explorer nos activités",
+    "volunteer": "Devenir bénévole",
+    "joinVolunteer": "Nous contacter pour le bénévolat",
+    "membership": "Rejoindre la Rabta",
+    "services": "Services",
+    "partners": "Nos partenaires",
+    "local": "La Rabta et la société locale",
+    "why": "Pourquoi nous agissons",
+    "commitments": "Nos engagements",
+    "privacy": "Politique de protection des données",
+    "statutesNote": "Les statuts pourront être publiés en PDF après validation.",
+    "contactTitle": "Nous contacter",
+    "contactText": "Vous souhaitez en savoir plus ou participer à un programme ?",
+    "achievementLabels": {
+      "students": "Élèves bénéficiaires",
+      "events": "Événements",
+      "members": "Membres",
+      "initiatives": "Initiatives"
+    },
+    "activityLabels": {
+      "academic": "Activités académiques",
+      "social": "Activités sociales",
+      "women": "Programmes femmes",
+      "children": "Programmes enfants",
+      "cultural": "Activités culturelles",
+      "community": "Événements communautaires"
+    }
+  },
+  "privacy": {
+    "subtitle": "Engagement public de la Rabta concernant les données personnelles",
+    "p1": "La Rabta traite les données personnelles dans le cadre de ses activités associatives, académiques et administratives, conformément aux règles applicables (dont le RGPD).",
+    "p2": "Les données des élèves, parents et membres sont collectées pour des finalités précises : inscriptions, suivi pédagogique, communication associative et gestion interne.",
+    "p3": "L’accès aux données est limité selon les rôles et permissions. Les informations sensibles et les dossiers individuels ne sont jamais publiés sur le site public.",
+    "p4": "Pour toute demande d’accès, rectification ou suppression, contactez la Rabta via la page Contact."
+  },
+  "parents": {
+    "about": "Présentation du conseil",
+    "vision": "Notre vision",
+    "mission": "Notre mission",
+    "objectives": "Objectifs",
+    "competencies": "Attributions",
+    "structure": "Organisation interne",
+    "members": "Membres du conseil",
+    "meetings": "Réunions",
+    "meetingTopics": "Axes de discussion",
+    "activities": "Activités",
+    "events": "Événements",
+    "audience": "Public cible",
+    "announcements": "Annonces",
+    "publicStats": "Indicateurs généraux",
+    "documents": "Documents publics",
+    "proposals": "Propositions des parents",
+    "proposalsHint": "Soumettez une proposition ou observation générale. Ne pas inclure de données personnelles d’élève.",
+    "proposalSuccess": "Proposition reçue. Statut : Submitted — en attente de revue.",
+    "parentName": "Nom du parent",
+    "proposalTitle": "Titre de la proposition",
+    "proposalType": "Type de proposition",
+    "proposalDetails": "Détails de la proposition",
+    "sendProposal": "Envoyer la proposition",
+    "academicLink": "Lien avec le secrétariat académique",
+    "academicLinkText": "Le Conseil des parents travaille en coordination avec le secrétariat académique. Les dossiers individuels restent traités par les services compétents.",
+    "contact": "Contacter le Conseil des parents",
+    "contactHint": "Ce message sera adressé au conseil. Les contenus internes restent protégés.",
+    "statLabels": {
+      "students": "Élèves",
+      "classes": "Classes",
+      "activities": "Activités",
+      "events": "Événements"
+    }
+  },
+  "shura": {
+    "about": "Présentation du conseil",
+    "vision": "Notre vision",
+    "mission": "Notre mission",
+    "objectives": "Objectifs",
+    "competencies": "Attributions",
+    "structure": "Organisation interne",
+    "members": "Membres du conseil",
+    "meetings": "Réunions",
+    "meetingType": "Type",
+    "recommendations": "Recommandations et décisions publiques",
+    "news": "Actualités du conseil",
+    "events": "Événements du conseil",
+    "documents": "Documents publics",
+    "contact": "Contacter le Conseil de la Choura",
+    "contactHint": "Ce message sera adressé au conseil. Les contenus internes restent protégés.",
+    "proposal": "Soumettre une proposition",
+    "proposalHint": "Service réservé aux membres connectés de la Rabta.",
+    "proposalLoginRequired": "Connectez-vous pour soumettre une proposition au conseil.",
+    "proposalSuccess": "Proposition reçue. Statut : Submitted — en attente d’examen.",
+    "proposalTitle": "Titre de la proposition",
+    "proposalSubmitter": "Nom du déposant",
+    "proposalDescription": "Description de la proposition"
+  },
+  "secretariat": {
+    "about": "Présentation",
+    "vision": "Vision",
+    "mission": "Mission",
+    "objectives": "Objectifs",
+    "tasks": "Missions",
+    "programs": "Programmes et projets",
+    "subjects": "Matières",
+    "stages": "Étapes scolaires",
+    "womenPrograms": "Programmes femmes",
+    "childrenPrograms": "Programmes enfants",
+    "initiatives": "Dernières initiatives",
+    "volunteer": "Se porter volontaire",
+    "partners": "Partenaires",
+    "publicStats": "Statistiques publiques",
+    "documents": "Documents publics",
+    "social": "Réseaux sociaux",
+    "news": "Actualités de l’aménée",
+    "events": "Événements à venir",
+    "registerActivity": "S’inscrire à l’activité",
+    "contactHint": "Ce message sera adressé à cette secrétariat. Aucune donnée interne n’est exposée ici.",
+    "statLabels": {
+      "members": "Membres",
+      "students": "Élèves",
+      "teachers": "Enseignants",
+      "events": "Événements",
+      "classes": "Classes",
+      "programs": "Programmes"
+    }
+  },
+  "forms": {
+    "name": "Nom complet",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "phoneOptional": "Téléphone (optionnel)",
+    "subject": "Sujet",
+    "message": "Message",
+    "city": "Ville",
+    "guardianName": "Nom du parent / tuteur",
+    "level": "Niveau scolaire",
+    "subjects": "Matières souhaitées",
+    "membershipType": "Type d’adhésion",
+    "send": "Envoyer"
+  },
+  "register": {
+    "step": "Étape",
+    "student": {
+      "title": "Inscription d’un élève",
+      "subtitle": "Formulaire public — aucune connexion requise",
+      "consent": "J’accepte le traitement des données conformément à la politique de protection des données (RGPD).",
+      "successTitle": "Demande envoyée",
+      "successText": "Votre demande est en attente de revue (Pending). Le secrétariat académique vous recontactera.",
+      "steps": {
+        "student": "Données de l’élève",
+        "guardian": "Données du parent",
+        "academic": "Niveau scolaire",
+        "subjects": "Matières",
+        "consent": "Consentements",
+        "review": "Revue"
+      }
+    },
+    "member": {
+      "title": "Demande d’adhésion",
+      "subtitle": "Formulaire public — aucune connexion requise",
+      "consent": "J’accepte les conditions d’adhésion et la politique de confidentialité.",
+      "successTitle": "Demande reçue",
+      "successText": "Votre demande d’adhésion a bien été reçue. Nous vous contacterons après revue.",
+      "steps": {
+        "personal": "Données personnelles",
+        "contact": "Coordonnées",
+        "membership": "Informations d’adhésion",
+        "consent": "Conditions"
+      }
+    }
+  },
+  "status": {
+    "title": "Connexion Frontend ↔ Backend",
+    "loading": "Vérification en cours…",
+    "ok": "API connectée",
+    "error": "Impossible de joindre l'API",
+    "database": "Base de données",
+    "environment": "Environnement",
+    "locale": "Locale",
+    "timestamp": "Horodatage"
+  },
+  "lang": {
+    "fr": "Français",
+    "ar": "العربية"
+  },
+  "auth": {
+    "loginTitle": "Connexion",
+    "loginSubtitle": "Réservé aux comptes internes (administration, académique, enseignants…)",
+    "email": "Email",
+    "password": "Mot de passe",
+    "login": "Se connecter",
+    "loggingIn": "Connexion…",
+    "loginFailed": "Identifiants invalides",
+    "remember": "Se souvenir de moi",
+    "forgot": "Mot de passe oublié ?",
+    "forgotTitle": "Mot de passe oublié",
+    "forgotSubtitle": "Indiquez votre email pour recevoir un lien de réinitialisation.",
+    "forgotSent": "Si un compte existe, un email de réinitialisation sera envoyé."
+  },
+  "admin": {
+    "loading": "Chargement…",
+    "saving": "Enregistrement…",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "prev": "Précédent",
+    "next": "Suivant",
+    "nav": {
+      "dashboard": "Tableau de bord",
+      "users": "Utilisateurs",
+      "roles": "Rôles & permissions"
+    },
+    "header": {
+      "signedInAs": "Connecté en tant que",
+      "logout": "Déconnexion"
+    },
+    "dashboard": {
+      "title": "Tableau de bord",
+      "welcome": "Bienvenue {name}",
+      "roles": "Rôles",
+      "permissions": "Permissions"
+    },
+    "users": {
+      "title": "Utilisateurs",
+      "subtitle": "Créer, modifier, désactiver et assigner des rôles",
+      "create": "Nouvel utilisateur",
+      "createTitle": "Créer un utilisateur",
+      "editTitle": "Modifier l'utilisateur",
+      "formSubtitle": "Compte d'accès + rôles RBAC",
+      "search": "Rechercher…",
+      "filter": "Filtrer",
+      "allStatuses": "Tous les statuts",
+      "allRoles": "Tous les rôles",
+      "name": "Nom",
+      "email": "Email",
+      "status": "Statut",
+      "roles": "Rôles",
+      "actions": "Actions",
+      "edit": "Modifier",
+      "disable": "Désactiver",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "phone": "Téléphone",
+      "password": "Mot de passe",
+      "passwordConfirm": "Confirmation",
+      "passwordRequired": "Mot de passe requis",
+      "assignRoles": "Assigner des rôles",
+      "confirmDisable": "Désactiver {name} ?",
+      "loadError": "Impossible de charger les utilisateurs",
+      "saveError": "Échec de l'enregistrement"
+    },
+    "roles": {
+      "title": "Rôles & permissions",
+      "subtitle": "Contrôle précis des accès par rôle",
+      "assignPermissions": "Permissions du rôle",
+      "saved": "Permissions mises à jour",
+      "loadError": "Impossible de charger les rôles",
+      "saveError": "Échec de la mise à jour"
+    }
+  }
+}

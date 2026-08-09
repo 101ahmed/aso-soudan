@@ -1,0 +1,36 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # Root → Vue SPA (avoid DirectoryIndex preferring index.php)
+    RewriteRule ^$ index.html [L]
+
+    # Laravel API / Sanctum / up probe → front controller
+    RewriteRule ^api(?:/|$) index.php [L]
+    RewriteRule ^sanctum(?:/|$) index.php [L]
+    RewriteRule ^up$ index.php [L]
+
+    # Serve existing static files (Vite assets, logo, robots.txt, …)
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Vue Router history mode ( /about, /login, … )
+    RewriteRule ^ index.html [L]
+</IfModule>
