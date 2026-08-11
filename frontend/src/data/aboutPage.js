@@ -201,6 +201,15 @@ export const aboutPage = {
       },
       path: '/secretariats/external-relations',
     },
+    {
+      key: 'sports',
+      title: { ar: 'المجال الرياضي', fr: 'Domaine sportif' },
+      items: {
+        ar: ['كرة القدم', 'البطولات', 'اللياقة', 'الأنشطة العائلية', 'تشجيع الشباب'],
+        fr: ['Football', 'Tournois', 'Fitness', 'Activités familiales', 'Jeunesse'],
+      },
+      path: '/secretariats/sports',
+    },
   ],
   orgLinks: [
     { nameKey: 'org.president', path: '/president' },
