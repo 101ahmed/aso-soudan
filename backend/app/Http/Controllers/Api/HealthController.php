@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class HealthController extends Controller
 {
@@ -13,6 +14,7 @@ class HealthController extends Controller
     {
         $database = 'ok';
         $adminExists = false;
+        $driver = config('database.default');
 
         try {
             DB::connection()->getPdo();
@@ -27,7 +29,9 @@ class HealthController extends Controller
             'app' => config('app.name'),
             'env' => config('app.env'),
             'database' => $database,
+            'db_driver' => $driver,
             'admin_exists' => $adminExists,
+            'has_tokens_table' => $database === 'ok' && Schema::hasTable('personal_access_tokens'),
             'locale' => config('app.locale'),
             'timestamp' => now()->toIso8601String(),
         ]);

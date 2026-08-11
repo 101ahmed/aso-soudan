@@ -13,6 +13,15 @@ if [[ -n "${DATABASE_URL:-}" && -z "${DB_URL:-}" ]]; then
   export DB_URL="$DATABASE_URL"
 fi
 
+# Production must use Postgres (sqlite in Docker is read-only for www-data → login 500)
+if [[ -z "${DB_URL:-}" ]]; then
+  echo "ERROR: DB_URL (or DATABASE_URL) is not set. Link the Render Postgres database to this service."
+  exit 1
+fi
+export DB_CONNECTION="${DB_CONNECTION:-pgsql}"
+# Prevent accidental sqlite fallback from config defaults
+export DB_DATABASE="${DB_DATABASE:-rdp}"
+
 # Render injects public URL automatically
 if [[ -z "${APP_URL:-}" && -n "${RENDER_EXTERNAL_URL:-}" ]]; then
   export APP_URL="$RENDER_EXTERNAL_URL"
@@ -47,6 +56,7 @@ if [[ -z "${APP_KEY:-}" ]]; then
 fi
 
 php artisan config:clear || true
+php artisan config:cache
 php artisan migrate --force
 
 # Always ensure roles + Super Admin exist (fixes empty prod DB / missed first seed)
@@ -55,6 +65,7 @@ if [[ "${SKIP_SEEDERS:-false}" != "true" ]]; then
   php artisan rdp:ensure-admin
 fi
 
+# Re-cache after seed (APP_* / DB_* already in env)
 php artisan config:cache
 php artisan route:cache || echo "WARNING: route:cache skipped"
 php artisan view:cache || true

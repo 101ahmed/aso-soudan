@@ -59,16 +59,16 @@ Au démarrage, le conteneur **seed** toujours rôles + Super Admin (sauf `SKIP_S
 
 ---
 
-## 5. Variables automatiques
+## Variables DB obligatoires (Render)
 
-L’entrypoint utilise :
+Dans **rdp-web** → **Environment**, liez la base Postgres (ou ajoutez) :
 
-| Variable Render | Usage Laravel |
+| Variable | Valeur |
 |---|---|
-| `RENDER_EXTERNAL_URL` | `APP_URL` + `FRONTEND_URL` |
-| `RENDER_EXTERNAL_HOSTNAME` | `SANCTUM_STATEFUL_DOMAINS` |
-| `DB_URL` (depuis Postgres) | connexion `pgsql` |
-| `PORT` | Apache |
+| `DB_CONNECTION` | `pgsql` |
+| `DB_URL` | *Connect* → Internal Database URL de `rdp-db` |
+
+Sans `DB_URL`, le conteneur refuse de démarrer (évite le bug SQLite en lecture seule → `Server Error` au login).
 
 ---
 
