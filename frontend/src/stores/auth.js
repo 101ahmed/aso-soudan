@@ -45,7 +45,8 @@ export const useAuthStore = defineStore('auth', {
         this.persist(data.token, data.user)
         return data.user
       } catch (error) {
-        this.error = error.response?.data?.message || error.message
+        this.error =
+          error.userMessage || error.response?.data?.message || error.message
         throw error
       } finally {
         this.loading = false

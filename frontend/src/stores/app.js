@@ -16,7 +16,8 @@ export const useAppStore = defineStore('app', {
         this.health = await fetchHealth()
       } catch (error) {
         this.health = null
-        this.healthError = error?.message || 'API unreachable'
+        this.healthError =
+          error?.userMessage || error?.message || 'API unreachable'
       } finally {
         this.loadingHealth = false
       }
