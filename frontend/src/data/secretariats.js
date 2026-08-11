@@ -144,7 +144,7 @@ export const secretariats = [
         ar: 'يشرف على التسجيلات والبرامج التعليمية ومتابعة الطلاب والمعلمين.',
         fr: 'Supervise les inscriptions, les programmes et le suivi pédagogique.',
       },
-      email: 'academic@acs-rennes.fr',
+      email: 'hima171221@gmail.com',
       photo: '/officers/academic-ibrahim-suleiman.png',
     },
     showStudentRegister: true,
