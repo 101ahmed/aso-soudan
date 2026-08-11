@@ -331,7 +331,18 @@
     "forgot": "Mot de passe oublié ?",
     "forgotTitle": "Mot de passe oublié",
     "forgotSubtitle": "Indiquez votre email pour recevoir un lien de réinitialisation.",
-    "forgotSent": "Si un compte existe, un email de réinitialisation sera envoyé."
+    "forgotSent": "Si un compte existe, un email de réinitialisation sera envoyé.",
+    "forgotFailed": "Impossible d’envoyer l’email pour le moment.",
+    "sending": "Envoi…",
+    "resetTitle": "Nouveau mot de passe",
+    "resetSubtitle": "Choisissez un nouveau mot de passe pour votre compte.",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "resetSubmit": "Réinitialiser",
+    "resetting": "Enregistrement…",
+    "resetSuccess": "Mot de passe mis à jour. Redirection vers la connexion…",
+    "resetFailed": "Lien invalide ou expiré. Demandez un nouveau lien.",
+    "resetMissingToken": "Lien incomplet : ouvrez le lien reçu par email."
   },
   "admin": {
     "loading": "Chargement…",

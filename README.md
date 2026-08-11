@@ -103,6 +103,10 @@ Login interne uniquement : http://127.0.0.1:5173/login
 
 → [`docs/deploy-render.md`](docs/deploy-render.md)
 
+Mot de passe oublié (email) :
+
+→ [`docs/password-reset.md`](docs/password-reset.md)
+
 Fichiers : `Dockerfile`, `render.yaml`, `docker/`
 
 Hébergement mutualisé cPanel (Hostinger / o2switch…) :

@@ -22,6 +22,7 @@ import StudentRegisterView from '@/views/public/StudentRegisterView.vue'
 import MemberRegisterView from '@/views/public/MemberRegisterView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue'
+import ResetPasswordView from '@/views/auth/ResetPasswordView.vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import DashboardView from '@/views/admin/DashboardView.vue'
 import UsersView from '@/views/admin/UsersView.vue'
@@ -110,6 +111,12 @@ const router = createRouter({
       path: '/forgot-password',
       name: 'forgot-password',
       component: ForgotPasswordView,
+      meta: { guest: true },
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: ResetPasswordView,
       meta: { guest: true },
     },
     {

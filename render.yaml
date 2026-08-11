@@ -55,3 +55,8 @@ services:
         value: admin@acs-rennes.fr
       - key: ADMIN_PASSWORD
         value: Password123!
+      # Email reset password — remplacer par un vrai SMTP en prod
+      - key: MAIL_MAILER
+        value: log
+      - key: MAIL_FROM_ADDRESS
+        value: noreply@acs-rennes.fr

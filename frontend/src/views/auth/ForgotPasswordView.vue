@@ -2,13 +2,29 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import api from '@/services/api'
 
 const { t } = useI18n()
 const email = ref('')
+const loading = ref(false)
 const sent = ref(false)
+const error = ref('')
 
-function submit() {
-  sent.value = true
+async function submit() {
+  error.value = ''
+  loading.value = true
+  try {
+    await api.post('/auth/forgot-password', { email: email.value })
+    sent.value = true
+  } catch (e) {
+    error.value =
+      e.userMessage ||
+      e.response?.data?.message ||
+      e.message ||
+      t('auth.forgotFailed')
+  } finally {
+    loading.value = false
+  }
 }
 </script>
 
@@ -27,11 +43,17 @@ function submit() {
           v-model="email"
           type="email"
           required
+          autocomplete="email"
           :placeholder="t('auth.email')"
           class="w-full rounded-md border border-slate-300 px-3 py-2"
         />
-        <button type="submit" class="w-full rounded-md bg-teal-800 px-4 py-2.5 text-sm font-medium text-white">
-          {{ t('forms.send') }}
+        <p v-if="error" class="text-sm text-rose-700">{{ error }}</p>
+        <button
+          type="submit"
+          class="w-full rounded-md bg-teal-800 px-4 py-2.5 text-sm font-medium text-white disabled:opacity-60"
+          :disabled="loading"
+        >
+          {{ loading ? t('auth.sending') : t('forms.send') }}
         </button>
       </form>
     </div>
