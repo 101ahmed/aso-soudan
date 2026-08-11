@@ -51,9 +51,8 @@ php artisan migrate --force
 
 # Always ensure roles + Super Admin exist (fixes empty prod DB / missed first seed)
 if [[ "${SKIP_SEEDERS:-false}" != "true" ]]; then
-  echo "Seeding roles/permissions + Super Admin…"
-  php artisan db:seed --class=Database\\Seeders\\RolePermissionSeeder --force
-  php artisan db:seed --class=Database\\Seeders\\SuperAdminSeeder --force
+  echo "Ensuring roles + Super Admin…"
+  php artisan rdp:ensure-admin
 fi
 
 php artisan config:cache

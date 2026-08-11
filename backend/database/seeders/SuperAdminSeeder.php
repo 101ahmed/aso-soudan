@@ -5,29 +5,40 @@ namespace Database\Seeders;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class SuperAdminSeeder extends Seeder
 {
     public function run(): void
     {
-        $password = env('ADMIN_PASSWORD', 'Password123!');
-        $email = env('ADMIN_EMAIL', 'admin@acs-rennes.fr');
+        $email = getenv('ADMIN_EMAIL') ?: 'admin@acs-rennes.fr';
+        $password = getenv('ADMIN_PASSWORD') ?: 'Password123!';
 
-        $user = User::query()->updateOrCreate(
-            ['email' => $email],
-            [
-                'name' => 'Super Admin',
-                'first_name' => 'Super',
-                'last_name' => 'Admin',
-                'phone' => null,
-                'locale' => 'fr',
-                'status' => 'active',
-                'password' => $password,
-                'email_verified_at' => now(),
-            ]
-        );
+        if (trim((string) $email) === '') {
+            $email = 'admin@acs-rennes.fr';
+        }
+        if (trim((string) $password) === '') {
+            $password = 'Password123!';
+        }
 
-        // Migration depuis l'ancien email de dev (.local rejeté par certains navigateurs)
+        $user = User::withTrashed()->firstOrNew(['email' => $email]);
+
+        if ($user->trashed()) {
+            $user->restore();
+        }
+
+        $user->fill([
+            'name' => 'Super Admin',
+            'first_name' => 'Super',
+            'last_name' => 'Admin',
+            'phone' => null,
+            'locale' => 'fr',
+            'status' => 'active',
+            'email_verified_at' => now(),
+        ]);
+        $user->password = $password;
+        $user->save();
+
         User::query()
             ->where('email', 'admin@rabta.local')
             ->where('id', '!=', $user->id)
@@ -37,6 +48,10 @@ class SuperAdminSeeder extends Seeder
 
         if ($role) {
             $user->roles()->syncWithoutDetaching([$role->id]);
+        }
+
+        if (! Hash::check($password, $user->fresh()->password)) {
+            throw new \RuntimeException('SuperAdminSeeder: password hash verification failed.');
         }
     }
 }
