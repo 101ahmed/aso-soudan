@@ -145,7 +145,7 @@ export const secretariats = [
         fr: 'Supervise les inscriptions, les programmes et le suivi pédagogique.',
       },
       email: 'academic@acs-rennes.fr',
-      photo: null,
+      photo: '/officers/academic-ibrahim-suleiman.png',
     },
     showStudentRegister: true,
     contactLabel: { ar: 'تواصل مع الأمانة الأكاديمية', fr: 'Contacter le secrétariat académique' },

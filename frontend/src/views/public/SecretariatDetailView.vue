@@ -64,7 +64,16 @@ function submitContact() {
         </div>
         <aside class="rounded-2xl border border-[var(--rdp-forest)]/15 bg-white p-5">
           <div class="flex items-center gap-4">
-            <div class="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-lg font-bold text-white">
+            <img
+              v-if="secretariat.officer.photo"
+              :src="secretariat.officer.photo"
+              :alt="localized(secretariat.officer.name)"
+              class="h-20 w-20 rounded-full object-cover object-top ring-2 ring-[var(--rdp-forest)]/20"
+            />
+            <div
+              v-else
+              class="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-lg font-bold text-white"
+            >
               {{ localized(secretariat.officer.name).slice(0, 1) }}
             </div>
             <div>
