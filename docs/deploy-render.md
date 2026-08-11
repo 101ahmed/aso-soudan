@@ -61,14 +61,37 @@ Au démarrage, le conteneur **seed** toujours rôles + Super Admin (sauf `SKIP_S
 
 ## Variables DB obligatoires (Render)
 
-Dans **rdp-web** → **Environment**, liez la base Postgres (ou ajoutez) :
+Dans le **Web Service** → **Environment** :
 
 | Variable | Valeur |
 |---|---|
 | `DB_CONNECTION` | `pgsql` |
-| `DB_URL` | *Connect* → Internal Database URL de `rdp-db` |
+| `DB_SSLMODE` | `require` |
+| `DB_URL` | voir ci-dessous |
 
-Sans `DB_URL`, le conteneur refuse de démarrer (évite le bug SQLite en lecture seule → `Server Error` au login).
+### Quelle URL Postgres utiliser ?
+
+1. Ouvrez la base **PostgreSQL** dans Render  
+2. Section **Connections**
+
+| URL | Quand l’utiliser |
+|---|---|
+| **Internal Database URL** | Web + DB dans la **même région** (ex. Frankfurt + Frankfurt) |
+| **External Database URL** | Si erreur `could not translate host name "dpg-..."` → **utilisez celle-ci** |
+
+Collez l’URL choisie dans `DB_URL` (ou `DATABASE_URL`), **Save**, redeploy.
+
+### Erreur DNS `could not translate host name "dpg-…"`
+
+Cause fréquente : le service web et Postgres ne sont **pas dans la même région**, donc le hostname interne (`dpg-…-a`) ne résout pas.
+
+**Correctif rapide :**
+1. Postgres → **External Database URL** → copier  
+2. Web service → Environment → `DB_URL` = cette URL  
+3. `DB_SSLMODE=require`  
+4. Save + Manual Deploy  
+
+**Correctif durable :** recréer web + DB dans la **même région**.
 
 ---
 

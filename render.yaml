@@ -4,6 +4,7 @@
 databases:
   - name: rdp-db
     plan: free
+    region: frankfurt
     databaseName: rdp
     user: rdp
 
