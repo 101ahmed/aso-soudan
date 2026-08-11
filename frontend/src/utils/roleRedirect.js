@@ -8,6 +8,7 @@ const ROLE_HOME = {
   WOMEN_CHILDREN: '/admin',
   STATISTICS_SECRETARIAT: '/admin',
   EXTERNAL_RELATIONS: '/admin',
+  SPORTS_SECRETARIAT: '/admin',
   SHURA_COUNCIL: '/admin',
   PARENTS_COUNCIL: '/admin',
   TEACHER: '/admin',

@@ -20,6 +20,7 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'WOMEN_CHILDREN', 'name_fr' => 'Femmes & Enfants', 'name_ar' => 'شؤون المرأة والطفل'],
             ['code' => 'STATISTICS_SECRETARIAT', 'name_fr' => 'Secrétariat statistiques', 'name_ar' => 'أمانة الإحصاء'],
             ['code' => 'EXTERNAL_RELATIONS', 'name_fr' => 'Relations extérieures', 'name_ar' => 'الأمانة الخارجية'],
+            ['code' => 'SPORTS_SECRETARIAT', 'name_fr' => 'Secrétariat sportif', 'name_ar' => 'الأمانة الرياضية'],
             ['code' => 'SHURA_COUNCIL', 'name_fr' => 'Conseil de la Choura', 'name_ar' => 'مجلس الشورى'],
             ['code' => 'PARENTS_COUNCIL', 'name_fr' => 'Conseil des parents', 'name_ar' => 'مجلس الآباء'],
             ['code' => 'TEACHER', 'name_fr' => 'Enseignant', 'name_ar' => 'معلم'],

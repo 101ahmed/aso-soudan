@@ -28,6 +28,7 @@
     "womenChildren": "Femmes & Enfants",
     "statistics": "Secrétariat statistiques",
     "external": "Relations extérieures",
+    "sports": "Secrétariat sportif",
     "shura": "Conseil de la Choura",
     "parents": "Conseil des parents"
   },
@@ -96,7 +97,8 @@
       "media": "Le secrétariat médias couvre l’actualité, la communication et la présence numérique de la Rabta.",
       "womenChildren": "Ce pôle accompagne les programmes dédiés aux femmes et aux enfants.",
       "statistics": "Le secrétariat statistiques produit les indicateurs et rapports utiles au pilotage.",
-      "external": "Les relations extérieures gèrent les partenariats et les contacts institutionnels."
+      "external": "Les relations extérieures gèrent les partenariats et les contacts institutionnels.",
+      "sports": "Le secrétariat sportif organise les activités, tournois et programmes sportifs de la communauté."
     },
     "shura": {
       "subtitle": "Conseil consultatif",

@@ -211,6 +211,7 @@ export const aboutPage = {
     { nameKey: 'org.womenChildren', path: '/secretariats/women-children' },
     { nameKey: 'org.statistics', path: '/secretariats/statistics' },
     { nameKey: 'org.external', path: '/secretariats/external-relations' },
+    { nameKey: 'org.sports', path: '/secretariats/sports' },
     { nameKey: 'org.shura', path: '/shura-council' },
     { nameKey: 'org.parents', path: '/parents-council' },
   ],
@@ -222,6 +223,7 @@ export const aboutPage = {
     { nameKey: 'org.womenChildren', path: '/secretariats/women-children', text: { ar: 'برامج ومبادرات الأسرة والمرأة والطفل.', fr: 'Programmes famille, femmes et enfants.' } },
     { nameKey: 'org.statistics', path: '/secretariats/statistics', text: { ar: 'إدارة البيانات والإحصاءات والتقارير.', fr: 'Données, statistiques et rapports.' } },
     { nameKey: 'org.external', path: '/secretariats/external-relations', text: { ar: 'إدارة العلاقات والشراكات الخارجية.', fr: 'Relations et partenariats externes.' } },
+    { nameKey: 'org.sports', path: '/secretariats/sports', text: { ar: 'تنظيم الأنشطة والبطولات والبرامج الرياضية.', fr: 'Activités, tournois et programmes sportifs.' } },
   ],
   councils: [
     {

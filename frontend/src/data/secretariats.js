@@ -517,6 +517,88 @@ export const secretariats = [
     },
     contactLabel: { ar: 'تواصل مع الأمانة الخارجية', fr: 'Contacter les relations extérieures' },
   },
+  {
+    slug: 'sports',
+    nameKey: 'org.sports',
+    tagline: {
+      ar: 'رياضة للجميع… صحة، تماسك وروح جماعية',
+      fr: 'Le sport pour tous — santé, cohésion et esprit d’équipe',
+    },
+    summary: {
+      ar: 'تشرف الأمانة الرياضية على تنظيم الأنشطة والبطولات والبرامج الرياضية لأبناء الجالية، وتعزيز المشاركة الصحية والمجتمعية.',
+      fr: 'Le secrétariat sportif organise activités, tournois et programmes sportifs pour la communauté, au service de la santé et du lien social.',
+    },
+    banner: 'https://images.unsplash.com/photo-1461896836934-ffe607ba6856?auto=format&fit=crop&w=1600&q=80',
+    vision: {
+      ar: 'مجتمع نشيط وصحّي يتشارك الرياضة بروح الاحترام والتعاون.',
+      fr: 'Une communauté active et en bonne santé, unie par le sport dans le respect et la coopération.',
+    },
+    mission: {
+      ar: 'تنظيم برامج رياضية شاملة تناسب مختلف الأعمار وتشجع المشاركة والتطوع.',
+      fr: 'Proposer des programmes sportifs inclusifs pour tous les âges, favorisant participation et bénévolat.',
+    },
+    objectives: {
+      ar: [
+        'تشجيع الممارسة الرياضية',
+        'تنظيم البطولات والأنشطة',
+        'تعزيز الصحة واللياقة',
+        'بناء روح الفريق والانتماء',
+      ],
+      fr: [
+        'Encourager la pratique sportive',
+        'Organiser tournois et activités',
+        'Promouvoir santé et forme',
+        'Renforcer esprit d’équipe et appartenance',
+      ],
+    },
+    tasks: {
+      ar: [
+        'تخطيط البرامج الرياضية السنوية',
+        'تنظيم المباريات والبطولات',
+        'تنسيق الفرق والفئات العمرية',
+        'متابعة المرافق والمعدات',
+        'التواصل مع المشاركين والمتطوعين',
+        'التغطية مع الأمانة الإعلامية',
+        'إعداد تقارير الأنشطة الرياضية',
+        'تشجيع مشاركة الشباب والأسرة',
+      ],
+      fr: [
+        'Planifier le programme sportif annuel',
+        'Organiser matchs et tournois',
+        'Coordonner équipes et tranches d’âge',
+        'Suivre installations et matériel',
+        'Communiquer avec participants et bénévoles',
+        'Coordonner la couverture avec les médias',
+        'Préparer les rapports d’activités sportives',
+        'Encourager la participation des jeunes et des familles',
+      ],
+    },
+    programs: {
+      ar: ['كرة القدم', 'ألعاب جماعية', 'أنشطة لياقة', 'بطولات داخلية', 'أيام رياضية عائلية'],
+      fr: ['Football', 'Sports collectifs', 'Fitness', 'Tournois internes', 'Journées sportives familiales'],
+    },
+    officer: {
+      name: { ar: 'يُعلن لاحقاً', fr: 'À annoncer' },
+      title: { ar: 'أمين الأمانة الرياضية', fr: 'Secrétaire sportif' },
+      bio: {
+        ar: 'يشرف على البرامج والأنشطة الرياضية للرابطة.',
+        fr: 'Supervise les programmes et activités sportives de la Rabta.',
+      },
+      email: 'sports@acs-rennes.fr',
+      photo: null,
+    },
+    documents: {
+      ar: [
+        { title: 'برنامج الأنشطة الرياضية', type: 'برنامج' },
+        { title: 'قواعد المشاركة في البطولات', type: 'تنظيم' },
+      ],
+      fr: [
+        { title: 'Programme des activités sportives', type: 'Programme' },
+        { title: 'Règlement des tournois', type: 'Règlement' },
+      ],
+    },
+    contactLabel: { ar: 'تواصل مع الأمانة الرياضية', fr: 'Contacter le secrétariat sportif' },
+  },
 ]
 
 export function getSecretariat(slug) {
