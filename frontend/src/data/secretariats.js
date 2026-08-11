@@ -138,7 +138,7 @@ export const secretariats = [
       { key: 'programs', value: '+8' },
     ],
     officer: {
-      name: { ar: 'يُعلن لاحقاً', fr: 'À annoncer' },
+      name: { ar: 'إبراهيم سليمان', fr: 'Ibrahim Suleiman' },
       title: { ar: 'أمين الأمانة الأكاديمية', fr: 'Secrétaire académique' },
       bio: {
         ar: 'يشرف على التسجيلات والبرامج التعليمية ومتابعة الطلاب والمعلمين.',
