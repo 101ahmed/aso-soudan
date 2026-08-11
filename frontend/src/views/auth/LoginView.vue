@@ -39,8 +39,10 @@ async function submit() {
     router.replace(redirect)
   } catch (error) {
     formError.value =
+      error.userMessage ||
       error.response?.data?.errors?.email?.[0] ||
       error.response?.data?.message ||
+      auth.error ||
       error.message ||
       t('auth.loginFailed')
   }

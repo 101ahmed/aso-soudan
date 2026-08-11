@@ -50,12 +50,12 @@ Committez puis poussez vers GitHub (fichiers utiles déjà dans le repo) :
    - service **rdp-web** (Docker free)
 4. Appliquer / Create
 
-Au premier démarrage, `RUN_SEEDERS=true` crée le Super Admin :
+Au démarrage, le conteneur **seed** toujours rôles + Super Admin (sauf `SKIP_SEEDERS=true`) :
 
-- Email : `admin@acs-rennes.fr`
-- Mot de passe : `Password123!` → **à changer immédiatement**
+- Email : `admin@acs-rennes.fr` (ou `ADMIN_EMAIL`)
+- Mot de passe : `Password123!` (ou `ADMIN_PASSWORD`)
 
-Puis dans Render → Environment : mettre `RUN_SEEDERS=false` et redéployer (évite de reseeder à chaque restart).
+→ **changez le mot de passe** après la première connexion, puis mettez `SKIP_SEEDERS=true` pour ne plus le réinitialiser à chaque redémarrage.
 
 ---
 

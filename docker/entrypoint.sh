@@ -40,7 +40,6 @@ if [[ -n "${APP_KEY:-}" ]]; then
 fi
 
 # If APP_KEY still missing, generate one so the container can boot.
-# Prefer setting a stable APP_KEY in the Render dashboard for production.
 if [[ -z "${APP_KEY:-}" ]]; then
   export APP_KEY="$(php -r "echo 'base64:' . base64_encode(random_bytes(32));")"
   echo "WARNING: APP_KEY was empty — generated a temporary key for this boot."
@@ -50,8 +49,11 @@ fi
 php artisan config:clear || true
 php artisan migrate --force
 
-if [[ "${RUN_SEEDERS:-false}" == "true" ]]; then
-  php artisan db:seed --force
+# Always ensure roles + Super Admin exist (fixes empty prod DB / missed first seed)
+if [[ "${SKIP_SEEDERS:-false}" != "true" ]]; then
+  echo "Seeding roles/permissions + Super Admin…"
+  php artisan db:seed --class=Database\\Seeders\\RolePermissionSeeder --force
+  php artisan db:seed --class=Database\\Seeders\\SuperAdminSeeder --force
 fi
 
 php artisan config:cache

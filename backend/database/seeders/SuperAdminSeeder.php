@@ -10,8 +10,11 @@ class SuperAdminSeeder extends Seeder
 {
     public function run(): void
     {
+        $password = env('ADMIN_PASSWORD', 'Password123!');
+        $email = env('ADMIN_EMAIL', 'admin@acs-rennes.fr');
+
         $user = User::query()->updateOrCreate(
-            ['email' => 'admin@acs-rennes.fr'],
+            ['email' => $email],
             [
                 'name' => 'Super Admin',
                 'first_name' => 'Super',
@@ -19,7 +22,7 @@ class SuperAdminSeeder extends Seeder
                 'phone' => null,
                 'locale' => 'fr',
                 'status' => 'active',
-                'password' => 'Password123!',
+                'password' => $password,
                 'email_verified_at' => now(),
             ]
         );

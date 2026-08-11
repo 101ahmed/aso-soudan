@@ -47,6 +47,10 @@ services:
         value: database
       - key: FILESYSTEM_DISK
         value: local
-      # true au 1er déploiement (admin), puis repasser à false
-      - key: RUN_SEEDERS
-        value: "true"
+      # true = ne pas reseeder (après prod stable)
+      - key: SKIP_SEEDERS
+        value: "false"
+      - key: ADMIN_EMAIL
+        value: admin@acs-rennes.fr
+      - key: ADMIN_PASSWORD
+        value: Password123!
