@@ -1,20 +1,12 @@
 <?php
 
+use App\Http\Controllers\SpaController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
 | SPA fallback (same-host deploy)
 |--------------------------------------------------------------------------
-| When Vue is built into public/index.html, non-API routes serve the SPA.
-| Useful with `php artisan serve` (no .htaccess) and as a safety net.
+| Controller (not closure) so `php artisan route:cache` works on Render.
 */
-Route::get('/{any?}', function () {
-    $spa = public_path('index.html');
-
-    if (file_exists($spa)) {
-        return response()->file($spa);
-    }
-
-    return view('welcome');
-})->where('any', '.*');
+Route::get('/{any?}', SpaController::class)->where('any', '.*');

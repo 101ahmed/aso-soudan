@@ -56,7 +56,7 @@ if [[ "${SKIP_SEEDERS:-false}" != "true" ]]; then
 fi
 
 php artisan config:cache
-php artisan route:cache
+php artisan route:cache || echo "WARNING: route:cache skipped"
 php artisan view:cache || true
 php artisan storage:link || true
 
