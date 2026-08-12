@@ -39,7 +39,14 @@ Le « SMTP name » du dashboard (ex. `aso-soudan-laravel`) n’est **pas** une v
 
 Sans SMTP réel (`MAIL_MAILER=log`), l’API répond OK mais **aucun email n’arrive** en boîte.
 
-## Endpoints
+## Dépannage « le mail n’arrive pas »
+
+1. **Le compte doit exister** dans `users` (sinon aucun email n’est envoyé, même si l’écran dit OK).  
+2. Sur **Render**, les variables `MAIL_*` doivent être dans le Web Service (pas seulement en local).  
+3. Regardez le dossier **Spam / Courrier indésirable**.  
+4. Dans **MailerSend → Activity**, vérifiez si le message est `delivered`, `queued` ou `rejected`.  
+5. Compte d’essai MailerSend : souvent seuls certains destinataires (email du compte) sont autorisés tant qu’aucun domaine n’est vérifié.  
+6. `MAIL_FROM_ADDRESS` doit être sur le domaine MailerSend d’essai (ex. `…@test-….mlsender.net`).
 
 | Méthode | Route | Corps |
 |---|---|---|
