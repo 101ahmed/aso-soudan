@@ -72,10 +72,19 @@ class AuthController extends Controller
         } catch (Throwable $e) {
             report($e);
 
+            $raw = $e->getMessage();
+            $message = 'Unable to send reset email. Check mail configuration.';
+
+            if (str_contains($raw, 'MS42207') || str_contains($raw, 'domain must be verified')) {
+                $message = 'MAIL_FROM_ADDRESS domain is not verified on MailerSend. Use your trial domain (…@test-….mlsender.net) or verify a custom domain.';
+            } elseif (str_contains($raw, 'api_key') || str_contains($raw, 'Unauthenticated')) {
+                $message = 'MAILERSEND_API_KEY is missing or invalid on the server.';
+            }
+
             return response()->json([
-                'message' => 'Unable to send reset email. Check mail configuration.',
-                'error' => $e->getMessage(),
-            ], 500);
+                'message' => $message,
+                'error' => $raw,
+            ], 503);
         }
 
         // Always the same response (no email enumeration)

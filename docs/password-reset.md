@@ -50,11 +50,13 @@ Vérifiez `/api/health` → `"mail_mailer":"mailersend"`.
 
 1. **Le compte doit exister** dans `users` (sinon aucun email, même si l’écran dit OK).  
 2. Sur Render : `MAIL_MAILER=mailersend` + `MAILERSEND_API_KEY` (pas seulement SMTP local).  
-3. Erreur `Unable to connect to smtp.mailersend.net:587` → passez à l’API (`mailersend`).  
-4. Message « trop de temps à répondre » : souvent SMTP qui bloque ~60 s, ou réveil Render — réessayez après `/api/health`.  
-5. Spam / Courrier indésirable.  
-6. MailerSend → **Activity** : `delivered` / `rejected`.  
-7. Compte d’essai : destinataires souvent limités (email du compte MailerSend) tant qu’aucun domaine n’est vérifié.
+3. **`MAIL_FROM_ADDRESS`** doit être sur le **domaine d’essai** du compte (ex. `noreply@test-xxxxx.mlsender.net`), pas `acs-rennes.fr` tant que ce domaine n’est pas vérifié → sinon erreur `#MS42207`.  
+4. Erreur `Unable to connect to smtp.mailersend.net:587` → passez à l’API (`mailersend`).  
+5. Message **502** : souvent redéploiement / réveil Render — ouvrez `/api/health` puis réessayez.  
+6. Spam / Courrier indésirable.  
+7. MailerSend → **Activity** : `delivered` / `rejected`.  
+8. Compte d’essai : destinataires souvent limités (email du compte MailerSend) tant qu’aucun domaine n’est vérifié.  
+9. Le compte utilisateur doit exister dans `users` (sinon réponse OK sans envoi).
 
 | Méthode | Route | Corps |
 |---|---|---|

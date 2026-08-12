@@ -28,14 +28,34 @@ async function submit() {
     )
     sent.value = true
   } catch (e) {
+    const status = e.response?.status
     const serverError = e.response?.data?.error || ''
     const serverMsg = e.response?.data?.message || ''
 
-    if (/smtp\.mailersend|Connection timed out|stream_socket_client/i.test(serverError)) {
+    if (status === 502 || status === 503 || status === 504) {
+      if (/MS42207|domain must be verified/i.test(`${serverError} ${serverMsg}`)) {
+        error.value =
+          locale.value === 'ar'
+            ? 'عنوان المرسل غير موثّق في MailerSend. ضع MAIL_FROM_ADDRESS على نطاق التجربة …@test-….mlsender.net'
+            : 'Domaine FROM non vérifié. Sur Render, MAIL_FROM_ADDRESS doit être …@test-….mlsender.net (domaine d’essai MailerSend).'
+      } else if (serverMsg && !/^Request failed/i.test(serverMsg)) {
+        error.value = serverMsg
+      } else {
+        error.value =
+          locale.value === 'ar'
+            ? 'الخادم غير جاهز (نشر أو إيقاظ Render). أعد المحاولة بعد ٣٠ ثانية.'
+            : 'Serveur indisponible (redéploiement / réveil Render). Réessayez dans 30 secondes.'
+      }
+    } else if (/smtp\.mailersend|Connection timed out|stream_socket_client/i.test(serverError)) {
       error.value =
         locale.value === 'ar'
           ? 'إرسال البريد عبر SMTP محظور على الخادم. استخدم MailerSend API على Render.'
           : 'SMTP bloqué sur Render. Configurez MAIL_MAILER=mailersend + MAILERSEND_API_KEY.'
+    } else if (/MS42207|domain must be verified/i.test(`${serverError} ${serverMsg}`)) {
+      error.value =
+        locale.value === 'ar'
+          ? 'عنوان المرسل غير موثّق في MailerSend. ضع MAIL_FROM_ADDRESS على نطاق التجربة …@test-….mlsender.net'
+          : 'Domaine FROM non vérifié. Sur Render, MAIL_FROM_ADDRESS doit être …@test-….mlsender.net (domaine d’essai MailerSend).'
     } else {
       error.value =
         e.userMessage ||
