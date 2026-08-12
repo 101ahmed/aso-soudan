@@ -26,11 +26,11 @@ const latestNews = computed(() => newsItems.slice(0, 3))
     <section class="relative min-h-[100svh] overflow-hidden">
       <div class="absolute inset-0">
         <img
-          class="hero-media h-full w-full object-cover"
-          src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=2000&q=80"
+          class="hero-media h-full w-full object-cover object-[center_30%]"
+          src="/hero-home.png"
           alt=""
         />
-        <div class="absolute inset-0 bg-[linear-gradient(115deg,rgba(18,40,28,0.9)_8%,rgba(18,40,28,0.62)_52%,rgba(18,40,28,0.35)_100%)]" />
+        <div class="absolute inset-0 bg-[linear-gradient(115deg,rgba(18,40,28,0.88)_6%,rgba(18,40,28,0.55)_48%,rgba(18,40,28,0.28)_100%)]" />
       </div>
 
       <div class="hero-copy relative z-10 mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-24">
