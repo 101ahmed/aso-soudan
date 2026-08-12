@@ -116,18 +116,6 @@ onMounted(async () => {
           >
             {{ t('home.ctaAbout') }}
           </RouterLink>
-          <RouterLink
-            to="/register/student"
-            class="inline-flex rounded border border-white/75 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
-          >
-            {{ t('home.ctaStudent') }}
-          </RouterLink>
-          <RouterLink
-            to="/register/member"
-            class="inline-flex rounded border border-white/75 px-5 py-3 text-sm font-semibold text-white hover:bg-white/10"
-          >
-            {{ t('home.ctaMember') }}
-          </RouterLink>
         </div>
       </div>
     </section>
@@ -248,25 +236,6 @@ onMounted(async () => {
         </RouterLink>
       </div>
       <PhotoCarousel :slides="homeSlides" :interval="5000" />
-    </section>
-
-    <section class="border-y border-[var(--rdp-forest)]/10 bg-[linear-gradient(120deg,#f7f3ea,#e7ece8)] py-16">
-      <div class="mx-auto flex max-w-6xl flex-col gap-6 px-5 md:flex-row md:items-center md:justify-between md:px-8">
-        <div>
-          <h2 class="font-[family-name:var(--font-display)] text-3xl font-bold text-[var(--rdp-forest)]">
-            {{ t('home.registerTitle') }}
-          </h2>
-          <p class="mt-2 max-w-xl text-slate-700">{{ t('home.registerSubtitle') }}</p>
-        </div>
-        <div class="flex flex-wrap gap-3">
-          <RouterLink to="/register/student" class="rounded bg-[var(--rdp-forest)] px-5 py-3 text-sm font-semibold text-white">
-            {{ t('home.ctaStudent') }}
-          </RouterLink>
-          <RouterLink to="/register/member" class="rounded border border-[var(--rdp-forest)] px-5 py-3 text-sm font-semibold text-[var(--rdp-forest)]">
-            {{ t('home.ctaMember') }}
-          </RouterLink>
-        </div>
-      </div>
     </section>
 
     <footer class="bg-[var(--rdp-forest)] text-white">
