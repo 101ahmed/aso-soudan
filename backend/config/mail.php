@@ -45,8 +45,14 @@ return [
             'port' => env('MAIL_PORT', 2525),
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
-            'timeout' => null,
+            // Keep short: Render free often blocks SMTP; fail fast instead of ~60s hang
+            'timeout' => (int) env('MAIL_TIMEOUT', 12),
             'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url((string) env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+        ],
+
+        // HTTP API (port 443) — required on Render free (SMTP 587 often times out)
+        'mailersend' => [
+            'transport' => 'mailersend',
         ],
 
         'ses' => [

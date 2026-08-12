@@ -4,7 +4,7 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import api from '@/services/api'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const email = ref('')
 const loading = ref(false)
 const sent = ref(false)
@@ -14,14 +14,35 @@ async function submit() {
   error.value = ''
   loading.value = true
   try {
-    await api.post('/auth/forgot-password', { email: email.value })
+    // Réveille le free tier Render avant l'envoi mail
+    try {
+      await api.get('/health', { timeout: 90000 })
+    } catch {
+      // continuer : le POST peut encore réussir
+    }
+
+    await api.post(
+      '/auth/forgot-password',
+      { email: email.value },
+      { timeout: 90000 },
+    )
     sent.value = true
   } catch (e) {
-    error.value =
-      e.userMessage ||
-      e.response?.data?.message ||
-      e.message ||
-      t('auth.forgotFailed')
+    const serverError = e.response?.data?.error || ''
+    const serverMsg = e.response?.data?.message || ''
+
+    if (/smtp\.mailersend|Connection timed out|stream_socket_client/i.test(serverError)) {
+      error.value =
+        locale.value === 'ar'
+          ? 'إرسال البريد عبر SMTP محظور على الخادم. استخدم MailerSend API على Render.'
+          : 'SMTP bloqué sur Render. Configurez MAIL_MAILER=mailersend + MAILERSEND_API_KEY.'
+    } else {
+      error.value =
+        e.userMessage ||
+        serverMsg ||
+        e.message ||
+        t('auth.forgotFailed')
+    }
   } finally {
     loading.value = false
   }

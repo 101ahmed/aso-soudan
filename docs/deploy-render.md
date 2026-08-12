@@ -95,35 +95,29 @@ Cause fréquente : le service web et Postgres ne sont **pas dans la même régio
 
 ---
 
-## 6. Email (mot de passe oublié) — MailerSend
+## 6. Email (mot de passe oublié) — MailerSend **API**
 
-Sans SMTP, l’API répond OK mais **aucun mail n’arrive** (`MAIL_MAILER=log`).
-
-Dans le **Web Service** → **Environment**, ajoutez :
+Sur Render free, **SMTP port 587 time out** souvent. Utilisez l’API HTTP :
 
 | Variable | Valeur |
 |---|---|
-| `MAIL_MAILER` | `smtp` |
-| `MAIL_SCHEME` | `smtp` |
-| `MAIL_HOST` | `smtp.mailersend.net` |
-| `MAIL_PORT` | `587` |
-| `MAIL_USERNAME` | *(SMTP user MailerSend)* |
-| `MAIL_PASSWORD` | *(SMTP password MailerSend)* |
+| `MAIL_MAILER` | `mailersend` |
+| `MAILERSEND_API_KEY` | *(token API MailerSend, pas le mot de passe SMTP)* |
 | `MAIL_FROM_ADDRESS` | `noreply@test-….mlsender.net` |
 | `MAIL_FROM_NAME` | `Rabta ACS Rennes` |
 | `FRONTEND_URL` | `https://aso-soudan.onrender.com` |
 | `APP_URL` | `https://aso-soudan.onrender.com` |
 
-Puis **Save** → **Manual Deploy**. Vérifiez `/api/health` → `mail_mailer` doit être `smtp`.
+Puis **Save** → **Manual Deploy**. Vérifiez `/api/health` → `mail_mailer` = **`mailersend`**.
 
-Compte d’essai MailerSend : seuls certains destinataires (souvent l’email du compte) sont autorisés tant qu’aucun domaine n’est vérifié. Voir aussi `docs/password-reset.md`.
+Voir `docs/password-reset.md`.
 
 ## 7. Checklist de validation
 
 | # | Test | Attendu |
 |---|---|---|
 | 1 | `https://VOTRE-SERVICE.onrender.com/` | Accueil public |
-| 2 | `…/api/health` | `{"status":"ok",…,"database":"ok","mail_mailer":"smtp"}` |
+| 2 | `…/api/health` | `{"status":"ok",…,"mail_mailer":"mailersend"}` |
 | 3 | `…/about` + refresh | Page من نحن (pas 404) |
 | 4 | `…/login` | Connexion admin |
 | 5 | Changer le mot de passe admin | OK |

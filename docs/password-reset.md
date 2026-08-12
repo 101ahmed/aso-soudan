@@ -19,34 +19,42 @@ FRONTEND_URL=http://127.0.0.1:5173
 
 Les emails sont écrits dans `backend/storage/logs/laravel.log` (chercher le lien `reset-password`).
 
-## Production (Render) — MailerSend
+Pour tester une vraie boîte en local :
 
-Dans le Web Service → **Environment**, ajoutez :
+```env
+MAIL_MAILER=mailersend
+MAILERSEND_API_KEY=mlsn.xxxxx
+MAIL_FROM_ADDRESS=noreply@test-….mlsender.net
+MAIL_FROM_NAME="Rabta ACS Rennes"
+```
+
+## Production (Render) — MailerSend **API** (pas SMTP)
+
+Sur le **free tier Render**, le SMTP (`smtp.mailersend.net:587`) **time out** souvent (ports SMTP filtrés).  
+Utilisez l’**API HTTP** MailerSend (port 443) :
 
 | Variable | Valeur |
 |---|---|
-| `MAIL_MAILER` | `smtp` |
-| `MAIL_SCHEME` | `smtp` |
-| `MAIL_HOST` | `smtp.mailersend.net` |
-| `MAIL_PORT` | `587` |
-| `MAIL_USERNAME` | *(SMTP username MailerSend)* |
-| `MAIL_PASSWORD` | *(SMTP password MailerSend)* |
-| `MAIL_FROM_ADDRESS` | `noreply@…mlsender.net` (domaine d’essai MailerSend) |
+| `MAIL_MAILER` | `mailersend` |
+| `MAILERSEND_API_KEY` | *(API token MailerSend → Settings → API tokens)* |
+| `MAIL_FROM_ADDRESS` | `noreply@…mlsender.net` (domaine d’essai) |
 | `MAIL_FROM_NAME` | `Rabta ACS Rennes` |
 | `FRONTEND_URL` | `https://aso-soudan.onrender.com` |
+| `APP_URL` | `https://aso-soudan.onrender.com` |
 
-Le « SMTP name » du dashboard (ex. `aso-soudan-laravel`) n’est **pas** une variable Laravel.
+Le « SMTP name » / user `MS_…@….mlsender.net` **ne remplace pas** `MAILERSEND_API_KEY`.
 
-Sans SMTP réel (`MAIL_MAILER=log`), l’API répond OK mais **aucun email n’arrive** en boîte.
+Vérifiez `/api/health` → `"mail_mailer":"mailersend"`.
 
 ## Dépannage « le mail n’arrive pas »
 
-1. **Le compte doit exister** dans `users` (sinon aucun email n’est envoyé, même si l’écran dit OK).  
-2. Sur **Render**, les variables `MAIL_*` doivent être dans le Web Service (pas seulement en local).  
-3. Regardez le dossier **Spam / Courrier indésirable**.  
-4. Dans **MailerSend → Activity**, vérifiez si le message est `delivered`, `queued` ou `rejected`.  
-5. Compte d’essai MailerSend : souvent seuls certains destinataires (email du compte) sont autorisés tant qu’aucun domaine n’est vérifié.  
-6. `MAIL_FROM_ADDRESS` doit être sur le domaine MailerSend d’essai (ex. `…@test-….mlsender.net`).
+1. **Le compte doit exister** dans `users` (sinon aucun email, même si l’écran dit OK).  
+2. Sur Render : `MAIL_MAILER=mailersend` + `MAILERSEND_API_KEY` (pas seulement SMTP local).  
+3. Erreur `Unable to connect to smtp.mailersend.net:587` → passez à l’API (`mailersend`).  
+4. Message « trop de temps à répondre » : souvent SMTP qui bloque ~60 s, ou réveil Render — réessayez après `/api/health`.  
+5. Spam / Courrier indésirable.  
+6. MailerSend → **Activity** : `delivered` / `rejected`.  
+7. Compte d’essai : destinataires souvent limités (email du compte MailerSend) tant qu’aucun domaine n’est vérifié.
 
 | Méthode | Route | Corps |
 |---|---|---|

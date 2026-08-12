@@ -60,19 +60,10 @@ services:
         value: https://aso-soudan.onrender.com
       - key: FRONTEND_URL
         value: https://aso-soudan.onrender.com
-      # SMTP MailerSend : à définir dans le dashboard Render (Environment).
-      # Tant que MAIL_MAILER=log (défaut Laravel), aucun email n'arrive en boîte.
+      # MailerSend HTTP API (SMTP 587 timeout sur Render free)
       - key: MAIL_MAILER
-        sync: false
-      - key: MAIL_SCHEME
-        sync: false
-      - key: MAIL_HOST
-        sync: false
-      - key: MAIL_PORT
-        sync: false
-      - key: MAIL_USERNAME
-        sync: false
-      - key: MAIL_PASSWORD
+        value: mailersend
+      - key: MAILERSEND_API_KEY
         sync: false
       - key: MAIL_FROM_ADDRESS
         sync: false
