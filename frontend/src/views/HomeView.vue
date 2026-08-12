@@ -1,5 +1,5 @@
 <script setup>
-import { computed } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/public/SectionHeading.vue'
@@ -11,14 +11,46 @@ import {
   recentActivities,
   upcomingEvents,
 } from '@/data/publicContent'
+import { fetchPublicNews } from '@/services/content'
 
 const { t, locale } = useI18n()
+const apiNews = ref([])
 
 function localized(item) {
   return item?.[locale.value] || item?.fr || item?.ar || ''
 }
 
-const latestNews = computed(() => newsItems.slice(0, 3))
+const latestNews = computed(() => {
+  if (apiNews.value.length) {
+    return apiNews.value.slice(0, 3).map((item) => ({
+      id: item.id,
+      slug: item.slug,
+      image: item.image_url || '/logo.png',
+      date: (item.published_at || '').slice(0, 10),
+      title: { ar: item.title_ar, fr: item.title_fr },
+      excerpt: {
+        ar: (item.content_ar || '').slice(0, 120),
+        fr: (item.content_fr || '').slice(0, 120),
+      },
+    }))
+  }
+  return newsItems.slice(0, 3)
+})
+
+onMounted(async () => {
+  try {
+    const data = await fetchPublicNews({ home: 1, per_page: 6 })
+    const homeItems = data.data || []
+    if (homeItems.length) {
+      apiNews.value = homeItems
+      return
+    }
+    const featured = await fetchPublicNews({ featured: 1, per_page: 6 })
+    apiNews.value = featured.data || []
+  } catch {
+    apiNews.value = []
+  }
+})
 </script>
 
 <template>

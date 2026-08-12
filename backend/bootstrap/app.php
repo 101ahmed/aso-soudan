@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // Auth par Bearer token (Sanctum) — pas de CSRF session SPA
         $middleware->alias([
             'permission' => \App\Http\Middleware\EnsureUserHasPermission::class,
+            'department' => \App\Http\Middleware\EnsureDepartmentAccess::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

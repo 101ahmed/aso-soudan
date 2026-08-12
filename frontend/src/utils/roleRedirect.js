@@ -1,14 +1,17 @@
+import { primaryDepartmentCode, ROLE_TO_DEPARTMENT } from '@/utils/departmentAccess'
+
 const ROLE_HOME = {
   SUPER_ADMIN: '/admin',
   PRESIDENT: '/admin/president',
-  GENERAL_SECRETARIAT: '/admin',
-  ACADEMIC_SECRETARIAT: '/admin',
-  SOCIAL_SECRETARIAT: '/admin',
-  MEDIA_SECRETARIAT: '/admin',
-  WOMEN_CHILDREN: '/admin',
-  STATISTICS_SECRETARIAT: '/admin',
-  EXTERNAL_RELATIONS: '/admin',
-  SPORTS_SECRETARIAT: '/admin',
+  GENERAL_SECRETARIAT: '/admin/secretariats/general',
+  ACADEMIC_SECRETARIAT: '/admin/secretariats/academic',
+  SOCIAL_SECRETARIAT: '/admin/secretariats/social',
+  MEDIA_SECRETARIAT: '/admin/secretariats/media',
+  WOMEN_CHILDREN: '/admin/secretariats/women-children',
+  STATISTICS_SECRETARIAT: '/admin/secretariats/statistics',
+  EXTERNAL_RELATIONS: '/admin/secretariats/external-relations',
+  SPORTS_SECRETARIAT: '/admin/secretariats/sports',
+  CONTENT_EDITOR: '/admin',
   SHURA_COUNCIL: '/admin',
   PARENTS_COUNCIL: '/admin',
   TEACHER: '/admin',
@@ -26,11 +29,19 @@ export function resolvePostLoginPath(user) {
   if (codes.includes('SUPER_ADMIN')) {
     return ROLE_HOME.SUPER_ADMIN
   }
-  if (codes.includes('ACADEMIC_SECRETARIAT')) {
-    return ROLE_HOME.ACADEMIC_SECRETARIAT
+
+  const primary = primaryDepartmentCode(user)
+  if (primary) {
+    return `/admin/secretariats/${primary}`
   }
-  if (codes.includes('STATISTICS_SECRETARIAT')) {
-    return ROLE_HOME.STATISTICS_SECRETARIAT
+
+  for (const code of codes) {
+    const dept = ROLE_TO_DEPARTMENT[code]
+    if (dept) return `/admin/secretariats/${dept}`
+  }
+
+  if (codes.includes('CONTENT_EDITOR')) {
+    return ROLE_HOME.CONTENT_EDITOR
   }
   if (codes.includes('TEACHER')) {
     return ROLE_HOME.TEACHER

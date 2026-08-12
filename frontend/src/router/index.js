@@ -26,6 +26,11 @@ import ResetPasswordView from '@/views/auth/ResetPasswordView.vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import DashboardView from '@/views/admin/DashboardView.vue'
 import PresidentDashboardView from '@/views/admin/PresidentDashboardView.vue'
+import SecretariatAdminShell from '@/views/admin/secretariat/SecretariatAdminShell.vue'
+import SecretariatHomeView from '@/views/admin/secretariat/SecretariatHomeView.vue'
+import SecretariatNewsView from '@/views/admin/secretariat/SecretariatNewsView.vue'
+import SecretariatAnnouncementsView from '@/views/admin/secretariat/SecretariatAnnouncementsView.vue'
+import SecretariatAlbumsView from '@/views/admin/secretariat/SecretariatAlbumsView.vue'
 import UsersView from '@/views/admin/UsersView.vue'
 import UserFormView from '@/views/admin/UserFormView.vue'
 import RolesView from '@/views/admin/RolesView.vue'
@@ -126,6 +131,17 @@ const router = createRouter({
           name: 'admin.president',
           component: PresidentDashboardView,
           meta: { roles: ['PRESIDENT', 'SUPER_ADMIN'] },
+        },
+        {
+          path: 'secretariats/:code',
+          component: SecretariatAdminShell,
+          props: true,
+          children: [
+            { path: '', name: 'admin.secretariat', component: SecretariatHomeView },
+            { path: 'news', name: 'admin.secretariat.news', component: SecretariatNewsView },
+            { path: 'announcements', name: 'admin.secretariat.announcements', component: SecretariatAnnouncementsView },
+            { path: 'albums', name: 'admin.secretariat.albums', component: SecretariatAlbumsView },
+          ],
         },
         { path: 'users', name: 'admin.users', component: UsersView, meta: { permission: 'user.view' } },
         { path: 'users/create', name: 'admin.users.create', component: UserFormView, meta: { permission: 'user.create' } },

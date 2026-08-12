@@ -46,6 +46,50 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'user_roles')->withTimestamps();
     }
 
+    public function departments(): BelongsToMany
+    {
+        return $this->belongsToMany(Department::class, 'department_user')
+            ->withPivot('is_primary')
+            ->withTimestamps();
+    }
+
+    public function belongsToDepartment(Department|string|int $department): bool
+    {
+        if ($this->hasRole('SUPER_ADMIN')) {
+            return true;
+        }
+
+        if ($department instanceof Department) {
+            $id = $department->id;
+            $code = $department->code;
+        } elseif (is_numeric($department)) {
+            $id = (int) $department;
+            $code = null;
+        } else {
+            $id = null;
+            $code = (string) $department;
+        }
+
+        $this->loadMissing('departments');
+
+        return $this->departments->contains(function (Department $item) use ($id, $code) {
+            return ($id && $item->id === $id) || ($code && $item->code === $code);
+        });
+    }
+
+    public function canAccessDepartment(Department|string $department, bool $write = false): bool
+    {
+        if ($this->hasRole('SUPER_ADMIN')) {
+            return true;
+        }
+
+        if ($this->hasRole('PRESIDENT') && ! $write) {
+            return true;
+        }
+
+        return $this->belongsToDepartment($department);
+    }
+
     public function isActive(): bool
     {
         return $this->status === 'active';

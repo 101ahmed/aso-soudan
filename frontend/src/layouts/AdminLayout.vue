@@ -4,10 +4,16 @@ import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { applyDocumentDirection } from '@/i18n'
+import { primaryDepartmentCode } from '@/utils/departmentAccess'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
+
+const secretariatLink = computed(() => {
+  const code = primaryDepartmentCode(auth.user)
+  return code ? `/admin/secretariats/${code}` : null
+})
 
 const links = computed(() => [
   { to: '/admin', label: t('admin.nav.dashboard'), show: true },
@@ -15,6 +21,11 @@ const links = computed(() => [
     to: '/admin/president',
     label: t('admin.nav.president'),
     show: auth.user?.roles?.some((r) => ['PRESIDENT', 'SUPER_ADMIN'].includes(r.code)),
+  },
+  {
+    to: secretariatLink.value || '/admin',
+    label: t('admin.nav.secretariat'),
+    show: Boolean(secretariatLink.value),
   },
   { to: '/admin/users', label: t('admin.nav.users'), show: auth.hasPermission('user.view') },
   { to: '/admin/roles', label: t('admin.nav.roles'), show: auth.hasPermission('role.view') },

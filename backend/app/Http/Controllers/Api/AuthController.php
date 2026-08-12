@@ -23,7 +23,7 @@ class AuthController extends Controller
     {
         try {
             $user = User::query()
-                ->with('roles.permissions')
+                ->with(['roles.permissions', 'departments'])
                 ->where('email', $request->string('email')->toString())
                 ->first();
 
@@ -48,7 +48,7 @@ class AuthController extends Controller
             return response()->json([
                 'token' => $token,
                 'token_type' => 'Bearer',
-                'user' => (new UserResource($user->fresh()->load('roles.permissions')))->resolve(),
+                'user' => (new UserResource($user->fresh()->load(['roles.permissions', 'departments'])))->resolve(),
             ]);
         } catch (ValidationException $e) {
             throw $e;
@@ -123,7 +123,7 @@ class AuthController extends Controller
 
     public function me(Request $request): JsonResponse
     {
-        $user = $request->user()->load('roles.permissions');
+        $user = $request->user()->load(['roles.permissions', 'departments']);
 
         return response()->json([
             'data' => (new UserResource($user))->resolve(),

@@ -21,6 +21,7 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'STATISTICS_SECRETARIAT', 'name_fr' => 'Secrétariat statistiques', 'name_ar' => 'أمانة الإحصاء'],
             ['code' => 'EXTERNAL_RELATIONS', 'name_fr' => 'Relations extérieures', 'name_ar' => 'الأمانة الخارجية'],
             ['code' => 'SPORTS_SECRETARIAT', 'name_fr' => 'Secrétariat sportif', 'name_ar' => 'الأمانة الرياضية'],
+            ['code' => 'CONTENT_EDITOR', 'name_fr' => 'Éditeur de contenu', 'name_ar' => 'محرر محتوى'],
             ['code' => 'SHURA_COUNCIL', 'name_fr' => 'Conseil de la Choura', 'name_ar' => 'مجلس الشورى'],
             ['code' => 'PARENTS_COUNCIL', 'name_fr' => 'Conseil des parents', 'name_ar' => 'مجلس الآباء'],
             ['code' => 'TEACHER', 'name_fr' => 'Enseignant', 'name_ar' => 'معلم'],
@@ -58,8 +59,20 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'report.view', 'module' => 'reports', 'name_fr' => 'Voir rapports', 'name_ar' => 'عرض التقارير'],
             ['code' => 'report.export', 'module' => 'reports', 'name_fr' => 'Exporter rapports', 'name_ar' => 'تصدير التقارير'],
             ['code' => 'statistics.view', 'module' => 'statistics', 'name_fr' => 'Voir statistiques', 'name_ar' => 'عرض الإحصاءات'],
+            ['code' => 'news.view', 'module' => 'news', 'name_fr' => 'Voir actualités', 'name_ar' => 'عرض الأخبار'],
             ['code' => 'news.create', 'module' => 'news', 'name_fr' => 'Créer actualité', 'name_ar' => 'إنشاء خبر'],
+            ['code' => 'news.update', 'module' => 'news', 'name_fr' => 'Modifier actualité', 'name_ar' => 'تعديل خبر'],
+            ['code' => 'news.delete', 'module' => 'news', 'name_fr' => 'Supprimer actualité', 'name_ar' => 'حذف خبر'],
             ['code' => 'news.publish', 'module' => 'news', 'name_fr' => 'Publier actualité', 'name_ar' => 'نشر خبر'],
+            ['code' => 'announcement.view', 'module' => 'announcements', 'name_fr' => 'Voir annonces', 'name_ar' => 'عرض الإعلانات'],
+            ['code' => 'announcement.create', 'module' => 'announcements', 'name_fr' => 'Créer annonce', 'name_ar' => 'إنشاء إعلان'],
+            ['code' => 'announcement.update', 'module' => 'announcements', 'name_fr' => 'Modifier annonce', 'name_ar' => 'تعديل إعلان'],
+            ['code' => 'announcement.delete', 'module' => 'announcements', 'name_fr' => 'Supprimer annonce', 'name_ar' => 'حذف إعلان'],
+            ['code' => 'announcement.publish', 'module' => 'announcements', 'name_fr' => 'Publier annonce', 'name_ar' => 'نشر إعلان'],
+            ['code' => 'gallery.view', 'module' => 'gallery', 'name_fr' => 'Voir galerie', 'name_ar' => 'عرض المعرض'],
+            ['code' => 'gallery.manage', 'module' => 'gallery', 'name_fr' => 'Gérer galerie', 'name_ar' => 'إدارة المعرض'],
+            ['code' => 'gallery.publish', 'module' => 'gallery', 'name_fr' => 'Publier album', 'name_ar' => 'نشر ألبوم'],
+            ['code' => 'content.review', 'module' => 'content', 'name_fr' => 'Réviser contenu', 'name_ar' => 'مراجعة المحتوى'],
             ['code' => 'event.create', 'module' => 'events', 'name_fr' => 'Créer événement', 'name_ar' => 'إنشاء فعالية'],
             ['code' => 'event.update', 'module' => 'events', 'name_fr' => 'Modifier événement', 'name_ar' => 'تعديل فعالية'],
         ];
@@ -78,24 +91,52 @@ class RolePermissionSeeder extends Seeder
             ?->permissions()
             ->sync($allPermissionIds);
 
-        $academic = Role::query()->where('code', 'ACADEMIC_SECRETARIAT')->first();
-        $academic?->permissions()->sync(
+        $contentCodes = [
+            'news.view', 'news.create', 'news.update', 'news.delete', 'news.publish',
+            'announcement.view', 'announcement.create', 'announcement.update', 'announcement.delete', 'announcement.publish',
+            'gallery.view', 'gallery.manage', 'gallery.publish',
+            'content.review',
+            'event.create', 'event.update',
+        ];
+
+        $contentOnlyIds = Permission::query()->whereIn('code', $contentCodes)->pluck('id');
+
+        Role::query()->where('code', 'CONTENT_EDITOR')->first()?->permissions()->sync($contentOnlyIds);
+
+        Role::query()->where('code', 'PRESIDENT')->first()?->permissions()->sync(
             Permission::query()->whereIn('code', [
-                'user.view',
-                'student.view', 'student.create', 'student.update',
-                'teacher.view', 'teacher.create',
-                'attendance.view', 'attendance.create',
-                'report.view',
+                'news.view', 'announcement.view', 'gallery.view', 'report.view', 'statistics.view',
             ])->pluck('id')
         );
 
-        $stats = Role::query()->where('code', 'STATISTICS_SECRETARIAT')->first();
-        $stats?->permissions()->sync(
-            Permission::query()->whereIn('code', [
+        $secretariatManagerCodes = array_merge($contentCodes, [
+            'user.view',
+            'report.view',
+        ]);
+
+        $managerRoleMap = [
+            'GENERAL_SECRETARIAT' => $secretariatManagerCodes,
+            'ACADEMIC_SECRETARIAT' => array_merge($secretariatManagerCodes, [
+                'student.view', 'student.create', 'student.update',
+                'teacher.view', 'teacher.create',
+                'attendance.view', 'attendance.create',
+            ]),
+            'SOCIAL_SECRETARIAT' => $secretariatManagerCodes,
+            'MEDIA_SECRETARIAT' => $secretariatManagerCodes,
+            'WOMEN_CHILDREN' => $secretariatManagerCodes,
+            'STATISTICS_SECRETARIAT' => array_merge($contentCodes, [
                 'statistics.view', 'report.view', 'report.export',
                 'student.view', 'teacher.view', 'attendance.view',
-            ])->pluck('id')
-        );
+            ]),
+            'EXTERNAL_RELATIONS' => $secretariatManagerCodes,
+            'SPORTS_SECRETARIAT' => $secretariatManagerCodes,
+        ];
+
+        foreach ($managerRoleMap as $roleCode => $codes) {
+            Role::query()->where('code', $roleCode)->first()?->permissions()->sync(
+                Permission::query()->whereIn('code', $codes)->pluck('id')
+            );
+        }
 
         $teacher = Role::query()->where('code', 'TEACHER')->first();
         $teacher?->permissions()->sync(

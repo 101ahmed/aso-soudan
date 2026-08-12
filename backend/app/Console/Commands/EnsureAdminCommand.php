@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Models\Role;
 use App\Models\User;
+use Database\Seeders\DepartmentSeeder;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Hash;
@@ -20,6 +21,10 @@ class EnsureAdminCommand extends Command
     {
         $this->call('db:seed', [
             '--class' => RolePermissionSeeder::class,
+            '--force' => true,
+        ]);
+        $this->call('db:seed', [
+            '--class' => DepartmentSeeder::class,
             '--force' => true,
         ]);
 

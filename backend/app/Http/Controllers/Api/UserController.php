@@ -7,6 +7,7 @@ use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Support\DepartmentRoleMap;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -48,15 +49,16 @@ class UserController extends Controller
 
         $user = User::query()->create($data);
         $user->roles()->sync($roleIds);
+        DepartmentRoleMap::syncUserDepartmentsFromRoles($user->fresh('roles'));
 
-        return (new UserResource($user->load('roles')))
+        return (new UserResource($user->load(['roles', 'departments'])))
             ->response()
             ->setStatusCode(201);
     }
 
     public function show(User $user): UserResource
     {
-        return new UserResource($user->load('roles.permissions'));
+        return new UserResource($user->load(['roles.permissions', 'departments']));
     }
 
     public function update(UpdateUserRequest $request, User $user): UserResource
@@ -79,9 +81,10 @@ class UserController extends Controller
 
         if (is_array($roleIds)) {
             $user->roles()->sync($roleIds);
+            DepartmentRoleMap::syncUserDepartmentsFromRoles($user->fresh('roles'));
         }
 
-        return new UserResource($user->fresh()->load('roles.permissions'));
+        return new UserResource($user->fresh()->load(['roles.permissions', 'departments']));
     }
 
     public function destroy(User $user): JsonResponse

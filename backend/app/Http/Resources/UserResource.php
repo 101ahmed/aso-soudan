@@ -26,6 +26,15 @@ class UserResource extends JsonResource
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
             'roles' => RoleResource::collection($this->whenLoaded('roles')),
+            'departments' => $this->whenLoaded('departments', function () {
+                return $this->departments->map(fn ($d) => [
+                    'id' => $d->id,
+                    'code' => $d->code,
+                    'name_ar' => $d->name_ar,
+                    'name_fr' => $d->name_fr,
+                    'is_primary' => (bool) ($d->pivot?->is_primary),
+                ])->values();
+            }),
             'permissions' => $this->when($rolesLoadedWithPermissions, fn () => $this->permissionCodes()),
         ];
     }

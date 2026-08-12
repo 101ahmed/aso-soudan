@@ -1,5 +1,5 @@
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { getSecretariat } from '@/data/secretariats'
@@ -8,10 +8,12 @@ import {
   eventsBySecretariat,
   newsBySecretariat,
 } from '@/data/publicContent'
+import { fetchSecretariatFeed } from '@/services/content'
 
 const route = useRoute()
 const { t, locale } = useI18n()
 const sent = ref(false)
+const feed = ref({ news: [], announcements: [], albums: [] })
 
 const form = reactive({
   name: '',
@@ -21,9 +23,35 @@ const form = reactive({
 })
 
 const secretariat = computed(() => getSecretariat(route.params.slug))
-const news = computed(() => newsBySecretariat(route.params.slug))
+
+const news = computed(() => {
+  if (feed.value.news?.length) {
+    return feed.value.news.map((item) => ({
+      id: item.id,
+      slug: item.slug,
+      image: item.image_url || '/logo.png',
+      date: (item.published_at || '').slice(0, 10),
+      title: { ar: item.title_ar, fr: item.title_fr },
+    }))
+  }
+  return newsBySecretariat(route.params.slug)
+})
+
+const announcements = computed(() => feed.value.announcements || [])
+
 const events = computed(() => eventsBySecretariat(route.params.slug))
-const albums = computed(() => albumsBySecretariat(route.params.slug))
+
+const albums = computed(() => {
+  if (feed.value.albums?.length) {
+    return feed.value.albums.map((item) => ({
+      id: item.id,
+      slug: String(item.id),
+      cover: item.cover_url || item.media?.[0]?.url || '/logo.png',
+      title: { ar: item.title_ar, fr: item.title_fr },
+    }))
+  }
+  return albumsBySecretariat(route.params.slug)
+})
 
 const localized = (value) => value?.[locale.value] || value?.fr || value?.ar || ''
 const list = (value) => {
@@ -34,6 +62,22 @@ const list = (value) => {
 function submitContact() {
   sent.value = true
 }
+
+async function loadFeed(slug) {
+  try {
+    feed.value = await fetchSecretariatFeed(slug)
+  } catch {
+    feed.value = { news: [], announcements: [], albums: [] }
+  }
+}
+
+watch(
+  () => route.params.slug,
+  (slug) => {
+    if (slug) loadFeed(slug)
+  },
+  { immediate: true },
+)
 </script>
 
 <template>
@@ -275,6 +319,23 @@ function submitContact() {
         <RouterLink to="/gallery" class="mt-4 inline-flex text-sm font-semibold text-[var(--rdp-forest)] hover:underline">
           {{ t('home.galleryCta') }}
         </RouterLink>
+      </section>
+
+      <!-- Announcements (API) -->
+      <section v-if="announcements.length">
+        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('secretariatAdmin.announcements') }}</h2>
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+          <article
+            v-for="item in announcements"
+            :key="item.id"
+            class="rounded-xl border border-[var(--rdp-forest)]/10 bg-white p-4"
+          >
+            <h3 class="font-semibold">{{ locale === 'ar' ? item.title_ar : item.title_fr }}</h3>
+            <p class="mt-2 text-sm text-slate-600">
+              {{ locale === 'ar' ? item.content_ar : item.content_fr }}
+            </p>
+          </article>
+        </div>
       </section>
 
       <!-- News -->
