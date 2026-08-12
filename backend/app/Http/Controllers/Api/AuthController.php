@@ -80,7 +80,7 @@ class AuthController extends Controller
 
         // Always the same response (no email enumeration)
         return response()->json([
-            'message' => __('passwords.sent'),
+            'message' => 'Si un compte existe pour cet email, un lien de réinitialisation a été envoyé.',
             'status' => $status === Password::RESET_LINK_SENT ? 'sent' : 'accepted',
         ]);
     }

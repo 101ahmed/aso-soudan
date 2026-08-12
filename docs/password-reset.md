@@ -19,22 +19,23 @@ FRONTEND_URL=http://127.0.0.1:5173
 
 Les emails sont écrits dans `backend/storage/logs/laravel.log` (chercher le lien `reset-password`).
 
-## Production (Render)
+## Production (Render) — MailerSend
 
-Dans **Environment** du Web Service :
+Dans le Web Service → **Environment**, ajoutez :
 
-```env
-FRONTEND_URL=https://aso-soudan.onrender.com
-MAIL_MAILER=smtp
-MAIL_HOST=...
-MAIL_PORT=587
-MAIL_USERNAME=...
-MAIL_PASSWORD=...
-MAIL_FROM_ADDRESS=noreply@votre-domaine.fr
-MAIL_FROM_NAME=Rabta ACS Rennes
-```
+| Variable | Valeur |
+|---|---|
+| `MAIL_MAILER` | `smtp` |
+| `MAIL_SCHEME` | `smtp` |
+| `MAIL_HOST` | `smtp.mailersend.net` |
+| `MAIL_PORT` | `587` |
+| `MAIL_USERNAME` | *(SMTP username MailerSend)* |
+| `MAIL_PASSWORD` | *(SMTP password MailerSend)* |
+| `MAIL_FROM_ADDRESS` | `noreply@…mlsender.net` (domaine d’essai MailerSend) |
+| `MAIL_FROM_NAME` | `Rabta ACS Rennes` |
+| `FRONTEND_URL` | `https://aso-soudan.onrender.com` |
 
-Fournisseurs simples : **Resend**, **Mailgun**, **Brevo**, SMTP OVH/Hostinger.
+Le « SMTP name » du dashboard (ex. `aso-soudan-laravel`) n’est **pas** une variable Laravel.
 
 Sans SMTP réel (`MAIL_MAILER=log`), l’API répond OK mais **aucun email n’arrive** en boîte.
 
