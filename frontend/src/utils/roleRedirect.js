@@ -1,6 +1,6 @@
 const ROLE_HOME = {
   SUPER_ADMIN: '/admin',
-  PRESIDENT: '/admin',
+  PRESIDENT: '/admin/president',
   GENERAL_SECRETARIAT: '/admin',
   ACADEMIC_SECRETARIAT: '/admin',
   SOCIAL_SECRETARIAT: '/admin',
@@ -20,8 +20,11 @@ export function resolvePostLoginPath(user) {
   const roles = user?.roles || []
   const codes = roles.map((role) => role.code)
 
-  if (codes.includes('SUPER_ADMIN') || codes.includes('PRESIDENT')) {
+  if (codes.includes('PRESIDENT') && !codes.includes('SUPER_ADMIN')) {
     return ROLE_HOME.PRESIDENT
+  }
+  if (codes.includes('SUPER_ADMIN')) {
+    return ROLE_HOME.SUPER_ADMIN
   }
   if (codes.includes('ACADEMIC_SECRETARIAT')) {
     return ROLE_HOME.ACADEMIC_SECRETARIAT

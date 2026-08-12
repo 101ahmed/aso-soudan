@@ -11,6 +11,11 @@ const router = useRouter()
 
 const links = computed(() => [
   { to: '/admin', label: t('admin.nav.dashboard'), show: true },
+  {
+    to: '/admin/president',
+    label: t('admin.nav.president'),
+    show: auth.user?.roles?.some((r) => ['PRESIDENT', 'SUPER_ADMIN'].includes(r.code)),
+  },
   { to: '/admin/users', label: t('admin.nav.users'), show: auth.hasPermission('user.view') },
   { to: '/admin/roles', label: t('admin.nav.roles'), show: auth.hasPermission('role.view') },
 ].filter((link) => link.show))

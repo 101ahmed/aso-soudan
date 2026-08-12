@@ -12,6 +12,7 @@ const isHome = computed(() => route.name === 'home')
 const links = computed(() => [
   { to: '/', label: t('nav.home') },
   { to: '/about', label: t('nav.about') },
+  { to: '/president', label: t('nav.president') },
   { to: '/secretariats', label: t('nav.secretariats') },
   { to: '/shura-council', label: t('nav.shura') },
   { to: '/parents-council', label: t('nav.parents') },

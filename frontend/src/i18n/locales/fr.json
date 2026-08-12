@@ -14,6 +14,7 @@
     "events": "Événements",
     "gallery": "Galerie",
     "contact": "Contact",
+    "president": "Président",
     "status": "État du système",
     "login": "Connexion",
     "menu": "Menu",
@@ -162,6 +163,54 @@
       "children": "Programmes enfants",
       "cultural": "Activités culturelles",
       "community": "Événements communautaires"
+    }
+  },
+  "president": {
+    "message": "Mot du Président",
+    "vision": "Notre vision",
+    "missions": "Missions",
+    "priorities": "Priorités",
+    "toCommunity": "Message à la communauté",
+    "toParents": "Aux parents",
+    "toYouth": "Aux jeunes de la communauté",
+    "initiatives": "Initiatives majeures",
+    "news": "Actualités du Président",
+    "meetings": "Rencontres et visites",
+    "partnerships": "Partenariats et relations",
+    "achievements": "Réalisations",
+    "stats": "Chiffres de la Rabta",
+    "statsNote": "Indicateurs généraux sans données personnelles.",
+    "contact": "Contacter la Rabta",
+    "contactText": "Utilisez le formulaire officiel. Le secrétariat général orientera le message. Le téléphone et l’email personnels du président ne sont pas publiés.",
+    "dash": {
+      "title": "Tableau de bord du Président",
+      "welcome": "Bienvenue {name}",
+      "note": "Vision large et suivi transverse, avec modification limitée selon le besoin.",
+      "menuTitle": "Suivi",
+      "comingSoon": "Les indicateurs, rapports et notifications seront progressivement reliés aux données du système.",
+      "publicPage": "Voir la page publique du Président",
+      "kpis": {
+        "members": "Membres",
+        "students": "Élèves",
+        "teachers": "Enseignants",
+        "secretariats": "Secrétariats",
+        "events": "Événements",
+        "attendance": "Assiduité académique",
+        "requests": "Nouvelles demandes",
+        "reports": "Nouveaux rapports"
+      },
+      "menu": {
+        "overview": "Vue d’ensemble",
+        "secretariats": "Secrétariats",
+        "members": "Membres",
+        "academic": "Système académique",
+        "stats": "Statistiques",
+        "reports": "Rapports",
+        "events": "Événements",
+        "shura": "Conseil de la Choura",
+        "parents": "Conseil des parents",
+        "external": "Relations extérieures"
+      }
     }
   },
   "privacy": {
@@ -355,6 +404,7 @@
     "next": "Suivant",
     "nav": {
       "dashboard": "Tableau de bord",
+      "president": "Espace Président",
       "users": "Utilisateurs",
       "roles": "Rôles & permissions"
     },

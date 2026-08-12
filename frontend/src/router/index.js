@@ -4,12 +4,12 @@ import { resolvePostLoginPath } from '@/utils/roleRedirect'
 import PublicLayout from '@/layouts/PublicLayout.vue'
 import HomeView from '@/views/HomeView.vue'
 import StatusView from '@/views/StatusView.vue'
-import StaticPageView from '@/views/public/StaticPageView.vue'
 import SecretariatsView from '@/views/public/SecretariatsView.vue'
 import SecretariatDetailView from '@/views/public/SecretariatDetailView.vue'
 import ShuraCouncilView from '@/views/public/ShuraCouncilView.vue'
 import ParentsCouncilView from '@/views/public/ParentsCouncilView.vue'
 import AboutView from '@/views/public/AboutView.vue'
+import PresidentView from '@/views/public/PresidentView.vue'
 import PrivacyPolicyView from '@/views/public/PrivacyPolicyView.vue'
 import NewsListView from '@/views/public/NewsListView.vue'
 import NewsDetailView from '@/views/public/NewsDetailView.vue'
@@ -25,6 +25,7 @@ import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue'
 import ResetPasswordView from '@/views/auth/ResetPasswordView.vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import DashboardView from '@/views/admin/DashboardView.vue'
+import PresidentDashboardView from '@/views/admin/PresidentDashboardView.vue'
 import UsersView from '@/views/admin/UsersView.vue'
 import UserFormView from '@/views/admin/UserFormView.vue'
 import RolesView from '@/views/admin/RolesView.vue'
@@ -59,12 +60,7 @@ const router = createRouter({
         {
           path: 'president',
           name: 'president',
-          component: StaticPageView,
-          props: {
-            titleKey: 'org.president',
-            subtitleKey: 'pages.president.subtitle',
-            bodyKey: 'pages.president.body',
-          },
+          component: PresidentView,
         },
         { path: 'secretariats', name: 'secretariats', component: SecretariatsView },
         {
@@ -125,6 +121,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         { path: '', name: 'admin.dashboard', component: DashboardView },
+        {
+          path: 'president',
+          name: 'admin.president',
+          component: PresidentDashboardView,
+          meta: { roles: ['PRESIDENT', 'SUPER_ADMIN'] },
+        },
         { path: 'users', name: 'admin.users', component: UsersView, meta: { permission: 'user.view' } },
         { path: 'users/create', name: 'admin.users.create', component: UserFormView, meta: { permission: 'user.create' } },
         { path: 'users/:id', name: 'admin.users.edit', component: UserFormView, meta: { permission: 'user.update' } },
@@ -159,6 +161,14 @@ router.beforeEach(async (to) => {
 
   if (to.meta.permission && !auth.hasPermission(to.meta.permission)) {
     return resolvePostLoginPath(auth.user)
+  }
+
+  if (to.meta.roles?.length) {
+    const codes = (auth.user?.roles || []).map((role) => role.code)
+    const allowed = to.meta.roles.some((role) => codes.includes(role))
+    if (!allowed) {
+      return resolvePostLoginPath(auth.user)
+    }
   }
 
   return true
