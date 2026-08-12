@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Support\MediaUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 /** @mixin \App\Models\News */
 class NewsResource extends JsonResource
@@ -19,7 +19,7 @@ class NewsResource extends JsonResource
             'content_fr' => $this->content_fr,
             'slug' => $this->slug,
             'image_path' => $this->image_path,
-            'image_url' => $this->image_path ? Storage::disk('public')->url($this->image_path) : null,
+            'image_url' => MediaUrl::absolute($this->image_path),
             'status' => $this->status,
             'is_featured' => (bool) $this->is_featured,
             'show_on_home' => (bool) $this->show_on_home,

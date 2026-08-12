@@ -69,3 +69,5 @@ services:
         sync: false
       - key: MAIL_FROM_NAME
         value: Rabta ACS Rennes
+      - key: CONTACT_EMAIL
+        value: hima171221@gmail.com

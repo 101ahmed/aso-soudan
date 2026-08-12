@@ -12,7 +12,12 @@ const ROLE_HOME = {
   EXTERNAL_RELATIONS: '/admin/secretariats/external-relations',
   SPORTS_SECRETARIAT: '/admin/secretariats/sports',
   CONTENT_EDITOR: '/admin',
-  SHURA_COUNCIL: '/admin',
+  SHURA_COUNCIL: '/admin/shura',
+  SHURA_PRESIDENT: '/admin/shura',
+  SHURA_VICE_PRESIDENT: '/admin/shura',
+  SHURA_SECRETARY: '/admin/shura',
+  SHURA_MEMBER: '/admin/shura',
+  SHURA_CONTENT_EDITOR: '/admin/shura',
   PARENTS_COUNCIL: '/admin',
   TEACHER: '/admin',
   PARENT: '/admin',
@@ -28,6 +33,11 @@ export function resolvePostLoginPath(user) {
   }
   if (codes.includes('SUPER_ADMIN')) {
     return ROLE_HOME.SUPER_ADMIN
+  }
+
+  const shuraRole = codes.find((c) => c.startsWith('SHURA_'))
+  if (shuraRole) {
+    return ROLE_HOME[shuraRole] || '/admin/shura'
   }
 
   const primary = primaryDepartmentCode(user)

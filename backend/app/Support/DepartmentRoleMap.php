@@ -16,6 +16,12 @@ class DepartmentRoleMap
         'STATISTICS_SECRETARIAT' => 'statistics',
         'EXTERNAL_RELATIONS' => 'external-relations',
         'SPORTS_SECRETARIAT' => 'sports',
+        'SHURA_COUNCIL' => 'shura',
+        'SHURA_PRESIDENT' => 'shura',
+        'SHURA_VICE_PRESIDENT' => 'shura',
+        'SHURA_SECRETARY' => 'shura',
+        'SHURA_MEMBER' => 'shura',
+        'SHURA_CONTENT_EDITOR' => 'shura',
     ];
 
     public static function codeForRole(string $roleCode): ?string

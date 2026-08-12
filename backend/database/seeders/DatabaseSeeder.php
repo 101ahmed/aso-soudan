@@ -12,6 +12,8 @@ class DatabaseSeeder extends Seeder
             RolePermissionSeeder::class,
             DepartmentSeeder::class,
             SuperAdminSeeder::class,
+            ShuraMemberSeeder::class,
+            AcademicAttendanceSeeder::class,
         ]);
     }
 }

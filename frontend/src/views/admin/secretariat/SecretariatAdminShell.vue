@@ -16,12 +16,19 @@ const route = useRoute()
 const allowed = computed(() => canAccessDepartment(auth.user, props.code, { write: false }))
 const base = computed(() => `/admin/secretariats/${props.code}`)
 
-const links = computed(() => [
-  { to: base.value, label: t('secretariatAdmin.home'), exact: true },
-  { to: `${base.value}/news`, label: t('secretariatAdmin.news') },
-  { to: `${base.value}/announcements`, label: t('secretariatAdmin.announcements') },
-  { to: `${base.value}/albums`, label: t('secretariatAdmin.albums') },
-])
+const links = computed(() => {
+  const items = [
+    { to: base.value, label: t('secretariatAdmin.home'), exact: true },
+    { to: `${base.value}/officer`, label: t('secretariatAdmin.officer') },
+    { to: `${base.value}/news`, label: t('secretariatAdmin.news') },
+    { to: `${base.value}/announcements`, label: t('secretariatAdmin.announcements') },
+    { to: `${base.value}/albums`, label: t('secretariatAdmin.albums') },
+  ]
+  if (props.code === 'academic' && (auth.hasPermission('attendance.view') || auth.hasPermission('student.view'))) {
+    items.push({ to: `${base.value}/attendance`, label: t('secretariatAdmin.attendance') })
+  }
+  return items
+})
 
 function isActive(link) {
   if (link.exact) return route.path === link.to

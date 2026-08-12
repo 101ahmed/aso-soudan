@@ -22,6 +22,7 @@ class Announcement extends Model
         'ends_at',
         'show_on_secretariat',
         'show_on_home',
+        'visibility',
         'status',
         'author_id',
     ];

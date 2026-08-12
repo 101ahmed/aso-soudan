@@ -104,37 +104,69 @@ class AdminAlbumController extends Controller
         return new AlbumResource($album->fresh()->load(['department', 'media']));
     }
 
-    public function storeMedia(Request $request, string $code, Album $album): MediaResource
+    public function storeMedia(Request $request, string $code, Album $album): JsonResponse
     {
         $this->authorizePermission($request, 'gallery.manage');
         $this->assertSameDepartment($request, $album->department_id);
 
-        $data = $request->validate([
-            'image' => ['required', 'image', 'max:8192'],
+        $request->validate([
+            'image' => ['nullable', 'image', 'max:8192'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['nullable', 'image', 'max:8192'],
             'caption_ar' => ['nullable', 'string', 'max:255'],
             'caption_fr' => ['nullable', 'string', 'max:255'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
         ]);
 
-        $path = $request->file('image')->store('albums/'.$album->id, 'public');
+        $files = $this->collectImageFiles($request);
 
-        $media = Media::query()->create([
-            'album_id' => $album->id,
-            'path' => $path,
-            'disk' => 'public',
-            'mime_type' => $request->file('image')->getMimeType(),
-            'type' => 'image',
-            'caption_ar' => $data['caption_ar'] ?? null,
-            'caption_fr' => $data['caption_fr'] ?? null,
-            'sort_order' => $data['sort_order'] ?? 0,
-            'uploaded_by' => $request->user()->id,
-        ]);
-
-        if (! $album->cover_path) {
-            $album->update(['cover_path' => $path]);
+        if ($files === []) {
+            return response()->json([
+                'message' => 'Image required.',
+                'errors' => ['images' => ['Please select at least one image file.']],
+            ], 422);
         }
 
-        return new MediaResource($media);
+        $created = [];
+        $sort = (int) ($request->input('sort_order') ?? ($album->media()->max('sort_order') ?? 0));
+
+        foreach ($files as $file) {
+            if (! $file->isValid()) {
+                continue;
+            }
+
+            $sort++;
+            $path = $file->store('albums/'.$album->id, 'public');
+
+            $created[] = Media::query()->create([
+                'album_id' => $album->id,
+                'path' => $path,
+                'disk' => 'public',
+                'mime_type' => $file->getMimeType(),
+                'type' => 'image',
+                'caption_ar' => $request->input('caption_ar'),
+                'caption_fr' => $request->input('caption_fr'),
+                'sort_order' => $sort,
+                'uploaded_by' => $request->user()->id,
+            ]);
+
+            if (! $album->cover_path) {
+                $album->update(['cover_path' => $path]);
+                $album->refresh();
+            }
+        }
+
+        if ($created === []) {
+            return response()->json([
+                'message' => 'Upload failed.',
+                'errors' => ['images' => ['Could not store files. Max size is 8 MB per image.']],
+            ], 422);
+        }
+
+        return response()->json([
+            'data' => MediaResource::collection(collect($created))->resolve(),
+            'album' => (new AlbumResource($album->fresh()->load(['department', 'media'])))->resolve(),
+        ], 201);
     }
 
     public function destroyMedia(Request $request, string $code, Album $album, Media $media): JsonResponse
@@ -143,10 +175,37 @@ class AdminAlbumController extends Controller
         $this->assertSameDepartment($request, $album->department_id);
         abort_unless($media->album_id === $album->id, 404);
 
+        $wasCover = $album->cover_path && $album->cover_path === $media->path;
+
         Storage::disk($media->disk ?: 'public')->delete($media->path);
         $media->delete();
 
-        return response()->json(['message' => 'Deleted.']);
+        if ($wasCover) {
+            $next = $album->media()->orderBy('sort_order')->orderBy('id')->first();
+            $album->update(['cover_path' => $next?->path]);
+        }
+
+        return response()->json([
+            'message' => 'Deleted.',
+            'album' => (new AlbumResource($album->fresh()->load(['department', 'media'])))->resolve(),
+        ]);
+    }
+
+    /**
+     * @return list<\Illuminate\Http\UploadedFile>
+     */
+    private function collectImageFiles(Request $request): array
+    {
+        $files = [];
+
+        if ($request->hasFile('images')) {
+            $uploaded = $request->file('images');
+            $files = is_array($uploaded) ? $uploaded : [$uploaded];
+        } elseif ($request->hasFile('image')) {
+            $files = [$request->file('image')];
+        }
+
+        return array_values(array_filter($files));
     }
 
     private function validated(Request $request, ?Album $album = null): array
@@ -157,7 +216,9 @@ class AdminAlbumController extends Controller
             'description_ar' => ['nullable', 'string'],
             'description_fr' => ['nullable', 'string'],
             'status' => ['nullable', Rule::in(['draft', 'pending_review', 'published', 'archived'])],
-            'cover' => ['nullable', 'image', 'max:5120'],
+            'show_on_home' => ['nullable', 'boolean'],
+            'show_on_gallery' => ['nullable', 'boolean'],
+            'cover' => ['nullable', 'image', 'max:8192'],
         ]);
     }
 

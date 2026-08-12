@@ -110,6 +110,7 @@ class AdminAnnouncementController extends Controller
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'show_on_secretariat' => ['sometimes', 'boolean'],
             'show_on_home' => ['sometimes', 'boolean'],
+            'visibility' => ['nullable', Rule::in(['public', 'internal'])],
             'status' => ['nullable', Rule::in(['draft', 'pending_review', 'published', 'archived'])],
         ]);
     }

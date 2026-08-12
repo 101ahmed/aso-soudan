@@ -3,6 +3,7 @@ import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import SectionHeading from '@/components/public/SectionHeading.vue'
+import PhotoCarousel from '@/components/public/PhotoCarousel.vue'
 import {
   galleryAlbums,
   newsItems,
@@ -11,10 +12,12 @@ import {
   recentActivities,
   upcomingEvents,
 } from '@/data/publicContent'
-import { fetchPublicNews } from '@/services/content'
+import { fetchPublicAlbums, fetchPublicNews } from '@/services/content'
+import { albumsToSlides } from '@/utils/gallerySlides'
 
 const { t, locale } = useI18n()
 const apiNews = ref([])
+const apiAlbums = ref([])
 
 function localized(item) {
   return item?.[locale.value] || item?.fr || item?.ar || ''
@@ -37,18 +40,33 @@ const latestNews = computed(() => {
   return newsItems.slice(0, 3)
 })
 
+const homeSlides = computed(() => {
+  const source = apiAlbums.value.length ? apiAlbums.value : galleryAlbums
+  const slides = albumsToSlides(source, locale.value)
+  return slides.length ? slides : albumsToSlides(galleryAlbums, locale.value)
+})
+
 onMounted(async () => {
   try {
     const data = await fetchPublicNews({ home: 1, per_page: 6 })
     const homeItems = data.data || []
     if (homeItems.length) {
       apiNews.value = homeItems
-      return
+    } else {
+      const featured = await fetchPublicNews({ featured: 1, per_page: 6 })
+      apiNews.value = featured.data || []
     }
-    const featured = await fetchPublicNews({ featured: 1, per_page: 6 })
-    apiNews.value = featured.data || []
   } catch {
     apiNews.value = []
+  }
+
+  try {
+    const albums = await fetchPublicAlbums({ home: 1, per_page: 8 })
+    apiAlbums.value = albums.data?.length
+      ? albums.data
+      : (await fetchPublicAlbums({ per_page: 8 })).data || []
+  } catch {
+    apiAlbums.value = []
   }
 })
 </script>
@@ -229,17 +247,7 @@ onMounted(async () => {
           {{ t('home.galleryCta') }}
         </RouterLink>
       </div>
-      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <RouterLink
-          v-for="album in galleryAlbums"
-          :key="album.slug"
-          :to="`/gallery/${album.slug}`"
-          class="group overflow-hidden rounded-xl"
-        >
-          <img :src="album.cover" alt="" class="h-44 w-full object-cover transition duration-500 group-hover:scale-105" />
-          <p class="mt-2 text-sm font-medium text-[var(--rdp-forest)]">{{ localized(album.title) }}</p>
-        </RouterLink>
-      </div>
+      <PhotoCarousel :slides="homeSlides" :interval="5000" />
     </section>
 
     <section class="border-y border-[var(--rdp-forest)]/10 bg-[linear-gradient(120deg,#f7f3ea,#e7ece8)] py-16">
@@ -272,7 +280,8 @@ onMounted(async () => {
         </div>
         <div class="text-sm text-white/80">
           <p class="mb-2 font-semibold text-white">{{ t('nav.contact') }}</p>
-          <RouterLink to="/contact" class="hover:text-[var(--rdp-gold)]">{{ t('home.footerContact') }}</RouterLink>
+          <a href="mailto:hima171221@gmail.com" class="block hover:text-[var(--rdp-gold)]">hima171221@gmail.com</a>
+          <RouterLink to="/contact" class="mt-1 inline-flex hover:text-[var(--rdp-gold)]">{{ t('home.footerContact') }}</RouterLink>
         </div>
         <div class="text-sm text-white/70">
           <p>{{ t('home.footerNote') }}</p>

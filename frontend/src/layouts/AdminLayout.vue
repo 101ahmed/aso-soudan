@@ -23,6 +23,12 @@ const links = computed(() => [
     show: auth.user?.roles?.some((r) => ['PRESIDENT', 'SUPER_ADMIN'].includes(r.code)),
   },
   {
+    to: '/admin/shura',
+    label: t('admin.nav.shura'),
+    show: auth.user?.roles?.some((r) => String(r.code).startsWith('SHURA_'))
+      || auth.hasPermission('shura.member.view'),
+  },
+  {
     to: secretariatLink.value || '/admin',
     label: t('admin.nav.secretariat'),
     show: Boolean(secretariatLink.value),

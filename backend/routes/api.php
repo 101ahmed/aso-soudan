@@ -1,13 +1,17 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AdminAcademicAttendanceController;
 use App\Http\Controllers\Api\Admin\AdminAlbumController;
 use App\Http\Controllers\Api\Admin\AdminAnnouncementController;
 use App\Http\Controllers\Api\Admin\AdminDepartmentController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
+use App\Http\Controllers\Api\Admin\AdminShuraController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\PermissionController;
+use App\Http\Controllers\Api\Public\PublicContactController;
 use App\Http\Controllers\Api\Public\PublicContentController;
+use App\Http\Controllers\Api\Public\PublicShuraController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -22,6 +26,10 @@ Route::prefix('public')->group(function () {
     Route::get('/announcements', [PublicContentController::class, 'announcements']);
     Route::get('/albums', [PublicContentController::class, 'albums']);
     Route::get('/albums/{album}', [PublicContentController::class, 'albumShow']);
+    Route::get('/shura/members', [PublicShuraController::class, 'members']);
+    Route::get('/shura/meetings', [PublicShuraController::class, 'meetings']);
+    Route::get('/contact', [PublicContactController::class, 'info']);
+    Route::post('/contact', [PublicContactController::class, 'store']);
 });
 
 Route::prefix('auth')->group(function () {
@@ -52,10 +60,37 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/admin/departments', [AdminDepartmentController::class, 'index']);
 
+    Route::prefix('admin/shura')->group(function () {
+        Route::get('/overview', [AdminShuraController::class, 'overview']);
+        Route::get('/members', [AdminShuraController::class, 'membersIndex']);
+        Route::post('/members', [AdminShuraController::class, 'membersStore']);
+        Route::put('/members/{member}', [AdminShuraController::class, 'membersUpdate']);
+        Route::post('/members/{member}', [AdminShuraController::class, 'membersUpdate']);
+        Route::delete('/members/{member}', [AdminShuraController::class, 'membersDestroy']);
+        Route::get('/meetings', [AdminShuraController::class, 'meetingsIndex']);
+        Route::post('/meetings', [AdminShuraController::class, 'meetingsStore']);
+        Route::put('/meetings/{meeting}', [AdminShuraController::class, 'meetingsUpdate']);
+        Route::delete('/meetings/{meeting}', [AdminShuraController::class, 'meetingsDestroy']);
+        Route::post('/meetings/{meeting}/attendance', [AdminShuraController::class, 'syncAttendance']);
+    });
+
+    Route::prefix('admin/academic')->group(function () {
+        Route::get('/attendance/overview', [AdminAcademicAttendanceController::class, 'overview']);
+        Route::get('/subjects', [AdminAcademicAttendanceController::class, 'subjects']);
+        Route::get('/subjects/{subject}/classes', [AdminAcademicAttendanceController::class, 'classesBySubject']);
+        Route::get('/classes/{classGroup}/sessions', [AdminAcademicAttendanceController::class, 'sessionsIndex']);
+        Route::post('/classes/{classGroup}/sessions', [AdminAcademicAttendanceController::class, 'sessionsStore']);
+        Route::get('/sessions/{session}/sheet', [AdminAcademicAttendanceController::class, 'sheet']);
+        Route::post('/sessions/{session}/sheet', [AdminAcademicAttendanceController::class, 'syncSheet']);
+        Route::get('/students/{student}/attendance', [AdminAcademicAttendanceController::class, 'studentReport']);
+    });
+
     Route::prefix('admin/departments/{code}')
         ->middleware('department:read')
         ->group(function () {
             Route::get('/', [AdminDepartmentController::class, 'show']);
+            Route::post('/officer', [AdminDepartmentController::class, 'updateOfficer'])->middleware('department:write');
+            Route::put('/officer', [AdminDepartmentController::class, 'updateOfficer'])->middleware('department:write');
 
             Route::get('/news', [AdminNewsController::class, 'index'])->middleware('permission:news.view');
             Route::post('/news', [AdminNewsController::class, 'store'])->middleware(['permission:news.create', 'department:write']);

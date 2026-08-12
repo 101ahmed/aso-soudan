@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Support\MediaUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 /** @mixin \App\Models\Media */
 class MediaResource extends JsonResource
@@ -14,7 +14,7 @@ class MediaResource extends JsonResource
         return [
             'id' => $this->id,
             'path' => $this->path,
-            'url' => $this->path ? Storage::disk($this->disk ?: 'public')->url($this->path) : null,
+            'url' => MediaUrl::absolute($this->path, $this->disk ?: 'public'),
             'mime_type' => $this->mime_type,
             'type' => $this->type,
             'caption_ar' => $this->caption_ar,

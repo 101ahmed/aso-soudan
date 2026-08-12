@@ -19,12 +19,23 @@ class Department extends Model
         'description_fr',
         'is_active',
         'sort_order',
+        'officer_name_ar',
+        'officer_name_fr',
+        'officer_title_ar',
+        'officer_title_fr',
+        'officer_bio_ar',
+        'officer_bio_fr',
+        'officer_email',
+        'officer_phone',
+        'officer_photo_path',
+        'officer_is_public',
     ];
 
     protected function casts(): array
     {
         return [
             'is_active' => 'boolean',
+            'officer_is_public' => 'boolean',
         ];
     }
 

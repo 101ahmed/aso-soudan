@@ -23,6 +23,11 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'SPORTS_SECRETARIAT', 'name_fr' => 'Secrétariat sportif', 'name_ar' => 'الأمانة الرياضية'],
             ['code' => 'CONTENT_EDITOR', 'name_fr' => 'Éditeur de contenu', 'name_ar' => 'محرر محتوى'],
             ['code' => 'SHURA_COUNCIL', 'name_fr' => 'Conseil de la Choura', 'name_ar' => 'مجلس الشورى'],
+            ['code' => 'SHURA_PRESIDENT', 'name_fr' => 'Président de la Choura', 'name_ar' => 'رئيس مجلس الشورى'],
+            ['code' => 'SHURA_VICE_PRESIDENT', 'name_fr' => 'Vice-président Choura', 'name_ar' => 'نائب رئيس مجلس الشورى'],
+            ['code' => 'SHURA_SECRETARY', 'name_fr' => 'Rapporteur Choura', 'name_ar' => 'مقرر مجلس الشورى'],
+            ['code' => 'SHURA_MEMBER', 'name_fr' => 'Membre Choura', 'name_ar' => 'عضو مجلس الشورى'],
+            ['code' => 'SHURA_CONTENT_EDITOR', 'name_fr' => 'Éditeur contenu Choura', 'name_ar' => 'محرر محتوى الشورى'],
             ['code' => 'PARENTS_COUNCIL', 'name_fr' => 'Conseil des parents', 'name_ar' => 'مجلس الآباء'],
             ['code' => 'TEACHER', 'name_fr' => 'Enseignant', 'name_ar' => 'معلم'],
             ['code' => 'PARENT', 'name_fr' => 'Parent', 'name_ar' => 'ولي أمر'],
@@ -75,6 +80,15 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'content.review', 'module' => 'content', 'name_fr' => 'Réviser contenu', 'name_ar' => 'مراجعة المحتوى'],
             ['code' => 'event.create', 'module' => 'events', 'name_fr' => 'Créer événement', 'name_ar' => 'إنشاء فعالية'],
             ['code' => 'event.update', 'module' => 'events', 'name_fr' => 'Modifier événement', 'name_ar' => 'تعديل فعالية'],
+            ['code' => 'shura.member.view', 'module' => 'shura', 'name_fr' => 'Voir membres Choura', 'name_ar' => 'عرض أعضاء الشورى'],
+            ['code' => 'shura.member.manage', 'module' => 'shura', 'name_fr' => 'Gérer membres Choura', 'name_ar' => 'إدارة أعضاء الشورى'],
+            ['code' => 'shura.meeting.view', 'module' => 'shura', 'name_fr' => 'Voir réunions Choura', 'name_ar' => 'عرض اجتماعات الشورى'],
+            ['code' => 'shura.meeting.manage', 'module' => 'shura', 'name_fr' => 'Gérer réunions Choura', 'name_ar' => 'إدارة اجتماعات الشورى'],
+            ['code' => 'shura.proposal.view', 'module' => 'shura', 'name_fr' => 'Voir propositions', 'name_ar' => 'عرض المقترحات'],
+            ['code' => 'shura.proposal.create', 'module' => 'shura', 'name_fr' => 'Créer proposition', 'name_ar' => 'تقديم مقترح'],
+            ['code' => 'shura.proposal.manage', 'module' => 'shura', 'name_fr' => 'Gérer propositions', 'name_ar' => 'إدارة المقترحات'],
+            ['code' => 'shura.document.view', 'module' => 'shura', 'name_fr' => 'Voir documents Choura', 'name_ar' => 'عرض وثائق الشورى'],
+            ['code' => 'shura.document.manage', 'module' => 'shura', 'name_fr' => 'Gérer documents Choura', 'name_ar' => 'إدارة وثائق الشورى'],
         ];
 
         foreach ($permissions as $permission) {
@@ -144,5 +158,46 @@ class RolePermissionSeeder extends Seeder
                 'student.view', 'attendance.view', 'attendance.create',
             ])->pluck('id')
         );
+
+        $shuraContent = $contentCodes;
+        $shuraMember = [
+            'shura.member.view',
+            'shura.meeting.view',
+            'shura.proposal.view', 'shura.proposal.create',
+            'shura.document.view',
+            'news.view', 'announcement.view', 'gallery.view',
+        ];
+        $shuraSecretary = array_merge($shuraMember, [
+            'shura.meeting.manage',
+            'shura.document.manage',
+            'announcement.create', 'announcement.update', 'announcement.publish',
+            'gallery.manage', 'gallery.publish',
+            'news.create', 'news.update',
+        ]);
+        $shuraVice = array_merge($shuraSecretary, [
+            'news.publish', 'news.delete',
+            'announcement.delete',
+            'shura.proposal.manage',
+            'content.review',
+        ]);
+        $shuraPresident = array_merge($shuraVice, [
+            'shura.member.manage',
+            'report.view',
+        ]);
+
+        $shuraMap = [
+            'SHURA_PRESIDENT' => $shuraPresident,
+            'SHURA_VICE_PRESIDENT' => $shuraVice,
+            'SHURA_SECRETARY' => $shuraSecretary,
+            'SHURA_MEMBER' => $shuraMember,
+            'SHURA_CONTENT_EDITOR' => $shuraContent,
+            'SHURA_COUNCIL' => $shuraMember,
+        ];
+
+        foreach ($shuraMap as $roleCode => $codes) {
+            Role::query()->where('code', $roleCode)->first()?->permissions()->sync(
+                Permission::query()->whereIn('code', $codes)->pluck('id')
+            );
+        }
     }
 }

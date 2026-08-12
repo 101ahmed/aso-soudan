@@ -65,8 +65,8 @@
       "womenChildren": "أنشطة المرأة والطفل",
       "cultural": "الأنشطة الثقافية"
     },
-    "galleryTitle": "معرض الصور",
-    "galleryCta": "مشاهدة معرض الصور",
+    "galleryTitle": "أحدث أنشطة الرابطة",
+    "galleryCta": "عرض معرض الصور بالكامل",
     "registerTitle": "التسجيل الإلكتروني",
     "registerSubtitle": "يمكنكم إرسال الطلبات دون الحاجة إلى تسجيل الدخول.",
     "seeAll": "عرض الكل",
@@ -118,11 +118,15 @@
       "registered": "تم تسجيل مشاركتكم بنجاح. سنتواصل معكم عند الحاجة."
     },
     "gallery": {
-      "subtitle": "لحظات من حياة الرابطة"
+      "subtitle": "لحظات من حياة الرابطة",
+      "empty": "لا توجد صور في هذا الألبوم حالياً."
     },
     "contact": {
       "subtitle": "راسلونا دون إنشاء حساب",
-      "success": "تم إرسال الرسالة. سيتواصل معكم المسؤول المختص قريباً."
+      "success": "تم استلام رسالتكم على hima171221@gmail.com. سيتواصل معكم المسؤول قريباً.",
+      "error": "تعذر إرسال الرسالة حالياً.",
+      "sending": "جاري الإرسال…",
+      "emailLabel": "تُستلم رسائل تواصل معنا على"
     }
   },
   "about": {
@@ -309,6 +313,49 @@
       "programs": "البرامج"
     }
   },
+  "academicAttendance": {
+    "title": "الحضور حسب المادة",
+    "subtitle": "متابعة الحضور والغياب لكل مادة في السنة الدراسية الحالية.",
+    "forbidden": "صلاحية attendance.view مطلوبة.",
+    "year": "السنة الدراسية",
+    "students": "الطلاب",
+    "subjects": "المواد",
+    "subject": "المادة",
+    "classes": "الفصول",
+    "sessions": "الحصص",
+    "present": "حاضر",
+    "absent": "غائب",
+    "late": "متأخر",
+    "excused": "معذور",
+    "open": "فتح",
+    "back": "رجوع",
+    "bySubjectHint": "اختر فصلاً ثم سجّل ورقة الحضور.",
+    "room": "القاعة",
+    "newSession": "حصة جديدة",
+    "date": "التاريخ",
+    "time": "الوقت",
+    "sheet": "ورقة الحضور",
+    "noSessions": "لا توجد حصص لهذا الفصل.",
+    "noStudents": "لا يوجد طلاب مسجلون في هذا الفصل.",
+    "student": "الطالب",
+    "status": "الحالة",
+    "notes": "ملاحظة",
+    "saved": "تم حفظ الحضور.",
+    "saving": "جاري الحفظ…",
+    "markAllPresent": "الكل حاضر",
+    "statuses": {
+      "present": "حاضر",
+      "absent": "غائب",
+      "late": "متأخر",
+      "excused": "معذور"
+    }
+  },
+  "carousel": {
+    "prev": "السابق",
+    "next": "التالي",
+    "close": "إغلاق",
+    "goto": "الانتقال إلى الشريحة {n}"
+  },
   "forms": {
     "name": "الاسم الكامل",
     "firstName": "الاسم",
@@ -341,6 +388,20 @@
     "announcementsHint": "إعلانات مؤرخة تظهر في صفحة الأمانة و/أو الصفحة الرئيسية.",
     "albums": "ألبومات الصور",
     "albumsHint": "إنشاء ألبوم وإضافة صور.",
+    "attendance": "الحضور والغياب",
+    "attendanceHint": "ورقة حضور لكل مادة ولكل حصة.",
+    "officer": "بطاقة الأمين",
+    "officerHint": "صورة وبطاقة عامة لمسؤول الأمانة.",
+    "officerSaved": "تم حفظ بطاقة الأمين.",
+    "officerNameFr": "الاسم (FR)",
+    "officerNameAr": "الاسم (AR)",
+    "officerTitleFr": "الصفة (FR)",
+    "officerTitleAr": "الصفة (AR)",
+    "officerBioFr": "نبذة (FR)",
+    "officerBioAr": "نبذة (AR)",
+    "officerPublic": "إظهار البطاقة في الموقع العام",
+    "officerPreview": "معاينة البطاقة",
+    "removePhoto": "حذف الصورة",
     "comingSoon": "الفعاليات والوثائق والبرامج في مرحلة لاحقة.",
     "newNews": "خبر جديد",
     "editNews": "تعديل الخبر",
@@ -360,7 +421,49 @@
     "archive": "أرشفة",
     "confirmDelete": "حذف هذا العنصر؟",
     "addPhotos": "إضافة صور",
-    "uploadToAlbum": "رفع إلى الألبوم"
+    "uploadToAlbum": "رفع إلى الألبوم",
+    "photos": "صور",
+    "filesSelected": "ملف/ملفات محددةارة",
+    "uploading": "جاري الرفع…",
+    "showOnGallery": "عرض في معرض الصور العام",
+    "cover": "صورة الغلاف",
+    "descFr": "الوصف (FR)",
+    "descAr": "الوصف (AR)",
+    "selectFilesFirst": "اختر صورة أو أكثر أولاً.",
+    "uploadHint": "JPG / PNG / WEBP — بحد أقصى 8 ميغابايت لكل صورة. يمكن اختيار عدة ملفات.",
+    "uploadOk": "تم رفع الصور بنجاح.",
+    "albumCreated": "تم إنشاء الألبوم.",
+    "deletePhoto": "حذف الصورة",
+    "deleteAlbum": "حذف الألبوم",
+    "confirmDeletePhoto": "هل تريد حذف هذه الصورة؟",
+    "confirmDeleteAlbum": "هل تريد حذف هذا الألبوم وجميع صوره؟",
+    "photoDeleted": "تم حذف الصورة.",
+    "albumDeleted": "تم حذف الألبوم."
+  },
+  "shuraAdmin": {
+    "badge": "مساحة مجلس الشورى",
+    "forbidden": "غير مصرح بالوصول إلى مجلس الشورى.",
+    "note": "محتوى عام + مساحة داخلية حسب الدور والقسم والصلاحية.",
+    "overview": "نظرة عامة",
+    "overviewHint": "القوائم الظاهرة تعتمد على صلاحياتك (رئيس، مقرر، عضو، محرر).",
+    "members": "الأعضاء",
+    "meetings": "الاجتماعات",
+    "news": "الأخبار",
+    "announcements": "الإعلانات",
+    "gallery": "معرض الصور",
+    "kpiMembers": "أعضاء نشطون",
+    "kpiPublic": "ظاهرون في الموقع",
+    "kpiMeetings": "اجتماعات",
+    "kpiUpcoming": "قادمة",
+    "publicPage": "عرض الصفحة العامة",
+    "newMember": "عضو جديد",
+    "editMember": "تعديل العضو",
+    "positionFr": "الصفة (فرنسي)",
+    "positionAr": "الصفة (عربي)",
+    "showPublic": "إظهار في الموقع العام",
+    "newMeeting": "اجتماع جديد",
+    "location": "المكان",
+    "agenda": "جدول الأعمال"
   },
   "register": {
     "step": "المرحلة",
@@ -442,6 +545,7 @@
     "nav": {
       "dashboard": "لوحة التحكم",
       "president": "مساحة الرئيس",
+      "shura": "مجلس الشورى",
       "secretariat": "أمانتي",
       "users": "المستخدمون",
       "roles": "الأدوار والصلاحيات"

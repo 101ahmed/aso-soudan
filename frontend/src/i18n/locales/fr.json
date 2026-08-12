@@ -65,8 +65,8 @@
       "womenChildren": "Femmes & enfants",
       "cultural": "Activités culturelles"
     },
-    "galleryTitle": "Galerie photos",
-    "galleryCta": "Voir la galerie",
+    "galleryTitle": "Dernières activités de la Rabta",
+    "galleryCta": "Voir l’intégralité de la galerie",
     "registerTitle": "Inscriptions en ligne",
     "registerSubtitle": "Aucune connexion n’est requise pour déposer une demande.",
     "seeAll": "Tout voir",
@@ -118,11 +118,15 @@
       "registered": "Votre inscription a bien été enregistrée. Nous vous recontacterons si nécessaire."
     },
     "gallery": {
-      "subtitle": "Souvenirs et moments de la vie associative"
+      "subtitle": "Souvenirs et moments de la vie associative",
+      "empty": "Aucune photo dans cet album pour le moment."
     },
     "contact": {
       "subtitle": "Écrivez-nous sans créer de compte",
-      "success": "Message envoyé. Un responsable vous répondra prochainement."
+      "success": "Message envoyé à hima171221@gmail.com. Un responsable vous répondra prochainement.",
+      "error": "Impossible d’envoyer le message pour le moment.",
+      "sending": "Envoi…",
+      "emailLabel": "Les messages de contact sont reçus sur"
     }
   },
   "about": {
@@ -309,6 +313,49 @@
       "programs": "Programmes"
     }
   },
+  "academicAttendance": {
+    "title": "Présences par matière",
+    "subtitle": "Suivi de la présence et des absences pour chaque matière de l’année en cours.",
+    "forbidden": "Permission attendance.view requise.",
+    "year": "Année académique",
+    "students": "Élèves",
+    "subjects": "Matières",
+    "subject": "Matière",
+    "classes": "Classes",
+    "sessions": "Séances",
+    "present": "Présents",
+    "absent": "Absents",
+    "late": "Retards",
+    "excused": "Excusés",
+    "open": "Ouvrir",
+    "back": "Retour",
+    "bySubjectHint": "Choisissez une classe puis saisissez la feuille de présence.",
+    "room": "Salle",
+    "newSession": "Nouvelle séance",
+    "date": "Date",
+    "time": "Horaire",
+    "sheet": "Feuille de présence",
+    "noSessions": "Aucune séance pour cette classe.",
+    "noStudents": "Aucun élève inscrit dans cette classe.",
+    "student": "Élève",
+    "status": "État",
+    "notes": "Note",
+    "saved": "Présences enregistrées.",
+    "saving": "Enregistrement…",
+    "markAllPresent": "Tous présents",
+    "statuses": {
+      "present": "Présent",
+      "absent": "Absent",
+      "late": "En retard",
+      "excused": "Excusé"
+    }
+  },
+  "carousel": {
+    "prev": "Précédent",
+    "next": "Suivant",
+    "close": "Fermer",
+    "goto": "Aller à la diapositive {n}"
+  },
   "forms": {
     "name": "Nom complet",
     "firstName": "Prénom",
@@ -341,6 +388,20 @@
     "announcementsHint": "Annonces datées visibles sur la page secrétariat et/ou l’accueil.",
     "albums": "Albums photos",
     "albumsHint": "Créer un album et y ajouter des photos.",
+    "attendance": "Présences / Absences",
+    "attendanceHint": "Feuille de présence par matière et par séance.",
+    "officer": "Fiche de l’amin",
+    "officerHint": "Photo et carte publique du responsable de l’amanah.",
+    "officerSaved": "Fiche de l’amin enregistrée.",
+    "officerNameFr": "Nom (FR)",
+    "officerNameAr": "Nom (AR)",
+    "officerTitleFr": "Fonction (FR)",
+    "officerTitleAr": "Fonction (AR)",
+    "officerBioFr": "Présentation (FR)",
+    "officerBioAr": "Présentation (AR)",
+    "officerPublic": "Afficher la fiche sur le site public",
+    "officerPreview": "Aperçu de la carte",
+    "removePhoto": "Supprimer la photo",
     "comingSoon": "Événements, documents et programmes arrivent dans une prochaine phase.",
     "newNews": "Nouvelle actualité",
     "editNews": "Modifier l’actualité",
@@ -360,7 +421,49 @@
     "archive": "Archiver",
     "confirmDelete": "Supprimer cet élément ?",
     "addPhotos": "Ajouter des photos",
-    "uploadToAlbum": "Téléverser vers l’album"
+    "uploadToAlbum": "Téléverser vers l’album",
+    "photos": "photos",
+    "filesSelected": "fichier(s) sélectionné(s)",
+    "uploading": "Téléversement…",
+    "showOnGallery": "Afficher dans la galerie publique",
+    "cover": "Image de couverture",
+    "descFr": "Description (FR)",
+    "descAr": "Description (AR)",
+    "selectFilesFirst": "Choisissez d’abord une ou plusieurs images.",
+    "uploadHint": "JPG / PNG / WEBP — max 8 Mo par image. Vous pouvez en sélectionner plusieurs.",
+    "uploadOk": "Photos téléversées avec succès.",
+    "albumCreated": "Album créé.",
+    "deletePhoto": "Supprimer la photo",
+    "deleteAlbum": "Supprimer l’album",
+    "confirmDeletePhoto": "Supprimer cette photo ?",
+    "confirmDeleteAlbum": "Supprimer cet album et toutes ses photos ?",
+    "photoDeleted": "Photo supprimée.",
+    "albumDeleted": "Album supprimé."
+  },
+  "shuraAdmin": {
+    "badge": "Espace Choura",
+    "forbidden": "Accès non autorisé au Conseil de la Choura.",
+    "note": "Contenu public + espace interne selon Role + Section + Permission.",
+    "overview": "Vue d’ensemble",
+    "overviewHint": "Les menus visibles dépendent de vos permissions (président, rapporteur, membre, éditeur).",
+    "members": "Membres",
+    "meetings": "Réunions",
+    "news": "Actualités",
+    "announcements": "Annonces",
+    "gallery": "Galerie",
+    "kpiMembers": "Membres actifs",
+    "kpiPublic": "Visibles sur le site",
+    "kpiMeetings": "Réunions",
+    "kpiUpcoming": "À venir",
+    "publicPage": "Voir la page publique",
+    "newMember": "Nouveau membre",
+    "editMember": "Modifier le membre",
+    "positionFr": "Fonction (FR)",
+    "positionAr": "Fonction (AR)",
+    "showPublic": "Afficher sur le site public",
+    "newMeeting": "Nouvelle réunion",
+    "location": "Lieu",
+    "agenda": "Ordre du jour"
   },
   "register": {
     "step": "Étape",
@@ -442,6 +545,7 @@
     "nav": {
       "dashboard": "Tableau de bord",
       "president": "Espace Président",
+      "shura": "Conseil de la Choura",
       "secretariat": "Mon secrétariat",
       "users": "Utilisateurs",
       "roles": "Rôles & permissions"

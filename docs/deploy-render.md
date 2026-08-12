@@ -105,6 +105,7 @@ Sur Render free, **SMTP port 587 time out** souvent. Utilisez l’API HTTP :
 | `MAILERSEND_API_KEY` | *(token API MailerSend, pas le mot de passe SMTP)* |
 | `MAIL_FROM_ADDRESS` | `noreply@test-….mlsender.net` |
 | `MAIL_FROM_NAME` | `Rabta ACS Rennes` |
+| `CONTACT_EMAIL` | `hima171221@gmail.com` |
 | `FRONTEND_URL` | `https://aso-soudan.onrender.com` |
 | `APP_URL` | `https://aso-soudan.onrender.com` |
 

@@ -6,7 +6,6 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api',
   headers: {
     Accept: 'application/json',
-    'Content-Type': 'application/json',
   },
   withCredentials: false,
   // Render free tier cold start can exceed 10s
@@ -18,6 +17,24 @@ api.interceptors.request.use((config) => {
   if (token) {
     config.headers.Authorization = `Bearer ${token}`
   }
+
+  // Ne jamais forcer application/json sur FormData (sinon PHP ignore les fichiers)
+  if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
+    if (typeof config.headers?.delete === 'function') {
+      config.headers.delete('Content-Type')
+      config.headers.delete('content-type')
+    } else if (config.headers) {
+      delete config.headers['Content-Type']
+      delete config.headers['content-type']
+    }
+  } else if (config.data && typeof config.data === 'object' && !(config.data instanceof FormData)) {
+    if (typeof config.headers?.set === 'function') {
+      config.headers.set('Content-Type', 'application/json')
+    } else {
+      config.headers['Content-Type'] = 'application/json'
+    }
+  }
+
   return config
 })
 

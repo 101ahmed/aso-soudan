@@ -2,9 +2,9 @@
 
 namespace App\Http\Resources;
 
+use App\Support\MediaUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Storage;
 
 /** @mixin \App\Models\Album */
 class AlbumResource extends JsonResource
@@ -15,12 +15,15 @@ class AlbumResource extends JsonResource
             'id' => $this->id,
             'title_ar' => $this->title_ar,
             'title_fr' => $this->title_fr,
+            'slug' => $this->slug,
             'description_ar' => $this->description_ar,
             'description_fr' => $this->description_fr,
             'cover_path' => $this->cover_path,
-            'cover_url' => $this->cover_path ? Storage::disk('public')->url($this->cover_path) : null,
+            'cover_url' => MediaUrl::absolute($this->cover_path),
             'status' => $this->status,
             'is_published' => (bool) $this->is_published,
+            'show_on_home' => (bool) $this->show_on_home,
+            'show_on_gallery' => (bool) ($this->show_on_gallery ?? true),
             'published_at' => $this->published_at?->toIso8601String(),
             'department_id' => $this->department_id,
             'department' => $this->whenLoaded('department', fn () => [

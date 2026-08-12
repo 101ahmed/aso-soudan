@@ -121,4 +121,11 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Public contact form recipient
+    |--------------------------------------------------------------------------
+    */
+    'contact_to' => env('CONTACT_EMAIL', 'hima171221@gmail.com'),
+
 ];

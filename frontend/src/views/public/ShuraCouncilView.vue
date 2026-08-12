@@ -1,14 +1,21 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { shuraCouncil } from '@/data/shuraCouncil'
+import { fetchPublicShuraMembers, fetchPublicShuraMeetings } from '@/services/shura'
+import { fetchSecretariatFeed } from '@/services/content'
+import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
+import { galleryAlbums } from '@/data/publicContent'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
 const contactSent = ref(false)
 const proposalSent = ref(false)
+const apiMembers = ref([])
+const apiMeetings = ref([])
+const feed = ref({ news: [], announcements: [], albums: [] })
 
 const contactForm = reactive({
   name: '',
@@ -29,6 +36,63 @@ const list = (value) => {
   return Array.isArray(items) ? items : []
 }
 
+const members = computed(() => {
+  if (apiMembers.value.length) {
+    return apiMembers.value.map((m) => ({
+      name: { ar: m.full_name, fr: m.full_name },
+      role: { ar: m.position_ar || m.position_code, fr: m.position_fr || m.position_code },
+      term: {
+        ar: m.started_at ? `من ${m.started_at}` : 'الفترة الحالية',
+        fr: m.started_at ? `Depuis ${m.started_at}` : 'Mandat en cours',
+      },
+      bio: { ar: m.bio_ar, fr: m.bio_fr },
+      photo: m.photo_url,
+    }))
+  }
+  return shuraCouncil.members
+})
+
+const meetings = computed(() => {
+  if (apiMeetings.value.length) {
+    return apiMeetings.value.map((m) => ({
+      ref: m.reference || `#${m.id}`,
+      date: (m.scheduled_at || '').slice(0, 10),
+      title: { ar: m.title_ar, fr: m.title_fr },
+      type: { ar: m.status, fr: m.status },
+      summary: { ar: m.agenda_ar, fr: m.agenda_fr },
+    }))
+  }
+  return shuraCouncil.meetings
+})
+
+const news = computed(() => {
+  if (feed.value.news?.length) {
+    return feed.value.news.map((item) => ({
+      slug: item.slug,
+      date: (item.published_at || '').slice(0, 10),
+      title: { ar: item.title_ar, fr: item.title_fr },
+      excerpt: { ar: (item.content_ar || '').slice(0, 120), fr: (item.content_fr || '').slice(0, 120) },
+    }))
+  }
+  return shuraCouncil.news
+})
+
+const albums = computed(() => {
+  if (feed.value.albums?.length) {
+    return feed.value.albums.map((item) => ({
+      id: item.id,
+      slug: item.slug || String(item.id),
+      cover: item.cover_url || item.media?.[0]?.url,
+      cover_url: item.cover_url,
+      title: { ar: item.title_ar, fr: item.title_fr },
+      title_ar: item.title_ar,
+      title_fr: item.title_fr,
+      media: item.media || [],
+    }))
+  }
+  return galleryAlbums.filter((a) => a.secretariat === 'shura' || a.secretariat === 'media').slice(0, 4)
+})
+
 function submitContact() {
   contactSent.value = true
 }
@@ -36,6 +100,24 @@ function submitContact() {
 function submitProposal() {
   proposalSent.value = true
 }
+
+onMounted(async () => {
+  try {
+    apiMembers.value = await fetchPublicShuraMembers()
+  } catch {
+    apiMembers.value = []
+  }
+  try {
+    apiMeetings.value = await fetchPublicShuraMeetings()
+  } catch {
+    apiMeetings.value = []
+  }
+  try {
+    feed.value = await fetchSecretariatFeed('shura')
+  } catch {
+    feed.value = { news: [], announcements: [], albums: [] }
+  }
+})
 </script>
 
 <template>
@@ -131,11 +213,20 @@ function submitProposal() {
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('shura.members') }}</h2>
         <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <article
-            v-for="(member, index) in shuraCouncil.members"
+            v-for="(member, index) in members"
             :key="index"
             class="rounded-2xl bg-white p-5 shadow-sm"
           >
-            <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-lg font-bold text-white">
+            <img
+              v-if="member.photo"
+              :src="member.photo"
+              :alt="localized(member.name)"
+              class="mb-3 h-14 w-14 rounded-full object-cover object-top"
+            />
+            <div
+              v-else
+              class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-lg font-bold text-white"
+            >
               {{ localized(member.name).slice(0, 1) }}
             </div>
             <p class="text-sm font-semibold text-[var(--rdp-forest)]">{{ localized(member.role) }}</p>
@@ -151,22 +242,24 @@ function submitProposal() {
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('shura.meetings') }}</h2>
         <div class="mt-4 grid gap-4 md:grid-cols-2">
           <article
-            v-for="meeting in shuraCouncil.meetings"
-            :key="meeting.slug"
+            v-for="meeting in meetings"
+            :key="meeting.ref || meeting.slug || meeting.date"
             class="rounded-2xl border border-[var(--rdp-forest)]/10 bg-white p-5"
           >
             <div class="flex flex-wrap items-center justify-between gap-2">
               <h3 class="font-semibold text-[var(--rdp-ink)]">{{ localized(meeting.title) }}</h3>
               <span class="rounded-full bg-[var(--rdp-forest)]/10 px-3 py-1 text-xs font-medium text-[var(--rdp-forest)]">
-                {{ localized(meeting.status) }}
+                {{ localized(meeting.status || meeting.type) }}
               </span>
             </div>
             <p class="mt-2 text-sm text-slate-500">
-              {{ meeting.date }} · {{ meeting.time }} · {{ localized(meeting.place) }}
+              {{ meeting.date }}
+              <span v-if="meeting.time"> · {{ meeting.time }}</span>
+              <span v-if="localized(meeting.place)"> · {{ localized(meeting.place) }}</span>
             </p>
             <p class="mt-1 text-sm text-slate-500">{{ t('shura.meetingType') }}: {{ localized(meeting.type) }}</p>
-            <p class="mt-3 text-sm text-slate-700">{{ localized(meeting.summary) }}</p>
-            <ul class="mt-3 list-disc space-y-1 pe-5 text-sm text-slate-600">
+            <p v-if="localized(meeting.summary)" class="mt-3 text-sm text-slate-700">{{ localized(meeting.summary) }}</p>
+            <ul v-if="meeting.topics" class="mt-3 list-disc space-y-1 pe-5 text-sm text-slate-600">
               <li v-for="(topic, index) in list(meeting.topics)" :key="index">{{ topic }}</li>
             </ul>
           </article>
@@ -199,7 +292,7 @@ function submitProposal() {
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('shura.news') }}</h2>
         <div class="mt-4 grid gap-4 md:grid-cols-2">
           <article
-            v-for="item in shuraCouncil.news"
+            v-for="item in news"
             :key="item.slug"
             class="overflow-hidden rounded-xl bg-white shadow-sm"
           >
@@ -212,6 +305,13 @@ function submitProposal() {
           </article>
         </div>
       </section>
+
+      <!-- Gallery carousel -->
+      <PhotoGallerySection
+        :title="t('nav.gallery')"
+        :albums="albums"
+        more-to="/gallery"
+      />
 
       <!-- Events -->
       <section>

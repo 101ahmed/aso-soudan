@@ -7,11 +7,26 @@ const route = useRoute()
 const { t } = useI18n()
 const code = computed(() => route.params.code)
 
-const cards = computed(() => [
-  { to: `/admin/secretariats/${code.value}/news`, label: t('secretariatAdmin.news'), hint: t('secretariatAdmin.newsHint') },
-  { to: `/admin/secretariats/${code.value}/announcements`, label: t('secretariatAdmin.announcements'), hint: t('secretariatAdmin.announcementsHint') },
-  { to: `/admin/secretariats/${code.value}/albums`, label: t('secretariatAdmin.albums'), hint: t('secretariatAdmin.albumsHint') },
-])
+const cards = computed(() => {
+  const items = [
+    {
+      to: `/admin/secretariats/${code.value}/officer`,
+      label: t('secretariatAdmin.officer'),
+      hint: t('secretariatAdmin.officerHint'),
+    },
+    { to: `/admin/secretariats/${code.value}/news`, label: t('secretariatAdmin.news'), hint: t('secretariatAdmin.newsHint') },
+    { to: `/admin/secretariats/${code.value}/announcements`, label: t('secretariatAdmin.announcements'), hint: t('secretariatAdmin.announcementsHint') },
+    { to: `/admin/secretariats/${code.value}/albums`, label: t('secretariatAdmin.albums'), hint: t('secretariatAdmin.albumsHint') },
+  ]
+  if (code.value === 'academic') {
+    items.unshift({
+      to: `/admin/secretariats/academic/attendance`,
+      label: t('secretariatAdmin.attendance'),
+      hint: t('secretariatAdmin.attendanceHint'),
+    })
+  }
+  return items
+})
 </script>
 
 <template>

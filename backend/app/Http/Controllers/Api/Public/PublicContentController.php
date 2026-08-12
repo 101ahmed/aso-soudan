@@ -40,6 +40,9 @@ class PublicContentController extends Controller
             ->with('department')
             ->where('department_id', $department->id)
             ->where('show_on_secretariat', true)
+            ->where(function ($q) {
+                $q->where('visibility', 'public')->orWhereNull('visibility');
+            })
             ->currentlyActive()
             ->latest('starts_at')
             ->limit(8)
@@ -89,7 +92,12 @@ class PublicContentController extends Controller
 
     public function announcements(Request $request): AnonymousResourceCollection
     {
-        $query = Announcement::query()->with('department')->currentlyActive();
+        $query = Announcement::query()
+            ->with('department')
+            ->currentlyActive()
+            ->where(function ($q) {
+                $q->where('visibility', 'public')->orWhereNull('visibility');
+            });
 
         if ($request->filled('department')) {
             $query->whereHas('department', fn ($q) => $q->where('code', $request->string('department')));
@@ -105,10 +113,16 @@ class PublicContentController extends Controller
 
     public function albums(Request $request): AnonymousResourceCollection
     {
-        $query = Album::query()->with(['department', 'media'])->published();
+        $query = Album::query()
+            ->with(['department', 'media'])
+            ->published()
+            ->where('show_on_gallery', true);
 
         if ($request->filled('department')) {
             $query->whereHas('department', fn ($q) => $q->where('code', $request->string('department')));
+        }
+        if ($request->boolean('home')) {
+            $query->where('show_on_home', true);
         }
 
         return AlbumResource::collection(
@@ -116,10 +130,20 @@ class PublicContentController extends Controller
         );
     }
 
-    public function albumShow(Album $album): AlbumResource
+    public function albumShow(string $album): AlbumResource
     {
-        abort_unless($album->status === 'published', 404);
+        $model = Album::query()
+            ->with(['department', 'media'])
+            ->where(function ($q) use ($album) {
+                $q->where('slug', $album);
+                if (is_numeric($album)) {
+                    $q->orWhere('id', $album);
+                }
+            })
+            ->firstOrFail();
 
-        return new AlbumResource($album->load(['department', 'media']));
+        abort_unless($model->status === 'published', 404);
+
+        return new AlbumResource($model);
     }
 }

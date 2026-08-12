@@ -20,6 +20,7 @@ class AnnouncementResource extends JsonResource
             'ends_at' => $this->ends_at?->toIso8601String(),
             'show_on_secretariat' => (bool) $this->show_on_secretariat,
             'show_on_home' => (bool) $this->show_on_home,
+            'visibility' => $this->visibility ?? 'public',
             'status' => $this->status,
             'department_id' => $this->department_id,
             'department' => $this->whenLoaded('department', fn () => [

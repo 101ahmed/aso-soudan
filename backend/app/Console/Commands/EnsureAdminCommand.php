@@ -27,6 +27,14 @@ class EnsureAdminCommand extends Command
             '--class' => DepartmentSeeder::class,
             '--force' => true,
         ]);
+        $this->call('db:seed', [
+            '--class' => \Database\Seeders\ShuraMemberSeeder::class,
+            '--force' => true,
+        ]);
+        $this->call('db:seed', [
+            '--class' => \Database\Seeders\AcademicAttendanceSeeder::class,
+            '--force' => true,
+        ]);
 
         $email = $this->option('email')
             ?: (getenv('ADMIN_EMAIL') ?: null)

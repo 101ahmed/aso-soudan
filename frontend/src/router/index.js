@@ -31,6 +31,14 @@ import SecretariatHomeView from '@/views/admin/secretariat/SecretariatHomeView.v
 import SecretariatNewsView from '@/views/admin/secretariat/SecretariatNewsView.vue'
 import SecretariatAnnouncementsView from '@/views/admin/secretariat/SecretariatAnnouncementsView.vue'
 import SecretariatAlbumsView from '@/views/admin/secretariat/SecretariatAlbumsView.vue'
+import SecretariatOfficerView from '@/views/admin/secretariat/SecretariatOfficerView.vue'
+import AcademicAttendanceOverview from '@/views/admin/academic/AcademicAttendanceOverview.vue'
+import AcademicSubjectAttendanceView from '@/views/admin/academic/AcademicSubjectAttendanceView.vue'
+import AcademicAttendanceSheetView from '@/views/admin/academic/AcademicAttendanceSheetView.vue'
+import ShuraAdminShell from '@/views/admin/shura/ShuraAdminShell.vue'
+import ShuraOverviewView from '@/views/admin/shura/ShuraOverviewView.vue'
+import ShuraMembersView from '@/views/admin/shura/ShuraMembersView.vue'
+import ShuraMeetingsView from '@/views/admin/shura/ShuraMeetingsView.vue'
 import UsersView from '@/views/admin/UsersView.vue'
 import UserFormView from '@/views/admin/UserFormView.vue'
 import RolesView from '@/views/admin/RolesView.vue'
@@ -141,6 +149,34 @@ const router = createRouter({
             { path: 'news', name: 'admin.secretariat.news', component: SecretariatNewsView },
             { path: 'announcements', name: 'admin.secretariat.announcements', component: SecretariatAnnouncementsView },
             { path: 'albums', name: 'admin.secretariat.albums', component: SecretariatAlbumsView },
+            { path: 'officer', name: 'admin.secretariat.officer', component: SecretariatOfficerView },
+            {
+              path: 'attendance',
+              name: 'admin.secretariat.attendance',
+              component: AcademicAttendanceOverview,
+              meta: { permission: 'attendance.view' },
+            },
+            {
+              path: 'attendance/subjects/:subjectId',
+              name: 'admin.secretariat.attendance.subject',
+              component: AcademicSubjectAttendanceView,
+              meta: { permission: 'attendance.view' },
+            },
+            {
+              path: 'attendance/sessions/:sessionId',
+              name: 'admin.secretariat.attendance.sheet',
+              component: AcademicAttendanceSheetView,
+              meta: { permission: 'attendance.view' },
+            },
+          ],
+        },
+        {
+          path: 'shura',
+          component: ShuraAdminShell,
+          children: [
+            { path: '', name: 'admin.shura', component: ShuraOverviewView },
+            { path: 'members', name: 'admin.shura.members', component: ShuraMembersView },
+            { path: 'meetings', name: 'admin.shura.meetings', component: ShuraMeetingsView },
           ],
         },
         { path: 'users', name: 'admin.users', component: UsersView, meta: { permission: 'user.view' } },

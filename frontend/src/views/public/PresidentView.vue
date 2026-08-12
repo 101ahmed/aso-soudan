@@ -1,11 +1,15 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { presidentPage as page } from '@/data/presidentPage'
+import { galleryAlbums } from '@/data/publicContent'
+import { fetchPublicAlbums } from '@/services/content'
+import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
 
 const { t, locale } = useI18n()
 const contactSent = ref(false)
+const apiAlbums = ref([])
 const form = reactive({
   name: '',
   email: '',
@@ -19,9 +23,34 @@ const list = (value) => {
   return Array.isArray(items) ? items : []
 }
 
+const albums = computed(() => {
+  if (apiAlbums.value.length) {
+    return apiAlbums.value.map((item) => ({
+      id: item.id,
+      slug: item.slug || String(item.id),
+      cover: item.cover_url || item.media?.[0]?.url,
+      cover_url: item.cover_url,
+      title: { ar: item.title_ar, fr: item.title_fr },
+      title_ar: item.title_ar,
+      title_fr: item.title_fr,
+      media: item.media || [],
+    }))
+  }
+  return galleryAlbums.slice(0, 5)
+})
+
 function submitContact() {
   contactSent.value = true
 }
+
+onMounted(async () => {
+  try {
+    const data = await fetchPublicAlbums({ home: 1, per_page: 8 })
+    apiAlbums.value = data.data?.length ? data.data : (await fetchPublicAlbums({ per_page: 8 })).data || []
+  } catch {
+    apiAlbums.value = []
+  }
+})
 </script>
 
 <template>
@@ -209,6 +238,12 @@ function submitContact() {
           </article>
         </div>
       </section>
+
+      <PhotoGallerySection
+        :title="t('nav.gallery')"
+        :albums="albums"
+        more-to="/gallery"
+      />
 
       <!-- Partenariats -->
       <section>

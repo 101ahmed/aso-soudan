@@ -9,11 +9,12 @@ import {
   newsBySecretariat,
 } from '@/data/publicContent'
 import { fetchSecretariatFeed } from '@/services/content'
+import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
 
 const route = useRoute()
 const { t, locale } = useI18n()
 const sent = ref(false)
-const feed = ref({ news: [], announcements: [], albums: [] })
+const feed = ref({ news: [], announcements: [], albums: [], department: null })
 
 const form = reactive({
   name: '',
@@ -22,7 +23,38 @@ const form = reactive({
   message: '',
 })
 
-const secretariat = computed(() => getSecretariat(route.params.slug))
+const baseSecretariat = computed(() => getSecretariat(route.params.slug))
+
+const secretariat = computed(() => {
+  const base = baseSecretariat.value
+  if (!base) return null
+  const apiOfficer = feed.value.department?.officer
+  if (!apiOfficer) return base
+
+  const hasApiName = apiOfficer.name_ar || apiOfficer.name_fr
+  const hasApiPhoto = apiOfficer.photo_url
+  if (!hasApiName && !hasApiPhoto) return base
+
+  return {
+    ...base,
+    officer: {
+      name: {
+        ar: apiOfficer.name_ar || base.officer?.name?.ar,
+        fr: apiOfficer.name_fr || base.officer?.name?.fr,
+      },
+      title: {
+        ar: apiOfficer.title_ar || base.officer?.title?.ar,
+        fr: apiOfficer.title_fr || base.officer?.title?.fr,
+      },
+      bio: {
+        ar: apiOfficer.bio_ar || base.officer?.bio?.ar,
+        fr: apiOfficer.bio_fr || base.officer?.bio?.fr,
+      },
+      email: apiOfficer.email || base.officer?.email,
+      photo: apiOfficer.photo_url || base.officer?.photo || null,
+    },
+  }
+})
 
 const news = computed(() => {
   if (feed.value.news?.length) {
@@ -45,9 +77,13 @@ const albums = computed(() => {
   if (feed.value.albums?.length) {
     return feed.value.albums.map((item) => ({
       id: item.id,
-      slug: String(item.id),
+      slug: item.slug || String(item.id),
       cover: item.cover_url || item.media?.[0]?.url || '/logo.png',
+      cover_url: item.cover_url,
       title: { ar: item.title_ar, fr: item.title_fr },
+      title_ar: item.title_ar,
+      title_fr: item.title_fr,
+      media: item.media || [],
     }))
   }
   return albumsBySecretariat(route.params.slug)
@@ -67,7 +103,7 @@ async function loadFeed(slug) {
   try {
     feed.value = await fetchSecretariatFeed(slug)
   } catch {
-    feed.value = { news: [], announcements: [], albums: [] }
+    feed.value = { news: [], announcements: [], albums: [], department: null }
   }
 }
 
@@ -379,21 +415,13 @@ watch(
         </div>
       </section>
 
-      <!-- Gallery -->
-      <section v-if="albums.length">
-        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('nav.gallery') }}</h2>
-        <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <RouterLink
-            v-for="album in albums"
-            :key="album.slug"
-            :to="`/gallery/${album.slug}`"
-            class="overflow-hidden rounded-xl"
-          >
-            <img :src="album.cover" alt="" class="h-40 w-full object-cover" />
-            <p class="mt-2 text-sm font-medium text-[var(--rdp-forest)]">{{ localized(album.title) }}</p>
-          </RouterLink>
-        </div>
-      </section>
+      <!-- Gallery carousel -->
+      <PhotoGallerySection
+        v-if="albums.length"
+        :title="t('nav.gallery')"
+        :albums="albums"
+        more-to="/gallery"
+      />
 
       <!-- Contact form -->
       <section id="contact" class="rounded-2xl border border-[var(--rdp-forest)]/15 bg-white p-6">
