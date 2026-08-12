@@ -55,8 +55,26 @@ services:
         value: admin@acs-rennes.fr
       - key: ADMIN_PASSWORD
         value: Password123!
-      # Email reset password — remplacer par un vrai SMTP en prod
+      # URL publique (liens reset password)
+      - key: APP_URL
+        value: https://aso-soudan.onrender.com
+      - key: FRONTEND_URL
+        value: https://aso-soudan.onrender.com
+      # SMTP MailerSend : à définir dans le dashboard Render (Environment).
+      # Tant que MAIL_MAILER=log (défaut Laravel), aucun email n'arrive en boîte.
       - key: MAIL_MAILER
-        value: log
+        sync: false
+      - key: MAIL_SCHEME
+        sync: false
+      - key: MAIL_HOST
+        sync: false
+      - key: MAIL_PORT
+        sync: false
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
       - key: MAIL_FROM_ADDRESS
-        value: noreply@acs-rennes.fr
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: Rabta ACS Rennes

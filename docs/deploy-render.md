@@ -95,21 +95,45 @@ Cause fréquente : le service web et Postgres ne sont **pas dans la même régio
 
 ---
 
-## 6. Checklist de validation
+## 6. Email (mot de passe oublié) — MailerSend
+
+Sans SMTP, l’API répond OK mais **aucun mail n’arrive** (`MAIL_MAILER=log`).
+
+Dans le **Web Service** → **Environment**, ajoutez :
+
+| Variable | Valeur |
+|---|---|
+| `MAIL_MAILER` | `smtp` |
+| `MAIL_SCHEME` | `smtp` |
+| `MAIL_HOST` | `smtp.mailersend.net` |
+| `MAIL_PORT` | `587` |
+| `MAIL_USERNAME` | *(SMTP user MailerSend)* |
+| `MAIL_PASSWORD` | *(SMTP password MailerSend)* |
+| `MAIL_FROM_ADDRESS` | `noreply@test-….mlsender.net` |
+| `MAIL_FROM_NAME` | `Rabta ACS Rennes` |
+| `FRONTEND_URL` | `https://aso-soudan.onrender.com` |
+| `APP_URL` | `https://aso-soudan.onrender.com` |
+
+Puis **Save** → **Manual Deploy**. Vérifiez `/api/health` → `mail_mailer` doit être `smtp`.
+
+Compte d’essai MailerSend : seuls certains destinataires (souvent l’email du compte) sont autorisés tant qu’aucun domaine n’est vérifié. Voir aussi `docs/password-reset.md`.
+
+## 7. Checklist de validation
 
 | # | Test | Attendu |
 |---|---|---|
 | 1 | `https://VOTRE-SERVICE.onrender.com/` | Accueil public |
-| 2 | `…/api/health` | `{"status":"ok",…,"database":"ok"}` |
+| 2 | `…/api/health` | `{"status":"ok",…,"database":"ok","mail_mailer":"smtp"}` |
 | 3 | `…/about` + refresh | Page من نحن (pas 404) |
 | 4 | `…/login` | Connexion admin |
 | 5 | Changer le mot de passe admin | OK |
+| 6 | `/forgot-password` | Email reçu (Spam si besoin) |
 
 **Note free tier :** le service s’endort après inactivité (~15 min) ; le premier chargement peut prendre 30–60 s.
 
 ---
 
-## 7. Déploiement manuel (sans Blueprint)
+## 8. Déploiement manuel (sans Blueprint)
 
 1. **New PostgreSQL** → noter Internal Database URL  
 2. **New Web Service** → Docker, racine du repo, `Dockerfile`  
@@ -124,14 +148,14 @@ Cause fréquente : le service web et Postgres ne sont **pas dans la même régio
 
 ---
 
-## 8. Domaine personnalisé (plus tard)
+## 9. Domaine personnalisé (plus tard)
 
 Render → service → **Custom Domains** → ajouter `acs-rennes.fr`  
 Puis définir éventuellement `APP_URL` / `FRONTEND_URL` en dur sur la nouvelle URL.
 
 ---
 
-## 9. Limites à connaître
+## 10. Limites à connaître
 
 - Base **PostgreSQL** (pas MySQL WAMP) — les migrations Laravel du projet sont compatibles.
 - Disque éphémère : fichiers uploadés dans `storage` peuvent être perdus au redeploy (OK pour la phase actuelle).

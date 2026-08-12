@@ -32,6 +32,8 @@ class HealthController extends Controller
             'db_driver' => $driver,
             'admin_exists' => $adminExists,
             'has_tokens_table' => $database === 'ok' && Schema::hasTable('personal_access_tokens'),
+            'mail_mailer' => config('mail.default'),
+            'frontend_url' => config('app.frontend_url'),
             'locale' => config('app.locale'),
             'timestamp' => now()->toIso8601String(),
         ]);
