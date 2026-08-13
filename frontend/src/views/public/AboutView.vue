@@ -4,9 +4,9 @@ import { useI18n } from 'vue-i18n'
 import { aboutPage } from '@/data/aboutPage'
 
 const { t, locale } = useI18n()
-const localized = (value) => value?.[locale.value] || value?.fr || value?.ar || ''
+const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 const list = (value) => {
-  const items = value?.[locale.value] || value?.fr || value?.ar || []
+  const items = value?.[locale.value] || value?.en || value?.fr || value?.ar || []
   return Array.isArray(items) ? items : []
 }
 </script>

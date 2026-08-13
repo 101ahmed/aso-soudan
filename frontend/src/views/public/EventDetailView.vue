@@ -10,7 +10,7 @@ const { t, locale } = useI18n()
 const sent = ref(false)
 const form = reactive({ full_name: '', email: '', phone: '' })
 const event = computed(() => upcomingEvents.find((item) => item.slug === route.params.slug))
-const localized = (value) => value?.[locale.value] || value?.fr || ''
+const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 
 function submit() {
   sent.value = true

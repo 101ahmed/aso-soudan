@@ -8,7 +8,7 @@ import { fetchPublicDepartments } from '@/services/content'
 const { t, locale } = useI18n()
 const departments = ref([])
 
-const localized = (value) => value?.[locale.value] || value?.fr || value?.ar || ''
+const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 
 const cards = computed(() => {
   const byCode = Object.fromEntries((departments.value || []).map((d) => [d.code, d]))
@@ -19,8 +19,8 @@ const cards = computed(() => {
       ...item,
       officerCard: officer
         ? {
-            name: locale.value === 'ar' ? officer.name_ar || officer.name_fr : officer.name_fr || officer.name_ar,
-            title: locale.value === 'ar' ? officer.title_ar || officer.title_fr : officer.title_fr || officer.title_ar,
+            name: locale.value === 'ar' ? officer.name_ar || officer.name_fr : officer.name_en || officer.name_fr || officer.name_ar,
+            title: locale.value === 'ar' ? officer.title_ar || officer.title_fr : officer.title_en || officer.title_fr || officer.title_ar,
             photo: officer.photo_url || item.officer?.photo || null,
           }
         : {

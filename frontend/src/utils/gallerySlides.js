@@ -8,8 +8,10 @@ export function albumsToSlides(albums = [], locale = 'fr') {
   for (const album of albums || []) {
     const albumTitle =
       album.title?.[locale] ||
+      album.title?.en ||
       album.title?.fr ||
       album.title?.ar ||
+      album.title_en ||
       album.title_fr ||
       album.title_ar ||
       ''
@@ -23,7 +25,7 @@ export function albumsToSlides(albums = [], locale = 'fr') {
           src,
           title: albumTitle,
           caption:
-            (locale === 'ar' ? m.caption_ar : m.caption_fr) ||
+            (locale === 'ar' ? m.caption_ar : (m.caption_en || m.caption_fr)) ||
             m.caption ||
             albumTitle,
           albumSlug: album.slug || (album.id != null ? String(album.id) : null),

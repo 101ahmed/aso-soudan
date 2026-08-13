@@ -4,6 +4,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { resolvePostLoginPath } from '@/utils/roleRedirect'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -55,9 +56,12 @@ async function submit() {
       class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm"
       @submit.prevent="submit"
     >
-      <RouterLink to="/" class="mb-4 inline-flex items-center gap-2 text-sm text-[var(--rdp-forest)] hover:underline">
-        ← {{ t('nav.home') }}
-      </RouterLink>
+      <div class="mb-4 flex items-center justify-between">
+        <RouterLink to="/" class="inline-flex items-center gap-2 text-sm text-[var(--rdp-forest)] hover:underline">
+          ← {{ t('nav.home') }}
+        </RouterLink>
+        <LanguageSwitcher />
+      </div>
 
       <div class="flex items-center gap-3">
         <img src="/logo.png" :alt="t('app.name')" class="h-16 w-auto rounded-md bg-white object-contain" />

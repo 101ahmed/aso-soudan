@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import api from '@/services/api'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const { t, locale } = useI18n()
 const email = ref('')
@@ -37,25 +38,33 @@ async function submit() {
         error.value =
           locale.value === 'ar'
             ? 'عنوان المرسل غير موثّق في MailerSend. ضع MAIL_FROM_ADDRESS على نطاق التجربة …@test-….mlsender.net'
-            : 'Domaine FROM non vérifié. Sur Render, MAIL_FROM_ADDRESS doit être …@test-….mlsender.net (domaine d’essai MailerSend).'
+            : locale.value === 'en'
+              ? 'FROM address is not verified in MailerSend. On Render, MAIL_FROM_ADDRESS must be …@test-….mlsender.net.'
+              : 'Domaine FROM non vérifié. Sur Render, MAIL_FROM_ADDRESS doit être …@test-….mlsender.net (domaine d’essai MailerSend).'
       } else if (serverMsg && !/^Request failed/i.test(serverMsg)) {
         error.value = serverMsg
       } else {
         error.value =
           locale.value === 'ar'
             ? 'الخادم غير جاهز (نشر أو إيقاظ Render). أعد المحاولة بعد ٣٠ ثانية.'
-            : 'Serveur indisponible (redéploiement / réveil Render). Réessayez dans 30 secondes.'
+            : locale.value === 'en'
+              ? 'The server is not ready (Render deploy or wake-up). Try again in 30 seconds.'
+              : 'Serveur indisponible (redéploiement / réveil Render). Réessayez dans 30 secondes.'
       }
     } else if (/smtp\.mailersend|Connection timed out|stream_socket_client/i.test(serverError)) {
       error.value =
         locale.value === 'ar'
           ? 'إرسال البريد عبر SMTP محظور على الخادم. استخدم MailerSend API على Render.'
-          : 'SMTP bloqué sur Render. Configurez MAIL_MAILER=mailersend + MAILERSEND_API_KEY.'
+          : locale.value === 'en'
+            ? 'SMTP is blocked on the server. Use the MailerSend API on Render.'
+            : 'SMTP bloqué sur Render. Configurez MAIL_MAILER=mailersend + MAILERSEND_API_KEY.'
     } else if (/MS42207|domain must be verified/i.test(`${serverError} ${serverMsg}`)) {
       error.value =
         locale.value === 'ar'
           ? 'عنوان المرسل غير موثّق في MailerSend. ضع MAIL_FROM_ADDRESS على نطاق التجربة …@test-….mlsender.net'
-          : 'Domaine FROM non vérifié. Sur Render, MAIL_FROM_ADDRESS doit être …@test-….mlsender.net (domaine d’essai MailerSend).'
+          : locale.value === 'en'
+            ? 'FROM address is not verified in MailerSend. On Render, MAIL_FROM_ADDRESS must be …@test-….mlsender.net.'
+            : 'Domaine FROM non vérifié. Sur Render, MAIL_FROM_ADDRESS doit être …@test-….mlsender.net (domaine d’essai MailerSend).'
     } else {
       error.value =
         e.userMessage ||
@@ -72,9 +81,12 @@ async function submit() {
 <template>
   <div class="flex min-h-screen items-center justify-center bg-[var(--rdp-cream)] px-4">
     <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <RouterLink to="/login" class="text-sm text-[var(--rdp-forest)] hover:underline">
-        ← {{ t('auth.login') }}
-      </RouterLink>
+      <div class="flex items-center justify-between">
+        <RouterLink to="/login" class="text-sm text-[var(--rdp-forest)] hover:underline">
+          ← {{ t('auth.login') }}
+        </RouterLink>
+        <LanguageSwitcher />
+      </div>
       <h1 class="mt-4 text-2xl font-semibold">{{ t('auth.forgotTitle') }}</h1>
       <p class="mt-2 text-sm text-slate-600">{{ t('auth.forgotSubtitle') }}</p>
 

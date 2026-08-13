@@ -9,6 +9,7 @@ import {
   fetchClassesBySubject,
 } from '@/services/academic'
 import { attendanceBaseFromPath } from '@/utils/academicPaths'
+import { pickName } from '@/utils/localized'
 
 const route = useRoute()
 const router = useRouter()
@@ -33,7 +34,7 @@ const form = reactive({
 
 function label(item) {
   if (!item) return ''
-  return locale.value === 'ar' ? item.name_ar || item.name : item.name_fr || item.name
+  return pickName(item, locale.value)
 }
 
 async function loadClasses() {

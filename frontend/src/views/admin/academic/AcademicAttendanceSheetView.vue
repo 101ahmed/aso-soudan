@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { fetchAttendanceSheet, saveAttendanceSheet } from '@/services/academic'
 import { attendanceBaseFromPath } from '@/utils/academicPaths'
+import { pickName } from '@/utils/localized'
 
 const route = useRoute()
 const { t, locale } = useI18n()
@@ -22,7 +23,7 @@ const canEdit = computed(() => auth.hasPermission('attendance.create'))
 const subjectLabel = computed(() => {
   const s = session.value?.class_group?.subject
   if (!s) return ''
-  return locale.value === 'ar' ? s.name_ar : s.name_fr
+  return pickName(s, locale.value)
 })
 
 const counts = computed(() => {

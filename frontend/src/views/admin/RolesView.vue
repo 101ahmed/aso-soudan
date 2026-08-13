@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { listPermissions, listRoles, syncRolePermissions } from '@/services/users'
+import { pickName } from '@/utils/localized'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
@@ -19,11 +20,11 @@ const error = ref('')
 const canAssign = () => auth.hasPermission('permission.assign')
 
 function labelRole(role) {
-  return locale.value === 'ar' ? role.name_ar : role.name_fr
+  return pickName(role, locale.value)
 }
 
 function labelPermission(permission) {
-  return locale.value === 'ar' ? permission.name_ar : permission.name_fr
+  return pickName(permission, locale.value)
 }
 
 async function load() {

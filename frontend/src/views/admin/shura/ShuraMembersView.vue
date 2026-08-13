@@ -33,7 +33,9 @@ const form = reactive({
 })
 
 function positionLabel(item) {
-  return locale.value === 'ar' ? item.position_ar || item.position_code : item.position_fr || item.position_code
+  return locale.value === 'ar'
+    ? item.position_ar || item.position_code
+    : item.position_en || item.position_fr || item.position_code
 }
 
 function resetForm() {

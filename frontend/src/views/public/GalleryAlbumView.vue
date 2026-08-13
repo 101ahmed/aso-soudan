@@ -17,7 +17,7 @@ const notFound = ref(false)
 const localized = (value) => {
   if (!value) return ''
   if (typeof value === 'string') return value
-  return value?.[locale.value] || value?.fr || value?.ar || ''
+  return value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 }
 
 const slides = computed(() => {

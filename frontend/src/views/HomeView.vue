@@ -20,7 +20,7 @@ const apiNews = ref([])
 const apiAlbums = ref([])
 
 function localized(item) {
-  return item?.[locale.value] || item?.fr || item?.ar || ''
+  return item?.[locale.value] || item?.en || item?.fr || item?.ar || ''
 }
 
 const latestNews = computed(() => {

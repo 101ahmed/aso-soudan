@@ -9,6 +9,7 @@ import {
   fetchTeachers,
   updateTeacher,
 } from '@/services/academic'
+import { pickName } from '@/utils/localized'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
@@ -42,7 +43,7 @@ const canUpdate = computed(() => auth.hasPermission('teacher.update') || auth.ha
 const canManage = computed(() => (editingId.value ? canUpdate.value : canCreate.value))
 
 function subjectName(item) {
-  return locale.value === 'ar' ? item.name_ar : item.name_fr
+  return pickName(item, locale.value)
 }
 
 function resetForm() {

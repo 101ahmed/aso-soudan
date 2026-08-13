@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import { pickTitle } from '@/utils/localized'
 import {
   createAlbum,
   deleteAlbum,
@@ -39,7 +40,7 @@ const mediaFiles = ref([])
 const fileInput = ref(null)
 
 function titleOf(item) {
-  return locale.value === 'ar' ? item.title_ar : item.title_fr
+  return pickTitle(item, locale.value)
 }
 
 async function load() {

@@ -4,6 +4,7 @@ import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { canAccessDepartment } from '@/utils/departmentAccess'
+import { pickName } from '@/utils/localized'
 
 const props = defineProps({
   code: { type: String, required: true },
@@ -44,7 +45,7 @@ function isActive(link) {
 const title = computed(() => {
   const dept = (auth.user?.departments || []).find((d) => d.code === props.code)
   if (!dept) return props.code
-  return locale.value === 'ar' ? dept.name_ar : dept.name_fr
+  return pickName(dept, locale.value)
 })
 </script>
 

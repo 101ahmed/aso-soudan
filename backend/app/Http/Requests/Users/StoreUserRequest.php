@@ -20,7 +20,7 @@ class StoreUserRequest extends FormRequest
             'last_name' => ['required', 'string', 'max:100'],
             'email' => ['required', 'email', 'max:191', 'unique:users,email'],
             'phone' => ['nullable', 'string', 'max:50'],
-            'locale' => ['nullable', Rule::in(['fr', 'ar'])],
+            'locale' => ['nullable', Rule::in(['fr', 'ar', 'en'])],
             'status' => ['nullable', Rule::in(['active', 'inactive', 'suspended'])],
             'password' => ['required', 'confirmed', Password::defaults()],
             'role_ids' => ['nullable', 'array'],

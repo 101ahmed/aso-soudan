@@ -89,9 +89,9 @@ const albums = computed(() => {
   return albumsBySecretariat(route.params.slug)
 })
 
-const localized = (value) => value?.[locale.value] || value?.fr || value?.ar || ''
+const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 const list = (value) => {
-  const items = value?.[locale.value] || value?.fr || value?.ar || []
+  const items = value?.[locale.value] || value?.en || value?.fr || value?.ar || []
   return Array.isArray(items) ? items : []
 }
 
@@ -366,9 +366,9 @@ watch(
             :key="item.id"
             class="rounded-xl border border-[var(--rdp-forest)]/10 bg-white p-4"
           >
-            <h3 class="font-semibold">{{ locale === 'ar' ? item.title_ar : item.title_fr }}</h3>
+            <h3 class="font-semibold">{{ locale === 'ar' ? item.title_ar : (item.title_en || item.title_fr) }}</h3>
             <p class="mt-2 text-sm text-slate-600">
-              {{ locale === 'ar' ? item.content_ar : item.content_fr }}
+              {{ locale === 'ar' ? item.content_ar : (item.content_en || item.content_fr) }}
             </p>
           </article>
         </div>

@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { fetchAttendanceOverview } from '@/services/academic'
 import { attendanceBaseFromPath } from '@/utils/academicPaths'
+import { pickName } from '@/utils/localized'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
@@ -19,7 +20,7 @@ const canView = computed(() => auth.hasPermission('attendance.view'))
 let pollId = 0
 
 function subjectName(item) {
-  return locale.value === 'ar' ? item.name_ar || item.name_fr : item.name_fr || item.name_ar
+  return pickName(item, locale.value)
 }
 
 function rateStyle(rate) {

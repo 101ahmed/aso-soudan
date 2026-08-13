@@ -2,9 +2,9 @@
 import { computed, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { applyDocumentDirection } from '@/i18n'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const route = useRoute()
 const menuOpen = ref(false)
 const isHome = computed(() => route.name === 'home')
@@ -21,12 +21,6 @@ const links = computed(() => [
   { to: '/gallery', label: t('nav.gallery') },
   { to: '/contact', label: t('nav.contact') },
 ])
-
-function setLocale(nextLocale) {
-  locale.value = nextLocale
-  localStorage.setItem('rdp_locale', nextLocale)
-  applyDocumentDirection(nextLocale)
-}
 
 function closeMenu() {
   menuOpen.value = false
@@ -70,31 +64,7 @@ function closeMenu() {
         </nav>
 
         <div class="flex items-center gap-2">
-          <div
-            class="flex overflow-hidden rounded text-xs"
-            :class="isHome ? 'border border-white/35' : 'border border-slate-300'"
-          >
-            <button
-              type="button"
-              class="px-2 py-1"
-              :class="locale === 'fr'
-                ? (isHome ? 'bg-white text-[var(--rdp-forest)]' : 'bg-[var(--rdp-forest)] text-white')
-                : (isHome ? 'text-white' : '')"
-              @click="setLocale('fr')"
-            >
-              FR
-            </button>
-            <button
-              type="button"
-              class="px-2 py-1"
-              :class="locale === 'ar'
-                ? (isHome ? 'bg-white text-[var(--rdp-forest)]' : 'bg-[var(--rdp-forest)] text-white')
-                : (isHome ? 'text-white' : '')"
-              @click="setLocale('ar')"
-            >
-              AR
-            </button>
-          </div>
+          <LanguageSwitcher :is-home="isHome" />
 
           <RouterLink
             to="/login"

@@ -5,23 +5,17 @@ import { useI18n } from 'vue-i18n'
 import PageHero from '@/components/public/PageHero.vue'
 import { newsItems } from '@/data/publicContent'
 import { fetchPublicNews } from '@/services/content'
+import { pickContent, pickTitle, localized } from '@/utils/localized'
 
 const { t, locale } = useI18n()
 const items = ref([])
 
-const localizedTitle = (item) =>
-  item.title_ar
-    ? locale.value === 'ar'
-      ? item.title_ar
-      : item.title_fr
-    : item.title?.[locale.value] || item.title?.fr || ''
+const localizedTitle = (item) => pickTitle(item, locale.value) || localized(item.title, locale.value)
 
 const localizedExcerpt = (item) => {
-  if (item.content_ar || item.content_fr) {
-    const text = locale.value === 'ar' ? item.content_ar : item.content_fr
-    return (text || '').slice(0, 140)
-  }
-  return item.excerpt?.[locale.value] || item.excerpt?.fr || ''
+  const text = pickContent(item, locale.value)
+  if (text) return text.slice(0, 140)
+  return localized(item.excerpt, locale.value)
 }
 
 onMounted(async () => {

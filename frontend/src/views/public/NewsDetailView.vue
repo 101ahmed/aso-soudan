@@ -25,7 +25,7 @@ const item = computed(() => {
   return staticItem.value
 })
 
-const localized = (value) => value?.[locale.value] || value?.fr || value?.ar || ''
+const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 
 async function load(slug) {
   loading.value = true

@@ -27,9 +27,9 @@ const proposalForm = reactive({
   details: '',
 })
 
-const localized = (value) => value?.[locale.value] || value?.fr || value?.ar || ''
+const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 const list = (value) => {
-  const items = value?.[locale.value] || value?.fr || value?.ar || []
+  const items = value?.[locale.value] || value?.en || value?.fr || value?.ar || []
   return Array.isArray(items) ? items : []
 }
 

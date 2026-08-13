@@ -3,10 +3,10 @@ import { computed } from 'vue'
 import { RouterLink, RouterView, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
-import { applyDocumentDirection } from '@/i18n'
 import { primaryDepartmentCode } from '@/utils/departmentAccess'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
-const { t, locale } = useI18n()
+const { t } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
 
@@ -46,12 +46,6 @@ const links = computed(() => [
   { to: '/admin/roles', label: t('admin.nav.roles'), show: auth.hasPermission('role.view') },
 ].filter((link) => link.show))
 
-function setLocale(next) {
-  locale.value = next
-  localStorage.setItem('rdp_locale', next)
-  applyDocumentDirection(next)
-}
-
 async function logout() {
   await auth.logout()
   router.push({ name: 'login' })
@@ -87,24 +81,7 @@ async function logout() {
             <p class="font-medium">{{ auth.fullName || auth.user?.email }}</p>
           </div>
           <div class="flex items-center gap-3">
-            <div class="flex overflow-hidden rounded-md border border-slate-300 text-sm">
-              <button
-                type="button"
-                class="px-2.5 py-1"
-                :class="locale === 'fr' ? 'bg-teal-800 text-white' : 'bg-white'"
-                @click="setLocale('fr')"
-              >
-                FR
-              </button>
-              <button
-                type="button"
-                class="px-2.5 py-1"
-                :class="locale === 'ar' ? 'bg-teal-800 text-white' : 'bg-white'"
-                @click="setLocale('ar')"
-              >
-                AR
-              </button>
-            </div>
+            <LanguageSwitcher variant="admin" />
             <button
               type="button"
               class="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50"

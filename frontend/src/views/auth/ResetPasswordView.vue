@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import api from '@/services/api'
+import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -48,9 +49,12 @@ async function submit() {
 <template>
   <div class="flex min-h-screen items-center justify-center bg-[var(--rdp-cream)] px-4">
     <div class="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-      <RouterLink to="/login" class="text-sm text-[var(--rdp-forest)] hover:underline">
-        ← {{ t('auth.login') }}
-      </RouterLink>
+      <div class="flex items-center justify-between">
+        <RouterLink to="/login" class="text-sm text-[var(--rdp-forest)] hover:underline">
+          ← {{ t('auth.login') }}
+        </RouterLink>
+        <LanguageSwitcher />
+      </div>
       <h1 class="mt-4 text-2xl font-semibold">{{ t('auth.resetTitle') }}</h1>
       <p class="mt-2 text-sm text-slate-600">{{ t('auth.resetSubtitle') }}</p>
 

@@ -12,7 +12,7 @@ const { t, locale } = useI18n()
 const albums = ref([])
 const loading = ref(true)
 
-const localized = (item) => item?.[locale.value] || item?.fr || item?.ar || ''
+const localized = (item) => item?.[locale.value] || item?.en || item?.fr || item?.ar || ''
 
 const slides = computed(() => albumsToSlides(albums.value, locale.value))
 

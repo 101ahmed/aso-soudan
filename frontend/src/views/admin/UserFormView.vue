@@ -3,6 +3,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { createUser, getUser, listRoles, updateUser } from '@/services/users'
+import { pickName } from '@/utils/localized'
 
 const { t, locale } = useI18n()
 const route = useRoute()
@@ -27,7 +28,7 @@ const form = reactive({
 })
 
 function roleLabel(role) {
-  return locale.value === 'ar' ? role.name_ar : role.name_fr
+  return pickName(role, locale.value)
 }
 
 function toggleRole(roleId) {

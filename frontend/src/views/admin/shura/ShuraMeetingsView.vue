@@ -64,7 +64,7 @@ onMounted(load)
       <h2 class="text-lg font-semibold">{{ t('shuraAdmin.meetings') }}</h2>
       <p v-if="error" class="text-sm text-rose-700">{{ error }}</p>
       <article v-for="item in items" :key="item.id" class="rounded-lg border bg-white p-4">
-        <p class="font-medium">{{ locale === 'ar' ? item.title_ar : item.title_fr }}</p>
+        <p class="font-medium">{{ locale === 'ar' ? item.title_ar : (item.title_en || item.title_fr) }}</p>
         <p class="mt-1 text-xs text-slate-500">
           {{ item.reference || '—' }} · {{ item.scheduled_at || '—' }} · {{ item.visibility }} · {{ item.status }}
         </p>

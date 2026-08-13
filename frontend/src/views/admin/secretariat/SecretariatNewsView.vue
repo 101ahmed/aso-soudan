@@ -3,6 +3,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import { pickTitle } from '@/utils/localized'
 import {
   archiveNews,
   createNews,
@@ -35,7 +36,7 @@ const form = reactive({
 const canPublish = computed(() => auth.hasPermission('news.publish'))
 
 function titleOf(item) {
-  return locale.value === 'ar' ? item.title_ar : item.title_fr
+  return pickTitle(item, locale.value)
 }
 
 function resetForm() {

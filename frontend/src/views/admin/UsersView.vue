@@ -4,6 +4,7 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { disableUser, listRoles, listUsers } from '@/services/users'
+import { pickName } from '@/utils/localized'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
@@ -25,7 +26,7 @@ const canCreate = computed(() => auth.hasPermission('user.create'))
 const canUpdate = computed(() => auth.hasPermission('user.update'))
 
 function roleLabel(role) {
-  return locale.value === 'ar' ? role.name_ar : role.name_fr
+  return pickName(role, locale.value)
 }
 
 async function load() {

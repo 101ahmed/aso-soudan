@@ -9,6 +9,7 @@ import {
   fetchStudents,
   updateStudent,
 } from '@/services/academic'
+import { pickName } from '@/utils/localized'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
@@ -38,7 +39,7 @@ const levels = computed(() => {
 
 function label(item) {
   if (!item) return ''
-  return locale.value === 'ar' ? item.name_ar || item.name : item.name_fr || item.name
+  return pickName(item, locale.value)
 }
 
 function resetForm() {

@@ -8,7 +8,7 @@ import { upcomingEvents } from '@/data/publicContent'
 import { imagesToSlides } from '@/utils/gallerySlides'
 
 const { t, locale } = useI18n()
-const localized = (item) => item?.[locale.value] || item?.fr || ''
+const localized = (item) => item?.[locale.value] || item?.en || item?.fr || item?.ar || ''
 
 const eventSlides = computed(() =>
   imagesToSlides(
