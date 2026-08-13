@@ -24,7 +24,7 @@ class AdminAcademicAttendanceController extends Controller
             ?? AcademicYear::query()->latest('id')->first();
 
         $subjects = Subject::query()
-            ->where('is_active', true)
+            ->offered()
             ->withCount([
                 'classGroups as classes_count' => fn ($q) => $q->when(
                     $year,
@@ -77,13 +77,14 @@ class AdminAcademicAttendanceController extends Controller
         $this->authorizePermission($request, 'attendance.view');
 
         return response()->json([
-            'data' => Subject::query()->where('is_active', true)->orderBy('name_fr')->get(),
+            'data' => Subject::query()->offered()->orderBy('name_ar')->get(),
         ]);
     }
 
     public function classesBySubject(Request $request, Subject $subject): JsonResponse
     {
         $this->authorizePermission($request, 'attendance.view');
+        abort_if(Subject::isFrenchLanguage($subject), 404);
 
         $year = AcademicYear::query()->current()->first();
 

@@ -25,7 +25,9 @@ class TeacherResource extends JsonResource
             'locale' => $this->whenLoaded('user', fn () => $this->user?->locale),
             'classes_count' => $this->whenCounted('classGroups'),
             'subjects' => $this->whenLoaded('subjects', function () {
-                return $this->subjects->map(fn (Subject $subject) => [
+                return $this->subjects
+                    ->reject(fn (Subject $subject) => Subject::isFrenchLanguage($subject))
+                    ->map(fn (Subject $subject) => [
                     'id' => $subject->id,
                     'code' => $subject->code,
                     'name_ar' => $subject->name_ar,

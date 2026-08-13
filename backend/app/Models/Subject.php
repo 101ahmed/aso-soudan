@@ -25,6 +25,22 @@ class Subject extends Model
         return ['is_active' => 'boolean'];
     }
 
+    public function scopeOffered($query)
+    {
+        return $query->where('is_active', true)->where(function ($inner) {
+            $inner->whereNull('code')->orWhere('code', '!=', 'FR');
+        })->where('name_ar', '!=', 'اللغة الفرنسية');
+    }
+
+    public static function isFrenchLanguage(?self $subject): bool
+    {
+        if (! $subject) {
+            return false;
+        }
+
+        return $subject->code === 'FR' || $subject->name_ar === 'اللغة الفرنسية';
+    }
+
     public function classGroups(): HasMany
     {
         return $this->hasMany(ClassGroup::class);
