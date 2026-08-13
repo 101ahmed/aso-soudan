@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { computed, onActivated, onMounted, reactive, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
@@ -75,6 +75,10 @@ async function createSession() {
 
 watch(selectedClassId, loadSessions)
 onMounted(async () => {
+  await loadClasses()
+  await loadSessions()
+})
+onActivated(async () => {
   await loadClasses()
   await loadSessions()
 })

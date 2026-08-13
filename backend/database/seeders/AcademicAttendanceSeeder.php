@@ -21,6 +21,7 @@ class AcademicAttendanceSeeder extends Seeder
     public function run(): void
     {
         $this->removeFrenchLanguageSubject();
+        $this->forgetSeededDemoAttendance();
 
         $year = AcademicYear::query()->updateOrCreate(
             ['name' => '2026/2027'],
@@ -175,37 +176,6 @@ class AcademicAttendanceSeeder extends Seeder
                     ]
                 );
             }
-
-            $session = AcademicSession::query()->updateOrCreate(
-                [
-                    'class_group_id' => $class->id,
-                    'session_date' => now()->toDateString(),
-                    'starts_at' => '10:00:00',
-                ],
-                [
-                    'ends_at' => '11:00:00',
-                    'status' => 'completed',
-                    'room' => 'Salle A',
-                ]
-            );
-
-            foreach ($students as $i => $student) {
-                $status = match ($i % 4) {
-                    0 => StudentAttendance::STATUS_PRESENT,
-                    1 => StudentAttendance::STATUS_PRESENT,
-                    2 => StudentAttendance::STATUS_ABSENT,
-                    default => StudentAttendance::STATUS_LATE,
-                };
-                StudentAttendance::query()->updateOrCreate(
-                    [
-                        'academic_session_id' => $session->id,
-                        'student_id' => $student->id,
-                    ],
-                    [
-                        'status' => $status,
-                    ]
-                );
-            }
         }
     }
 
@@ -240,5 +210,21 @@ class AcademicAttendanceSeeder extends Seeder
             DB::table('level_subject')->where('subject_id', $subject->id)->delete();
             $subject->forceDelete();
         }
+    }
+
+    private function forgetSeededDemoAttendance(): void
+    {
+        $sessionIds = AcademicSession::query()
+            ->where('room', 'Salle A')
+            ->where('starts_at', '10:00:00')
+            ->pluck('id');
+
+        if ($sessionIds->isEmpty()) {
+            return;
+        }
+
+        StudentAttendance::query()->whereIn('academic_session_id', $sessionIds)->delete();
+        DB::table('teacher_attendances')->whereIn('academic_session_id', $sessionIds)->delete();
+        AcademicSession::query()->whereIn('id', $sessionIds)->forceDelete();
     }
 }
