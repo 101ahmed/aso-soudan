@@ -35,6 +35,10 @@ import SecretariatOfficerView from '@/views/admin/secretariat/SecretariatOfficer
 import AcademicAttendanceOverview from '@/views/admin/academic/AcademicAttendanceOverview.vue'
 import AcademicSubjectAttendanceView from '@/views/admin/academic/AcademicSubjectAttendanceView.vue'
 import AcademicAttendanceSheetView from '@/views/admin/academic/AcademicAttendanceSheetView.vue'
+import AcademicTeachersView from '@/views/admin/academic/AcademicTeachersView.vue'
+import AcademicStudentsView from '@/views/admin/academic/AcademicStudentsView.vue'
+import TeacherAdminShell from '@/views/admin/teacher/TeacherAdminShell.vue'
+import TeacherHomeView from '@/views/admin/teacher/TeacherHomeView.vue'
 import ShuraAdminShell from '@/views/admin/shura/ShuraAdminShell.vue'
 import ShuraOverviewView from '@/views/admin/shura/ShuraOverviewView.vue'
 import ShuraMembersView from '@/views/admin/shura/ShuraMembersView.vue'
@@ -165,6 +169,50 @@ const router = createRouter({
             {
               path: 'attendance/sessions/:sessionId',
               name: 'admin.secretariat.attendance.sheet',
+              component: AcademicAttendanceSheetView,
+              meta: { permission: 'attendance.view' },
+            },
+            {
+              path: 'teachers',
+              name: 'admin.secretariat.teachers',
+              component: AcademicTeachersView,
+              meta: { permission: 'teacher.view' },
+            },
+            {
+              path: 'students',
+              name: 'admin.secretariat.students',
+              component: AcademicStudentsView,
+              meta: { permission: 'student.view' },
+            },
+          ],
+        },
+        {
+          path: 'teacher',
+          component: TeacherAdminShell,
+          meta: { roles: ['TEACHER', 'SUPER_ADMIN'] },
+          children: [
+            { path: '', name: 'admin.teacher', component: TeacherHomeView },
+            {
+              path: 'students',
+              name: 'admin.teacher.students',
+              component: AcademicStudentsView,
+              meta: { permission: 'student.view' },
+            },
+            {
+              path: 'attendance',
+              name: 'admin.teacher.attendance',
+              component: AcademicAttendanceOverview,
+              meta: { permission: 'attendance.view' },
+            },
+            {
+              path: 'attendance/subjects/:subjectId',
+              name: 'admin.teacher.attendance.subject',
+              component: AcademicSubjectAttendanceView,
+              meta: { permission: 'attendance.view' },
+            },
+            {
+              path: 'attendance/sessions/:sessionId',
+              name: 'admin.teacher.attendance.sheet',
               component: AcademicAttendanceSheetView,
               meta: { permission: 'attendance.view' },
             },

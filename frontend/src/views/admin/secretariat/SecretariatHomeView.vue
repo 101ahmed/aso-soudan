@@ -19,11 +19,23 @@ const cards = computed(() => {
     { to: `/admin/secretariats/${code.value}/albums`, label: t('secretariatAdmin.albums'), hint: t('secretariatAdmin.albumsHint') },
   ]
   if (code.value === 'academic') {
-    items.unshift({
-      to: `/admin/secretariats/academic/attendance`,
-      label: t('secretariatAdmin.attendance'),
-      hint: t('secretariatAdmin.attendanceHint'),
-    })
+    items.unshift(
+      {
+        to: `/admin/secretariats/academic/teachers`,
+        label: t('secretariatAdmin.teachers'),
+        hint: t('secretariatAdmin.teachersHint'),
+      },
+      {
+        to: `/admin/secretariats/academic/students`,
+        label: t('secretariatAdmin.students'),
+        hint: t('secretariatAdmin.studentsHint'),
+      },
+      {
+        to: `/admin/secretariats/academic/attendance`,
+        label: t('secretariatAdmin.attendance'),
+        hint: t('secretariatAdmin.attendanceHint'),
+      },
+    )
   }
   return items
 })

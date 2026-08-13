@@ -1,15 +1,18 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
-import { RouterLink } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { fetchAttendanceOverview } from '@/services/academic'
+import { attendanceBaseFromPath } from '@/utils/academicPaths'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
+const route = useRoute()
 const loading = ref(true)
 const error = ref('')
 const overview = ref(null)
+const attendanceBase = computed(() => attendanceBaseFromPath(route.path))
 
 const canView = computed(() => auth.hasPermission('attendance.view'))
 
@@ -82,7 +85,7 @@ onMounted(async () => {
               <td class="px-4 py-3 text-rose-700">{{ subject.absent_count }}</td>
               <td class="px-4 py-3 text-end">
                 <RouterLink
-                  :to="`/admin/secretariats/academic/attendance/subjects/${subject.id}`"
+                  :to="`${attendanceBase}/subjects/${subject.id}`"
                   class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
                 >
                   {{ t('academicAttendance.open') }}

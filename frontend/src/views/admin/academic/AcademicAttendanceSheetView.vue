@@ -4,10 +4,12 @@ import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { fetchAttendanceSheet, saveAttendanceSheet } from '@/services/academic'
+import { attendanceBaseFromPath } from '@/utils/academicPaths'
 
 const route = useRoute()
 const { t, locale } = useI18n()
 const auth = useAuthStore()
+const attendanceBase = computed(() => attendanceBaseFromPath(route.path))
 
 const session = ref(null)
 const rows = ref([])
@@ -88,7 +90,7 @@ onMounted(load)
       <div>
         <RouterLink
           v-if="session?.class_group?.subject_id"
-          :to="`/admin/secretariats/academic/attendance/subjects/${session.class_group.subject_id}`"
+          :to="`${attendanceBase}/subjects/${session.class_group.subject_id}`"
           class="text-xs text-[var(--rdp-forest)] hover:underline"
         >
           ← {{ t('academicAttendance.back') }}

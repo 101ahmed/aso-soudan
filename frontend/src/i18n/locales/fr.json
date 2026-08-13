@@ -350,6 +350,76 @@
       "excused": "Excusé"
     }
   },
+  "academicTeachers": {
+    "title": "Enseignants",
+    "subtitle": "Gérer les enseignants du secrétariat académique et les matières associées.",
+    "forbidden": "Permission teacher.view requise.",
+    "search": "Rechercher par nom ou e-mail",
+    "filter": "Filtrer",
+    "allStatuses": "Tous les statuts",
+    "name": "Nom",
+    "subjects": "Matières",
+    "status": "Statut",
+    "empty": "Aucun enseignant pour le moment.",
+    "newTeacher": "Nouvel enseignant",
+    "editTeacher": "Modifier l’enseignant",
+    "accountHint": "Un compte de connexion avec le rôle Enseignant est créé avec cette fiche.",
+    "hiredOn": "Date d’arrivée",
+    "notes": "Notes internes",
+    "password": "Mot de passe",
+    "passwordConfirm": "Confirmation du mot de passe",
+    "passwordHint": "Obligatoire pour créer le compte d’accès.",
+    "passwordHintEdit": "Laissez vide pour ne pas changer le mot de passe.",
+    "passwordRequired": "Le mot de passe est requis pour créer l’enseignant.",
+    "confirmDelete": "Supprimer l’enseignant {name} et désactiver son compte ?",
+    "statuses": {
+      "active": "Actif",
+      "inactive": "Inactif",
+      "suspended": "Suspendu"
+    }
+  },
+  "academicStudents": {
+    "title": "Élèves",
+    "subtitle": "Ajouter, modifier ou supprimer un élève.",
+    "forbidden": "Permission student.view requise.",
+    "search": "Rechercher par nom",
+    "filter": "Filtrer",
+    "allStatuses": "Tous les statuts",
+    "name": "Nom",
+    "level": "Niveau",
+    "stage": "Cycle",
+    "year": "Année académique",
+    "subjects": "Matières",
+    "status": "Statut",
+    "gender": "Genre",
+    "notes": "Notes",
+    "empty": "Aucun élève pour le moment.",
+    "newStudent": "Nouvel élève",
+    "editStudent": "Modifier l’élève",
+    "confirmDelete": "Supprimer l’élève {name} ?",
+    "statuses": {
+      "active": "Actif",
+      "pending": "En attente",
+      "inactive": "Inactif",
+      "archived": "Archivé"
+    },
+    "genders": {
+      "male": "Garçon",
+      "female": "Fille"
+    }
+  },
+  "teacherAdmin": {
+    "badge": "Espace enseignant",
+    "title": "Espace des enseignants",
+    "note": "Votre compte est créé par le secrétaire académique. Vous pouvez gérer les élèves et les présences.",
+    "forbidden": "Cet espace est réservé aux enseignants.",
+    "home": "Accueil",
+    "homeIntro": "Gérez les élèves et les présences depuis votre espace.",
+    "students": "Élèves",
+    "studentsHint": "Ajouter, modifier ou supprimer un élève.",
+    "attendance": "Présences / Absences",
+    "attendanceHint": "Feuille de présence par matière et par séance."
+  },
   "carousel": {
     "prev": "Précédent",
     "next": "Suivant",
@@ -390,6 +460,10 @@
     "albumsHint": "Créer un album et y ajouter des photos.",
     "attendance": "Présences / Absences",
     "attendanceHint": "Feuille de présence par matière et par séance.",
+    "teachers": "Enseignants",
+    "teachersHint": "Ajouter les enseignants, leurs matières et leurs comptes d’accès.",
+    "students": "Élèves",
+    "studentsHint": "Ajouter, modifier ou supprimer les élèves.",
     "officer": "Fiche de l’amin",
     "officerHint": "Photo et carte publique du responsable de l’amanah.",
     "officerSaved": "Fiche de l’amin enregistrée.",
@@ -547,6 +621,7 @@
       "president": "Espace Président",
       "shura": "Conseil de la Choura",
       "secretariat": "Mon secrétariat",
+      "teacher": "Espace enseignant",
       "users": "Utilisateurs",
       "roles": "Rôles & permissions"
     },
