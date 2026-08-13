@@ -9,6 +9,7 @@ use App\Models\ClassGroup;
 use App\Models\Student;
 use App\Models\StudentAttendance;
 use App\Models\Subject;
+use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,52 +24,166 @@ class AdminAcademicAttendanceController extends Controller
         $year = AcademicYear::query()->current()->first()
             ?? AcademicYear::query()->latest('id')->first();
 
+        $classes = $this->scopedClassGroups($request, $year)
+            ->get(['id', 'subject_id', 'name', 'teacher_id']);
+        $classIds = $classes->pluck('id');
+        $subjectIds = $classes->pluck('subject_id')->unique()->filter()->values();
+
         $subjects = Subject::query()
             ->offered()
-            ->withCount([
-                'classGroups as classes_count' => fn ($q) => $q->when(
-                    $year,
-                    fn ($qq) => $qq->where('academic_year_id', $year->id)
-                )->where('status', 'active'),
-            ])
-            ->orderBy('name_fr')
-            ->get()
-            ->map(function (Subject $subject) use ($year) {
-                $classIds = ClassGroup::query()
-                    ->where('subject_id', $subject->id)
-                    ->when($year, fn ($q) => $q->where('academic_year_id', $year->id))
-                    ->pluck('id');
+            ->when(
+                $this->isTeacherOnly($request->user()) && $subjectIds->isNotEmpty(),
+                fn ($q) => $q->whereIn('id', $subjectIds)
+            )
+            ->when(
+                $this->isTeacherOnly($request->user()) && $subjectIds->isEmpty(),
+                fn ($q) => $q->whereRaw('1 = 0')
+            )
+            ->orderBy('name_ar')
+            ->get(['id', 'code', 'name_ar', 'name_fr']);
 
-                $sessionIds = AcademicSession::query()
-                    ->whereIn('class_group_id', $classIds)
-                    ->pluck('id');
+        $sessions = $classIds->isEmpty()
+            ? collect()
+            : AcademicSession::query()
+                ->whereIn('class_group_id', $classIds)
+                ->get(['id', 'class_group_id', 'session_date', 'starts_at', 'status']);
 
-                $absences = StudentAttendance::query()
-                    ->whereIn('academic_session_id', $sessionIds)
-                    ->where('status', StudentAttendance::STATUS_ABSENT)
-                    ->count();
+        $attendance = $sessions->isEmpty()
+            ? collect()
+            : StudentAttendance::query()
+                ->whereIn('academic_session_id', $sessions->pluck('id'))
+                ->get(['academic_session_id', 'student_id', 'status']);
 
-                $presents = StudentAttendance::query()
-                    ->whereIn('academic_session_id', $sessionIds)
-                    ->where('status', StudentAttendance::STATUS_PRESENT)
-                    ->count();
+        $enrollments = $classIds->isEmpty()
+            ? collect()
+            : DB::table('class_students')
+            ->join('students', 'students.id', '=', 'class_students.student_id')
+            ->whereIn('class_students.class_group_id', $classIds)
+            ->where('class_students.status', 'active')
+            ->whereNull('students.deleted_at')
+            ->select(
+                'class_students.class_group_id',
+                'students.id as student_id',
+                'students.first_name',
+                'students.last_name',
+            )
+            ->get();
 
-                return [
-                    'id' => $subject->id,
-                    'code' => $subject->code,
-                    'name_ar' => $subject->name_ar,
-                    'name_fr' => $subject->name_fr,
-                    'classes_count' => $subject->classes_count,
-                    'sessions_count' => $sessionIds->count(),
-                    'present_count' => $presents,
-                    'absent_count' => $absences,
-                ];
-            });
+        $classById = $classes->keyBy('id');
+        $sessionById = $sessions->keyBy('id');
+
+        $statusBySubject = [];
+        $statusBySubjectStudent = [];
+        foreach ($attendance as $row) {
+            $session = $sessionById->get($row->academic_session_id);
+            $class = $session ? $classById->get($session->class_group_id) : null;
+            if (! $class) {
+                continue;
+            }
+            $sid = (int) $class->subject_id;
+            $status = (string) $row->status;
+            $statusBySubject[$sid][$status] = ($statusBySubject[$sid][$status] ?? 0) + 1;
+            $studentId = (int) $row->student_id;
+            $statusBySubjectStudent[$sid][$studentId][$status] = ($statusBySubjectStudent[$sid][$studentId][$status] ?? 0) + 1;
+        }
+
+        $studentsBySubject = [];
+        foreach ($enrollments as $row) {
+            $class = $classById->get($row->class_group_id);
+            if (! $class) {
+                continue;
+            }
+            $sid = (int) $class->subject_id;
+            $studentsBySubject[$sid][(int) $row->student_id] = [
+                'id' => (int) $row->student_id,
+                'full_name' => trim($row->first_name.' '.$row->last_name),
+            ];
+        }
+
+        $payload = $subjects->map(function (Subject $subject) use (
+            $classes,
+            $sessions,
+            $statusBySubject,
+            $statusBySubjectStudent,
+            $studentsBySubject,
+        ) {
+            $subjectClasses = $classes->where('subject_id', $subject->id);
+            $subjectClassIds = $subjectClasses->pluck('id');
+            $subjectSessions = $sessions->whereIn('class_group_id', $subjectClassIds);
+            $counts = $statusBySubject[$subject->id] ?? [];
+            $present = (int) ($counts[StudentAttendance::STATUS_PRESENT] ?? 0);
+            $absent = (int) ($counts[StudentAttendance::STATUS_ABSENT] ?? 0);
+            $late = (int) ($counts[StudentAttendance::STATUS_LATE] ?? 0);
+            $excused = (int) ($counts[StudentAttendance::STATUS_EXCUSED] ?? 0);
+            $recorded = $present + $absent + $late + $excused;
+            $rate = $recorded > 0 ? round((($present + $late) / $recorded) * 100, 1) : null;
+
+            $last = $subjectSessions->sortByDesc(function ($session) {
+                return $session->session_date?->toDateString().' '.$session->starts_at;
+            })->first();
+
+            $students = collect($studentsBySubject[$subject->id] ?? [])
+                ->map(function (array $student) use ($statusBySubjectStudent, $subject) {
+                    $st = $statusBySubjectStudent[$subject->id][$student['id']] ?? [];
+                    $present = (int) ($st[StudentAttendance::STATUS_PRESENT] ?? 0);
+                    $absent = (int) ($st[StudentAttendance::STATUS_ABSENT] ?? 0);
+                    $late = (int) ($st[StudentAttendance::STATUS_LATE] ?? 0);
+                    $excused = (int) ($st[StudentAttendance::STATUS_EXCUSED] ?? 0);
+                    $recorded = $present + $absent + $late + $excused;
+
+                    return [
+                        'id' => $student['id'],
+                        'full_name' => $student['full_name'],
+                        'present_count' => $present,
+                        'absent_count' => $absent,
+                        'late_count' => $late,
+                        'excused_count' => $excused,
+                        'recorded_count' => $recorded,
+                        'attendance_rate' => $recorded > 0 ? round((($present + $late) / $recorded) * 100, 1) : null,
+                    ];
+                })
+                ->sortByDesc('absent_count')
+                ->values();
+
+            return [
+                'id' => $subject->id,
+                'code' => $subject->code,
+                'name_ar' => $subject->name_ar,
+                'name_fr' => $subject->name_fr,
+                'classes_count' => $subjectClasses->count(),
+                'sessions_count' => $subjectSessions->count(),
+                'students_count' => $students->count(),
+                'present_count' => $present,
+                'absent_count' => $absent,
+                'late_count' => $late,
+                'excused_count' => $excused,
+                'recorded_count' => $recorded,
+                'attendance_rate' => $rate,
+                'last_session_date' => $last?->session_date?->toDateString(),
+                'students' => $students,
+            ];
+        })->values();
+
+        $totals = [
+            'present_count' => $payload->sum('present_count'),
+            'absent_count' => $payload->sum('absent_count'),
+            'late_count' => $payload->sum('late_count'),
+            'excused_count' => $payload->sum('excused_count'),
+        ];
+        $recorded = array_sum($totals);
+        $totals['recorded_count'] = $recorded;
+        $totals['attendance_rate'] = $recorded > 0
+            ? round((($totals['present_count'] + $totals['late_count']) / $recorded) * 100, 1)
+            : null;
+
+        $studentsCount = $enrollments->pluck('student_id')->unique()->count();
 
         return response()->json([
             'academic_year' => $year,
-            'students_count' => Student::query()->where('status', 'active')->count(),
-            'subjects' => $subjects,
+            'students_count' => $studentsCount,
+            'totals' => $totals,
+            'generated_at' => now()->toIso8601String(),
+            'subjects' => $payload,
         ]);
     }
 
@@ -86,7 +201,8 @@ class AdminAcademicAttendanceController extends Controller
         $this->authorizePermission($request, 'attendance.view');
         abort_if(Subject::isFrenchLanguage($subject), 404);
 
-        $year = AcademicYear::query()->current()->first();
+        $year = AcademicYear::query()->current()->first()
+            ?? AcademicYear::query()->latest('id')->first();
 
         $classes = ClassGroup::query()
             ->with(['level', 'subject'])
@@ -170,7 +286,8 @@ class AdminAcademicAttendanceController extends Controller
                 'full_name' => $student->full_name,
                 'first_name' => $student->first_name,
                 'last_name' => $student->last_name,
-                'status' => $att?->status ?? StudentAttendance::STATUS_PRESENT,
+                'status' => $att?->status,
+                'recorded' => $att !== null,
                 'notes' => $att?->notes,
                 'attendance_id' => $att?->id,
             ];
@@ -263,5 +380,44 @@ class AdminAcademicAttendanceController extends Controller
     private function authorizePermission(Request $request, string $permission): void
     {
         abort_unless($request->user()?->hasPermission($permission), 403);
+    }
+
+    private function isTeacherOnly(?User $user): bool
+    {
+        if (! $user) {
+            return false;
+        }
+
+        return $user->hasRole('TEACHER')
+            && ! $user->hasRole('SUPER_ADMIN')
+            && ! $user->hasRole('ACADEMIC_SECRETARIAT');
+    }
+
+    private function scopedClassGroups(Request $request, ?AcademicYear $year)
+    {
+        $query = ClassGroup::query()->where('status', 'active');
+        if ($year) {
+            $query->where('academic_year_id', $year->id);
+        }
+
+        if (! $this->isTeacherOnly($request->user())) {
+            return $query;
+        }
+
+        $request->user()->loadMissing('teacher.subjects');
+        $teacherId = $request->user()->teacher?->id;
+        $subjectIds = $request->user()->teacher?->subjects?->pluck('id') ?? collect();
+
+        return $query->where(function ($inner) use ($teacherId, $subjectIds) {
+            if ($teacherId) {
+                $inner->where('teacher_id', $teacherId);
+            }
+            if ($subjectIds->isNotEmpty()) {
+                $inner->orWhereIn('subject_id', $subjectIds);
+            }
+            if (! $teacherId && $subjectIds->isEmpty()) {
+                $inner->whereRaw('1 = 0');
+            }
+        });
     }
 }

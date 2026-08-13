@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, onActivated, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
@@ -47,7 +47,7 @@ async function load() {
   try {
     const data = await fetchAttendanceSheet(route.params.sessionId)
     session.value = data.session
-    rows.value = (data.rows || []).map((r) => ({ ...r }))
+    rows.value = (data.rows || []).map((r) => ({ ...r, status: r.status || '' }))
     if (data.statuses?.length) statuses.value = data.statuses
   } catch (e) {
     error.value = e.response?.data?.message || e.message
@@ -58,6 +58,11 @@ async function save() {
   saving.value = true
   success.value = ''
   error.value = ''
+  if (rows.value.some((r) => !r.status)) {
+    error.value = t('academicAttendance.fillAll')
+    saving.value = false
+    return
+  }
   try {
     const data = await saveAttendanceSheet(
       route.params.sessionId,
@@ -68,7 +73,7 @@ async function save() {
       })),
     )
     session.value = data.session
-    rows.value = (data.rows || []).map((r) => ({ ...r }))
+    rows.value = (data.rows || []).map((r) => ({ ...r, status: r.status || '' }))
     success.value = t('academicAttendance.saved')
   } catch (e) {
     error.value = e.response?.data?.message || e.message
@@ -82,6 +87,7 @@ function markAll(status) {
 }
 
 onMounted(load)
+onActivated(load)
 </script>
 
 <template>
@@ -157,6 +163,7 @@ onMounted(load)
                 :class="statusClass(row.status)"
                 :disabled="!canEdit"
               >
+                <option value="">{{ t('academicAttendance.unrecorded') }}</option>
                 <option v-for="st in statuses" :key="st" :value="st">
                   {{ t(`academicAttendance.statuses.${st}`) }}
                 </option>
