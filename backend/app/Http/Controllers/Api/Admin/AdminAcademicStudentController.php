@@ -29,7 +29,7 @@ class AdminAcademicStudentController extends Controller
                 ->with(['levels' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order')])
                 ->orderBy('sort_order')
                 ->get(),
-            'subjects' => Subject::query()->where('is_active', true)->orderBy('name_fr')->get(['id', 'code', 'name_ar', 'name_fr']),
+            'subjects' => Subject::query()->offered()->orderBy('name_ar')->get(['id', 'code', 'name_ar', 'name_fr']),
         ]);
     }
 

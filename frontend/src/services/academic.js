@@ -1,13 +1,22 @@
 import api from '@/services/api'
 
+function withoutFrenchSubject(items = []) {
+  return (items || []).filter(
+    (item) => item?.code !== 'FR' && item?.name_ar !== 'اللغة الفرنسية',
+  )
+}
+
 export async function fetchAttendanceOverview() {
   const { data } = await api.get('/admin/academic/attendance/overview')
-  return data
+  return {
+    ...data,
+    subjects: withoutFrenchSubject(data.subjects),
+  }
 }
 
 export async function fetchSubjects() {
   const { data } = await api.get('/admin/academic/subjects')
-  return data.data || data
+  return withoutFrenchSubject(data.data || data)
 }
 
 export async function fetchClassesBySubject(subjectId) {
@@ -56,7 +65,10 @@ export async function deleteTeacher(id) {
 
 export async function fetchStudentCatalog() {
   const { data } = await api.get('/admin/academic/catalog')
-  return data
+  return {
+    ...data,
+    subjects: withoutFrenchSubject(data.subjects),
+  }
 }
 
 export async function fetchStudents(params = {}) {

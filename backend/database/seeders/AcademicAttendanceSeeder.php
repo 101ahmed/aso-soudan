@@ -20,6 +20,8 @@ class AcademicAttendanceSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->removeFrenchLanguageSubject();
+
         $year = AcademicYear::query()->updateOrCreate(
             ['name' => '2026/2027'],
             [
@@ -55,7 +57,6 @@ class AcademicAttendanceSeeder extends Seeder
         $subjects = [
             ['code' => 'AR', 'name_ar' => 'اللغة العربية', 'name_fr' => 'Langue arabe'],
             ['code' => 'QURAN', 'name_ar' => 'القرآن الكريم', 'name_fr' => 'Coran'],
-            ['code' => 'FR', 'name_ar' => 'اللغة الفرنسية', 'name_fr' => 'Français'],
             ['code' => 'MATH', 'name_ar' => 'الرياضيات', 'name_fr' => 'Mathématiques'],
         ];
 
@@ -86,7 +87,7 @@ class AcademicAttendanceSeeder extends Seeder
         $teachersSeed = [
             ['first' => 'إبراهيم', 'last' => 'سليمان', 'email' => 'ibrahim.teacher@acs-rennes.fr', 'subjects' => ['AR']],
             ['first' => 'فاطمة', 'last' => 'أحمد', 'email' => 'fatima.teacher@acs-rennes.fr', 'subjects' => ['QURAN']],
-            ['first' => 'عمر', 'last' => 'حسن', 'email' => 'omar.teacher@acs-rennes.fr', 'subjects' => ['FR', 'MATH']],
+            ['first' => 'عمر', 'last' => 'حسن', 'email' => 'omar.teacher@acs-rennes.fr', 'subjects' => ['MATH']],
         ];
 
         foreach ($teachersSeed as $item) {
@@ -205,6 +206,39 @@ class AcademicAttendanceSeeder extends Seeder
                     ]
                 );
             }
+        }
+    }
+
+    private function removeFrenchLanguageSubject(): void
+    {
+        $subjects = Subject::query()
+            ->withTrashed()
+            ->where(function ($query) {
+                $query->where('code', 'FR')
+                    ->orWhere('name_ar', 'اللغة الفرنسية');
+            })
+            ->get();
+
+        foreach ($subjects as $subject) {
+            $classIds = ClassGroup::query()
+                ->withTrashed()
+                ->where('subject_id', $subject->id)
+                ->pluck('id');
+
+            $sessionIds = AcademicSession::query()
+                ->withTrashed()
+                ->whereIn('class_group_id', $classIds)
+                ->pluck('id');
+
+            StudentAttendance::query()->whereIn('academic_session_id', $sessionIds)->delete();
+            DB::table('teacher_attendances')->whereIn('academic_session_id', $sessionIds)->delete();
+            AcademicSession::query()->withTrashed()->whereIn('id', $sessionIds)->forceDelete();
+            DB::table('class_students')->whereIn('class_group_id', $classIds)->delete();
+            ClassGroup::query()->withTrashed()->whereIn('id', $classIds)->forceDelete();
+            DB::table('teacher_subject')->where('subject_id', $subject->id)->delete();
+            DB::table('student_subject')->where('subject_id', $subject->id)->delete();
+            DB::table('level_subject')->where('subject_id', $subject->id)->delete();
+            $subject->forceDelete();
         }
     }
 }

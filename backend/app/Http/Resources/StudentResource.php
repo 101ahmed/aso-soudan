@@ -27,7 +27,9 @@ class StudentResource extends JsonResource
             'education_stage' => $this->whenLoaded('educationStage', fn () => $this->educationStage?->only(['id', 'code', 'name_ar', 'name_fr'])),
             'level' => $this->whenLoaded('level', fn () => $this->level?->only(['id', 'code', 'name_ar', 'name_fr', 'education_stage_id'])),
             'subjects' => $this->whenLoaded('subjects', function () {
-                return $this->subjects->map(fn (Subject $subject) => [
+                return $this->subjects
+                    ->reject(fn (Subject $subject) => Subject::isFrenchLanguage($subject))
+                    ->map(fn (Subject $subject) => [
                     'id' => $subject->id,
                     'code' => $subject->code,
                     'name_ar' => $subject->name_ar,
