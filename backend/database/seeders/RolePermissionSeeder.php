@@ -57,8 +57,10 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'student.view', 'module' => 'students', 'name_fr' => 'Voir étudiants', 'name_ar' => 'عرض الطلاب'],
             ['code' => 'student.create', 'module' => 'students', 'name_fr' => 'Créer étudiant', 'name_ar' => 'إنشاء طالب'],
             ['code' => 'student.update', 'module' => 'students', 'name_fr' => 'Modifier étudiant', 'name_ar' => 'تعديل طالب'],
+            ['code' => 'student.delete', 'module' => 'students', 'name_fr' => 'Supprimer étudiant', 'name_ar' => 'حذف طالب'],
             ['code' => 'teacher.view', 'module' => 'teachers', 'name_fr' => 'Voir enseignants', 'name_ar' => 'عرض المعلمين'],
             ['code' => 'teacher.create', 'module' => 'teachers', 'name_fr' => 'Créer enseignant', 'name_ar' => 'إنشاء معلم'],
+            ['code' => 'teacher.update', 'module' => 'teachers', 'name_fr' => 'Modifier enseignant', 'name_ar' => 'تعديل معلم'],
             ['code' => 'attendance.view', 'module' => 'attendance', 'name_fr' => 'Voir présence', 'name_ar' => 'عرض الحضور'],
             ['code' => 'attendance.create', 'module' => 'attendance', 'name_fr' => 'Saisir présence', 'name_ar' => 'تسجيل الحضور'],
             ['code' => 'report.view', 'module' => 'reports', 'name_fr' => 'Voir rapports', 'name_ar' => 'عرض التقارير'],
@@ -131,8 +133,8 @@ class RolePermissionSeeder extends Seeder
         $managerRoleMap = [
             'GENERAL_SECRETARIAT' => $secretariatManagerCodes,
             'ACADEMIC_SECRETARIAT' => array_merge($secretariatManagerCodes, [
-                'student.view', 'student.create', 'student.update',
-                'teacher.view', 'teacher.create',
+                'student.view', 'student.create', 'student.update', 'student.delete',
+                'teacher.view', 'teacher.create', 'teacher.update',
                 'attendance.view', 'attendance.create',
             ]),
             'SOCIAL_SECRETARIAT' => $secretariatManagerCodes,
@@ -155,7 +157,8 @@ class RolePermissionSeeder extends Seeder
         $teacher = Role::query()->where('code', 'TEACHER')->first();
         $teacher?->permissions()->sync(
             Permission::query()->whereIn('code', [
-                'student.view', 'attendance.view', 'attendance.create',
+                'student.view', 'student.create', 'student.update', 'student.delete',
+                'attendance.view', 'attendance.create',
             ])->pluck('id')
         );
 

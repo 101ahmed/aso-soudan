@@ -8,11 +8,13 @@ import {
   fetchClassSessions,
   fetchClassesBySubject,
 } from '@/services/academic'
+import { attendanceBaseFromPath } from '@/utils/academicPaths'
 
 const route = useRoute()
 const router = useRouter()
 const { t, locale } = useI18n()
 const auth = useAuthStore()
+const attendanceBase = computed(() => attendanceBaseFromPath(route.path))
 
 const subjectId = computed(() => route.params.subjectId)
 const subject = ref(null)
@@ -65,7 +67,7 @@ async function createSession() {
   try {
     const session = await createClassSession(selectedClassId.value, { ...form })
     await loadSessions()
-    router.push(`/admin/secretariats/academic/attendance/sessions/${session.id}`)
+    router.push(`${attendanceBase.value}/sessions/${session.id}`)
   } catch (e) {
     error.value = e.response?.data?.message || e.message
   }
@@ -82,7 +84,7 @@ onMounted(async () => {
   <div class="space-y-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <div>
-        <RouterLink to="/admin/secretariats/academic/attendance" class="text-xs text-[var(--rdp-forest)] hover:underline">
+        <RouterLink :to="attendanceBase" class="text-xs text-[var(--rdp-forest)] hover:underline">
           ← {{ t('academicAttendance.back') }}
         </RouterLink>
         <h2 class="mt-1 text-lg font-semibold text-[var(--rdp-forest)]">{{ label(subject) }}</h2>
@@ -142,7 +144,7 @@ onMounted(async () => {
                 <td class="px-4 py-3 text-rose-700">{{ s.absent_count }}</td>
                 <td class="px-4 py-3 text-end">
                   <RouterLink
-                    :to="`/admin/secretariats/academic/attendance/sessions/${s.id}`"
+                    :to="`${attendanceBase}/sessions/${s.id}`"
                     class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
                   >
                     {{ t('academicAttendance.sheet') }}

@@ -7,7 +7,10 @@ use App\Models\AcademicYear;
 use App\Models\ClassGroup;
 use App\Models\EducationStage;
 use App\Models\Level;
+use App\Models\Role;
 use App\Models\Student;
+use App\Models\Teacher;
+use App\Models\User;
 use App\Models\StudentAttendance;
 use App\Models\Subject;
 use Illuminate\Database\Seeder;
@@ -78,6 +81,52 @@ class AcademicAttendanceSeeder extends Seeder
             ['نور', 'عثمان'],
         ];
 
+        $teacherRole = Role::query()->where('code', 'TEACHER')->first();
+        $teachersBySubject = [];
+        $teachersSeed = [
+            ['first' => 'إبراهيم', 'last' => 'سليمان', 'email' => 'ibrahim.teacher@acs-rennes.fr', 'subjects' => ['AR']],
+            ['first' => 'فاطمة', 'last' => 'أحمد', 'email' => 'fatima.teacher@acs-rennes.fr', 'subjects' => ['QURAN']],
+            ['first' => 'عمر', 'last' => 'حسن', 'email' => 'omar.teacher@acs-rennes.fr', 'subjects' => ['FR', 'MATH']],
+        ];
+
+        foreach ($teachersSeed as $item) {
+            $user = User::query()->updateOrCreate(
+                ['email' => $item['email']],
+                [
+                    'first_name' => $item['first'],
+                    'last_name' => $item['last'],
+                    'name' => $item['first'].' '.$item['last'],
+                    'phone' => null,
+                    'locale' => 'ar',
+                    'status' => 'active',
+                    'password' => 'Password123!',
+                    'email_verified_at' => now(),
+                ]
+            );
+            if ($teacherRole) {
+                $user->roles()->syncWithoutDetaching([$teacherRole->id]);
+            }
+
+            $teacher = Teacher::query()->updateOrCreate(
+                ['user_id' => $user->id],
+                [
+                    'first_name' => $item['first'],
+                    'last_name' => $item['last'],
+                    'status' => 'active',
+                    'hired_on' => '2026-09-01',
+                ]
+            );
+            $subjectIds = collect($item['subjects'])
+                ->map(fn ($code) => $subjectModels[$code]->id ?? null)
+                ->filter()
+                ->all();
+            $teacher->subjects()->sync($subjectIds);
+
+            foreach ($item['subjects'] as $code) {
+                $teachersBySubject[$code] = $teacher;
+            }
+        }
+
         $students = [];
         foreach ($studentsData as [$first, $last]) {
             $students[] = Student::query()->updateOrCreate(
@@ -104,6 +153,7 @@ class AcademicAttendanceSeeder extends Seeder
                 ],
                 [
                     'level_id' => $level->id,
+                    'teacher_id' => $teachersBySubject[$code]?->id,
                     'code' => $code.'-CE2',
                     'capacity' => 20,
                     'status' => 'active',

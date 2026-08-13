@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\AdminAcademicAttendanceController;
+use App\Http\Controllers\Api\Admin\AdminAcademicStudentController;
+use App\Http\Controllers\Api\Admin\AdminAcademicTeacherController;
 use App\Http\Controllers\Api\Admin\AdminAlbumController;
 use App\Http\Controllers\Api\Admin\AdminAnnouncementController;
 use App\Http\Controllers\Api\Admin\AdminDepartmentController;
@@ -83,6 +85,19 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/sessions/{session}/sheet', [AdminAcademicAttendanceController::class, 'sheet']);
         Route::post('/sessions/{session}/sheet', [AdminAcademicAttendanceController::class, 'syncSheet']);
         Route::get('/students/{student}/attendance', [AdminAcademicAttendanceController::class, 'studentReport']);
+
+        Route::get('/catalog', [AdminAcademicStudentController::class, 'catalog']);
+        Route::get('/students', [AdminAcademicStudentController::class, 'index']);
+        Route::post('/students', [AdminAcademicStudentController::class, 'store']);
+        Route::get('/students/{student}', [AdminAcademicStudentController::class, 'show']);
+        Route::put('/students/{student}', [AdminAcademicStudentController::class, 'update']);
+        Route::delete('/students/{student}', [AdminAcademicStudentController::class, 'destroy']);
+
+        Route::get('/teachers', [AdminAcademicTeacherController::class, 'index']);
+        Route::post('/teachers', [AdminAcademicTeacherController::class, 'store']);
+        Route::get('/teachers/{teacher}', [AdminAcademicTeacherController::class, 'show']);
+        Route::put('/teachers/{teacher}', [AdminAcademicTeacherController::class, 'update']);
+        Route::delete('/teachers/{teacher}', [AdminAcademicTeacherController::class, 'destroy']);
     });
 
     Route::prefix('admin/departments/{code}')

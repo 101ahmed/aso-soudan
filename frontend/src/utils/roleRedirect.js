@@ -19,7 +19,7 @@ const ROLE_HOME = {
   SHURA_MEMBER: '/admin/shura',
   SHURA_CONTENT_EDITOR: '/admin/shura',
   PARENTS_COUNCIL: '/admin',
-  TEACHER: '/admin',
+  TEACHER: '/admin/teacher',
   PARENT: '/admin',
   MEMBER: '/admin',
 }

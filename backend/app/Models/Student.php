@@ -11,6 +11,10 @@ class Student extends Model
 {
     use SoftDeletes;
 
+    public const STATUSES = ['pending', 'active', 'inactive', 'archived'];
+
+    public const GENDERS = ['male', 'female'];
+
     protected $fillable = [
         'first_name',
         'last_name',
@@ -48,6 +52,18 @@ class Student extends Model
     public function academicYear(): BelongsTo
     {
         return $this->belongsTo(AcademicYear::class);
+    }
+
+    public function educationStage(): BelongsTo
+    {
+        return $this->belongsTo(EducationStage::class, 'education_stage_id');
+    }
+
+    public function subjects(): BelongsToMany
+    {
+        return $this->belongsToMany(Subject::class, 'student_subject')
+            ->withPivot('academic_year_id')
+            ->withTimestamps();
     }
 
     public function classGroups(): BelongsToMany

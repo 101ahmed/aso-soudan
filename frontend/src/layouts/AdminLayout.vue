@@ -15,8 +15,17 @@ const secretariatLink = computed(() => {
   return code ? `/admin/secretariats/${code}` : null
 })
 
+const isTeacher = computed(() => auth.user?.roles?.some((r) => r.code === 'TEACHER'))
+const isSuperAdmin = computed(() => auth.user?.roles?.some((r) => r.code === 'SUPER_ADMIN'))
+const teacherOnly = computed(() => isTeacher.value && !isSuperAdmin.value && !secretariatLink.value)
+
 const links = computed(() => [
-  { to: '/admin', label: t('admin.nav.dashboard'), show: true },
+  { to: '/admin', label: t('admin.nav.dashboard'), show: !teacherOnly.value },
+  {
+    to: '/admin/teacher',
+    label: t('admin.nav.teacher'),
+    show: isTeacher.value || isSuperAdmin.value,
+  },
   {
     to: '/admin/president',
     label: t('admin.nav.president'),

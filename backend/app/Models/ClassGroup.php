@@ -38,6 +38,11 @@ class ClassGroup extends Model
         return $this->belongsTo(Subject::class);
     }
 
+    public function teacher(): BelongsTo
+    {
+        return $this->belongsTo(Teacher::class);
+    }
+
     public function students(): BelongsToMany
     {
         return $this->belongsToMany(Student::class, 'class_students')
