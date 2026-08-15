@@ -243,15 +243,18 @@ onMounted(async () => {
 
       <section>
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('parents.announcements') }}</h2>
-        <div class="mt-4 space-y-3">
+        <div class="mt-4 grid gap-4 md:grid-cols-2">
           <article
             v-for="(item, index) in parentsCouncil.announcements"
             :key="index"
-            class="rounded-xl bg-white p-5 shadow-sm"
+            class="overflow-hidden rounded-xl bg-white shadow-sm"
           >
-            <p class="text-xs text-slate-500">{{ item.date }} · Public</p>
-            <h3 class="mt-1 font-semibold">{{ localized(item.title) }}</h3>
-            <p class="mt-2 text-sm text-slate-600">{{ localized(item.summary) }}</p>
+            <img :src="item.image" alt="" class="h-40 w-full object-cover" />
+            <div class="p-5">
+              <p class="text-xs text-slate-500">{{ item.date }} · Public</p>
+              <h3 class="mt-1 font-semibold">{{ localized(item.title) }}</h3>
+              <p class="mt-2 text-sm text-slate-600">{{ localized(item.summary) }}</p>
+            </div>
           </article>
         </div>
       </section>

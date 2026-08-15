@@ -70,12 +70,15 @@ const news = computed(() => {
     return feed.value.news.map((item) => ({
       slug: item.slug,
       date: (item.published_at || '').slice(0, 10),
+      image: item.image_url || '/logo.png',
       title: { ar: item.title_ar, fr: item.title_fr },
       excerpt: { ar: (item.content_ar || '').slice(0, 120), fr: (item.content_fr || '').slice(0, 120) },
     }))
   }
   return shuraCouncil.news
 })
+
+const announcements = computed(() => feed.value.announcements || [])
 
 const albums = computed(() => {
   if (feed.value.albums?.length) {
@@ -283,6 +286,25 @@ onMounted(async () => {
             </div>
             <h3 class="mt-2 font-semibold">{{ localized(item.title) }}</h3>
             <p class="mt-2 text-sm text-slate-600">{{ localized(item.summary) }}</p>
+          </article>
+        </div>
+      </section>
+
+      <section v-if="announcements.length">
+        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('shuraAdmin.announcements') }}</h2>
+        <div class="mt-4 grid gap-4 md:grid-cols-2">
+          <article
+            v-for="item in announcements"
+            :key="item.id"
+            class="overflow-hidden rounded-xl bg-white shadow-sm"
+          >
+            <img :src="item.image_url || '/logo.png'" alt="" class="h-40 w-full object-cover" />
+            <div class="space-y-2 p-4">
+              <h3 class="font-semibold">{{ locale === 'ar' ? item.title_ar : (item.title_en || item.title_fr) }}</h3>
+              <p class="text-sm text-slate-600">
+                {{ locale === 'ar' ? item.content_ar : (item.content_en || item.content_fr) }}
+              </p>
+            </div>
           </article>
         </div>
       </section>

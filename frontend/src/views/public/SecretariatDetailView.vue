@@ -364,12 +364,19 @@ watch(
           <article
             v-for="item in announcements"
             :key="item.id"
-            class="rounded-xl border border-[var(--rdp-forest)]/10 bg-white p-4"
+            class="overflow-hidden rounded-xl border border-[var(--rdp-forest)]/10 bg-white"
           >
-            <h3 class="font-semibold">{{ locale === 'ar' ? item.title_ar : (item.title_en || item.title_fr) }}</h3>
-            <p class="mt-2 text-sm text-slate-600">
-              {{ locale === 'ar' ? item.content_ar : (item.content_en || item.content_fr) }}
-            </p>
+            <img
+              :src="item.image_url || '/logo.png'"
+              alt=""
+              class="h-40 w-full object-cover"
+            />
+            <div class="p-4">
+              <h3 class="font-semibold">{{ locale === 'ar' ? item.title_ar : (item.title_en || item.title_fr) }}</h3>
+              <p class="mt-2 text-sm text-slate-600">
+                {{ locale === 'ar' ? item.content_ar : (item.content_en || item.content_fr) }}
+              </p>
+            </div>
           </article>
         </div>
       </section>

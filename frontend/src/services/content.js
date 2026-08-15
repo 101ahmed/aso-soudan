@@ -83,12 +83,15 @@ export async function fetchDepartmentAnnouncements(code, params = {}) {
 }
 
 export async function createAnnouncement(code, payload) {
-  const { data } = await api.post(deptPath(code, '/announcements'), payload)
+  const body = toFormData(payload)
+  const { data } = await api.post(deptPath(code, '/announcements'), body)
   return data.data || data
 }
 
 export async function updateAnnouncement(code, id, payload) {
-  const { data } = await api.put(deptPath(code, `/announcements/${id}`), payload)
+  const body = toFormData(payload)
+  body.append('_method', 'PUT')
+  const { data } = await api.post(deptPath(code, `/announcements/${id}`), body)
   return data.data || data
 }
 

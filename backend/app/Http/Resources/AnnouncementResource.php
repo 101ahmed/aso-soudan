@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Support\MediaUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,6 +17,8 @@ class AnnouncementResource extends JsonResource
             'title_fr' => $this->title_fr,
             'content_ar' => $this->content_ar,
             'content_fr' => $this->content_fr,
+            'image_path' => $this->image_path,
+            'image_url' => MediaUrl::absolute($this->image_path),
             'starts_at' => $this->starts_at?->toIso8601String(),
             'ends_at' => $this->ends_at?->toIso8601String(),
             'show_on_secretariat' => (bool) $this->show_on_secretariat,

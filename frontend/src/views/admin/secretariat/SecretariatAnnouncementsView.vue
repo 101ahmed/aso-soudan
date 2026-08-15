@@ -19,6 +19,8 @@ const code = computed(() => route.params.code)
 const items = ref([])
 const error = ref('')
 const editingId = ref(null)
+const existingImageUrl = ref('')
+const fileInput = ref(null)
 const canPublish = computed(() => auth.hasPermission('announcement.publish'))
 
 const form = reactive({
@@ -31,6 +33,12 @@ const form = reactive({
   show_on_secretariat: true,
   show_on_home: false,
   status: 'draft',
+  image: null,
+})
+
+const imagePreview = computed(() => {
+  if (form.image) return URL.createObjectURL(form.image)
+  return existingImageUrl.value
 })
 
 function titleOf(item) {
@@ -39,6 +47,7 @@ function titleOf(item) {
 
 function resetForm() {
   editingId.value = null
+  existingImageUrl.value = ''
   Object.assign(form, {
     title_ar: '',
     title_fr: '',
@@ -49,7 +58,9 @@ function resetForm() {
     show_on_secretariat: true,
     show_on_home: false,
     status: canPublish.value ? 'published' : 'draft',
+    image: null,
   })
+  if (fileInput.value) fileInput.value.value = ''
 }
 
 async function load() {
@@ -64,6 +75,7 @@ async function load() {
 
 function edit(item) {
   editingId.value = item.id
+  existingImageUrl.value = item.image_url || ''
   form.title_ar = item.title_ar
   form.title_fr = item.title_fr
   form.content_ar = item.content_ar || ''
@@ -73,9 +85,16 @@ function edit(item) {
   form.show_on_secretariat = !!item.show_on_secretariat
   form.show_on_home = !!item.show_on_home
   form.status = item.status
+  form.image = null
+  if (fileInput.value) fileInput.value.value = ''
 }
 
 async function save() {
+  error.value = ''
+  if (!form.image && !existingImageUrl.value) {
+    error.value = t('secretariatAdmin.imageRequired')
+    return
+  }
   try {
     const payload = { ...form }
     if (editingId.value) await updateAnnouncement(code.value, editingId.value, payload)
@@ -83,7 +102,10 @@ async function save() {
     resetForm()
     await load()
   } catch (e) {
-    error.value = e.response?.data?.message || e.message
+    const errors = e.response?.data?.errors
+    error.value = errors
+      ? Object.values(errors).flat().join(' ')
+      : e.response?.data?.message || e.message
   }
 }
 
@@ -98,26 +120,33 @@ onMounted(() => {
     <div class="space-y-3">
       <h2 class="text-lg font-semibold">{{ t('secretariatAdmin.announcements') }}</h2>
       <p v-if="error" class="text-sm text-rose-700">{{ error }}</p>
-      <article v-for="item in items" :key="item.id" class="rounded-lg border bg-white p-4">
-        <p class="font-medium">{{ titleOf(item) }}</p>
-        <p class="mt-1 text-xs text-slate-500">{{ item.status }}</p>
-        <div class="mt-2 flex gap-2">
-          <button type="button" class="rounded border px-2 py-1 text-xs" @click="edit(item)">{{ t('forms.edit') }}</button>
-          <button
-            v-if="item.status !== 'published' && canPublish"
-            type="button"
-            class="rounded border px-2 py-1 text-xs"
-            @click="publishAnnouncement(code, item.id).then(load)"
-          >
-            {{ t('secretariatAdmin.publish') }}
-          </button>
-          <button
-            type="button"
-            class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700"
-            @click="deleteAnnouncement(code, item.id).then(load)"
-          >
-            {{ t('forms.delete') }}
-          </button>
+      <article v-for="item in items" :key="item.id" class="overflow-hidden rounded-lg border bg-white">
+        <img
+          :src="item.image_url || '/logo.png'"
+          alt=""
+          class="h-36 w-full bg-slate-50 object-cover"
+        />
+        <div class="p-4">
+          <p class="font-medium">{{ titleOf(item) }}</p>
+          <p class="mt-1 text-xs text-slate-500">{{ item.status }}</p>
+          <div class="mt-2 flex gap-2">
+            <button type="button" class="rounded border px-2 py-1 text-xs" @click="edit(item)">{{ t('forms.edit') }}</button>
+            <button
+              v-if="item.status !== 'published' && canPublish"
+              type="button"
+              class="rounded border px-2 py-1 text-xs"
+              @click="publishAnnouncement(code, item.id).then(load)"
+            >
+              {{ t('secretariatAdmin.publish') }}
+            </button>
+            <button
+              type="button"
+              class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700"
+              @click="deleteAnnouncement(code, item.id).then(load)"
+            >
+              {{ t('forms.delete') }}
+            </button>
+          </div>
         </div>
       </article>
     </div>
@@ -128,6 +157,24 @@ onMounted(() => {
       <input v-model="form.title_ar" required class="w-full rounded border px-3 py-2 text-sm" dir="rtl" :placeholder="t('secretariatAdmin.titleAr')" />
       <textarea v-model="form.content_fr" rows="3" class="w-full rounded border px-3 py-2 text-sm" :placeholder="t('secretariatAdmin.contentFr')" />
       <textarea v-model="form.content_ar" rows="3" class="w-full rounded border px-3 py-2 text-sm" dir="rtl" :placeholder="t('secretariatAdmin.contentAr')" />
+      <label class="block text-sm">
+        <span class="mb-1 block text-xs text-slate-500">{{ t('secretariatAdmin.image') }}</span>
+        <input
+          ref="fileInput"
+          type="file"
+          accept="image/*"
+          class="w-full text-sm"
+          :required="!existingImageUrl"
+          @change="form.image = $event.target.files?.[0] || null"
+        />
+        <span class="mt-1 block text-xs text-slate-500">{{ t('secretariatAdmin.imageHint') }}</span>
+      </label>
+      <img
+        v-if="imagePreview"
+        :src="imagePreview"
+        alt=""
+        class="h-36 w-full rounded-md object-cover"
+      />
       <label class="block text-xs text-slate-500">{{ t('secretariatAdmin.startsAt') }}
         <input v-model="form.starts_at" type="datetime-local" class="mt-1 w-full rounded border px-3 py-2 text-sm" />
       </label>
@@ -141,7 +188,10 @@ onMounted(() => {
         <option value="pending_review">pending_review</option>
         <option v-if="canPublish" value="published">published</option>
       </select>
-      <button type="submit" class="rounded bg-teal-800 px-4 py-2 text-sm text-white">{{ t('forms.save') }}</button>
+      <div class="flex gap-2">
+        <button type="submit" class="rounded bg-teal-800 px-4 py-2 text-sm text-white">{{ t('forms.save') }}</button>
+        <button type="button" class="rounded border px-4 py-2 text-sm" @click="resetForm">{{ t('forms.cancel') }}</button>
+      </div>
     </form>
   </div>
 </template>

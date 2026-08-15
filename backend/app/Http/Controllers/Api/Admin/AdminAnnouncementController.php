@@ -9,6 +9,7 @@ use App\Models\Department;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class AdminAnnouncementController extends Controller
@@ -32,9 +33,14 @@ class AdminAnnouncementController extends Controller
         $this->authorizePermission($request, 'announcement.create');
         $department = $this->department($request);
         $data = $this->validated($request);
+        unset($data['image']);
         $data['department_id'] = $department->id;
         $data['author_id'] = $request->user()->id;
         $data['status'] = $this->resolveCreateStatus($request, $data['status'] ?? 'draft');
+
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('announcements', 'public');
+        }
 
         $item = Announcement::query()->create($data);
 
@@ -53,9 +59,17 @@ class AdminAnnouncementController extends Controller
         $this->authorizePermission($request, 'announcement.update');
         $this->assertSameDepartment($request, $announcement->department_id);
         $data = $this->validated($request, $announcement);
+        unset($data['image']);
 
         if (($data['status'] ?? null) === 'published') {
             $this->authorizePermission($request, 'announcement.publish');
+        }
+
+        if ($request->hasFile('image')) {
+            if ($announcement->image_path) {
+                Storage::disk('public')->delete($announcement->image_path);
+            }
+            $data['image_path'] = $request->file('image')->store('announcements', 'public');
         }
 
         $announcement->update($data);
@@ -67,6 +81,9 @@ class AdminAnnouncementController extends Controller
     {
         $this->authorizePermission($request, 'announcement.delete');
         $this->assertSameDepartment($request, $announcement->department_id);
+        if ($announcement->image_path) {
+            Storage::disk('public')->delete($announcement->image_path);
+        }
         $announcement->delete();
 
         return response()->json(['message' => 'Deleted.']);
@@ -106,6 +123,11 @@ class AdminAnnouncementController extends Controller
             'title_fr' => [$item ? 'sometimes' : 'required', 'string', 'max:255'],
             'content_ar' => ['nullable', 'string'],
             'content_fr' => ['nullable', 'string'],
+            'image' => [
+                $item && filled($item->image_path) ? 'nullable' : 'required',
+                'image',
+                'max:5120',
+            ],
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'show_on_secretariat' => ['sometimes', 'boolean'],

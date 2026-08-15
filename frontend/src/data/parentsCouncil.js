@@ -193,19 +193,23 @@ export const parentsCouncil = {
   announcements: [
     {
       date: '2026-08-25',
-      title: { ar: 'دعوة لحضور لقاء بداية السنة', fr: 'Invitation à la réunion de rentrée' },
+      image: 'https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=1200&q=80',
+      title: { ar: 'دعوة لحضور لقاء بداية السنة', fr: 'Invitation à la réunion de rentrée', en: 'Invitation to the back-to-school meeting' },
       summary: {
         ar: 'إعلان عام لأولياء الأمور حول موعد اللقاء القادم.',
         fr: 'Annonce publique aux parents concernant la prochaine réunion.',
+        en: 'A public notice for parents about the upcoming meeting.',
       },
       visibility: 'public',
     },
     {
       date: '2026-07-10',
-      title: { ar: 'فتح باب المقترحات للبرامج الموسمية', fr: 'Ouverture des propositions pour les programmes saisonniers' },
+      image: 'https://images.unsplash.com/photo-1427504494785-3a9ca7044f45?auto=format&fit=crop&w=1200&q=80',
+      title: { ar: 'فتح باب المقترحات للبرامج الموسمية', fr: 'Ouverture des propositions pour les programmes saisonniers', en: 'Call for seasonal programme proposals' },
       summary: {
         ar: 'يمكن لأولياء الأمور تقديم مقترحات عامة تتعلق بالأنشطة والبرامج.',
         fr: 'Les parents peuvent soumettre des propositions générales relatives aux activités et programmes.',
+        en: 'Parents can submit general suggestions about activities and programmes.',
       },
       visibility: 'public',
     },

@@ -17,6 +17,7 @@ class Announcement extends Model
         'title_fr',
         'content_ar',
         'content_fr',
+        'image_path',
         'department_id',
         'starts_at',
         'ends_at',
