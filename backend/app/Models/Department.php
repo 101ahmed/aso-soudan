@@ -29,6 +29,16 @@ class Department extends Model
         'officer_phone',
         'officer_photo_path',
         'officer_is_public',
+        'deputy_name_ar',
+        'deputy_name_fr',
+        'deputy_title_ar',
+        'deputy_title_fr',
+        'deputy_bio_ar',
+        'deputy_bio_fr',
+        'deputy_email',
+        'deputy_phone',
+        'deputy_photo_path',
+        'deputy_is_public',
     ];
 
     protected function casts(): array
@@ -36,6 +46,7 @@ class Department extends Model
         return [
             'is_active' => 'boolean',
             'officer_is_public' => 'boolean',
+            'deputy_is_public' => 'boolean',
         ];
     }
 

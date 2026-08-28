@@ -125,12 +125,40 @@ class DepartmentSeeder extends Seeder
         foreach ($items as $item) {
             $code = $item['code'];
             unset($item['code']);
+
+            $deputyTitles = [
+                'general' => ['نائب أمين الأمانة العامة', 'Vice-secrétaire général', 'general@acs-rennes.fr'],
+                'academic' => ['نائب أمين الأمانة الأكاديمية', 'Vice-secrétaire académique', 'academic@acs-rennes.fr'],
+                'social' => ['نائب أمين الأمانة الاجتماعية', 'Vice-secrétaire social', 'social@acs-rennes.fr'],
+                'media' => ['نائب أمين الأمانة الإعلامية', 'Vice-secrétaire médias', 'media@acs-rennes.fr'],
+                'women-children' => ['نائبة مسؤولة شؤون المرأة والطفل', 'Adjointe Femmes & Enfants', 'women-children@acs-rennes.fr'],
+                'statistics' => ['نائب أمين أمانة الإحصاء', 'Vice-secrétaire statistiques', 'statistics@acs-rennes.fr'],
+                'external-relations' => ['نائب أمين الأمانة الخارجية', 'Vice-secrétaire aux relations extérieures', 'external@acs-rennes.fr'],
+                'sports' => ['نائب أمين الأمانة الرياضية', 'Vice-secrétaire sportif', 'sports@acs-rennes.fr'],
+            ];
+
+            $extra = [
+                'is_active' => true,
+                'officer_is_public' => true,
+            ];
+
+            if (isset($deputyTitles[$code])) {
+                [$titleAr, $titleFr, $email] = $deputyTitles[$code];
+                $extra = array_merge($extra, [
+                    'deputy_name_ar' => 'يُعلن لاحقاً',
+                    'deputy_name_fr' => 'À annoncer',
+                    'deputy_title_ar' => $titleAr,
+                    'deputy_title_fr' => $titleFr,
+                    'deputy_bio_ar' => 'ينوب عن أمين الأمانة في المتابعة والتنسيق.',
+                    'deputy_bio_fr' => 'Assiste l’amin dans le suivi et la coordination.',
+                    'deputy_email' => $email,
+                    'deputy_is_public' => true,
+                ]);
+            }
+
             Department::query()->updateOrCreate(
                 ['code' => $code],
-                array_merge($item, [
-                    'is_active' => true,
-                    'officer_is_public' => true,
-                ])
+                array_merge($item, $extra)
             );
         }
     }

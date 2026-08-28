@@ -20,6 +20,12 @@ export async function updateDepartmentOfficer(code, payload) {
   return data.data || data
 }
 
+export async function updateDepartmentDeputy(code, payload) {
+  const body = toFormData(payload)
+  const { data } = await api.post(deptPath(code, '/deputy'), body)
+  return data.data || data
+}
+
 export async function fetchPublicDepartments() {
   const { data } = await api.get('/public/departments')
   return data.data || data

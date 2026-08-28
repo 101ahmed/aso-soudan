@@ -25,35 +25,48 @@ const form = reactive({
 
 const baseSecretariat = computed(() => getSecretariat(route.params.slug))
 
+function mergePerson(apiPerson, fallback) {
+  if (!apiPerson) return fallback || null
+  const hasApiName = apiPerson.name_ar || apiPerson.name_fr
+  const hasApiPhoto = apiPerson.photo_url
+  if (!hasApiName && !hasApiPhoto) return fallback || null
+  return {
+    name: {
+      ar: apiPerson.name_ar || fallback?.name?.ar,
+      fr: apiPerson.name_fr || fallback?.name?.fr,
+    },
+    title: {
+      ar: apiPerson.title_ar || fallback?.title?.ar,
+      fr: apiPerson.title_fr || fallback?.title?.fr,
+    },
+    bio: {
+      ar: apiPerson.bio_ar || fallback?.bio?.ar,
+      fr: apiPerson.bio_fr || fallback?.bio?.fr,
+    },
+    email: apiPerson.email || fallback?.email,
+    photo: apiPerson.photo_url || fallback?.photo || null,
+  }
+}
+
 const secretariat = computed(() => {
   const base = baseSecretariat.value
   if (!base) return null
-  const apiOfficer = feed.value.department?.officer
-  if (!apiOfficer) return base
-
-  const hasApiName = apiOfficer.name_ar || apiOfficer.name_fr
-  const hasApiPhoto = apiOfficer.photo_url
-  if (!hasApiName && !hasApiPhoto) return base
-
   return {
     ...base,
-    officer: {
-      name: {
-        ar: apiOfficer.name_ar || base.officer?.name?.ar,
-        fr: apiOfficer.name_fr || base.officer?.name?.fr,
-      },
-      title: {
-        ar: apiOfficer.title_ar || base.officer?.title?.ar,
-        fr: apiOfficer.title_fr || base.officer?.title?.fr,
-      },
-      bio: {
-        ar: apiOfficer.bio_ar || base.officer?.bio?.ar,
-        fr: apiOfficer.bio_fr || base.officer?.bio?.fr,
-      },
-      email: apiOfficer.email || base.officer?.email,
-      photo: apiOfficer.photo_url || base.officer?.photo || null,
-    },
+    officer: mergePerson(feed.value.department?.officer, base.officer) || base.officer,
+    deputy: mergePerson(feed.value.department?.deputy, base.deputy),
   }
+})
+
+const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
+
+const people = computed(() => {
+  const s = secretariat.value
+  if (!s) return []
+  return [
+    { role: 'officer', person: s.officer },
+    { role: 'deputy', person: s.deputy },
+  ].filter((item) => item.person && (localized(item.person.name) || item.person.photo))
 })
 
 const news = computed(() => {
@@ -89,7 +102,6 @@ const albums = computed(() => {
   return albumsBySecretariat(route.params.slug)
 })
 
-const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 const list = (value) => {
   const items = value?.[locale.value] || value?.en || value?.fr || value?.ar || []
   return Array.isArray(items) ? items : []
@@ -136,36 +148,45 @@ watch(
     </section>
 
     <div class="mx-auto max-w-6xl space-y-14 px-5 py-12 md:px-8">
-      <!-- Intro + Officer -->
-      <section class="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
+      <!-- Intro + officer / deputy cards -->
+      <section class="space-y-6">
         <div>
           <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('secretariat.about') }}</h2>
           <p class="mt-3 leading-relaxed text-slate-700">{{ localized(secretariat.summary) }}</p>
         </div>
-        <aside class="rounded-2xl border border-[var(--rdp-forest)]/15 bg-white p-5">
-          <div class="flex items-center gap-4">
-            <img
-              v-if="secretariat.officer.photo"
-              :src="secretariat.officer.photo"
-              :alt="localized(secretariat.officer.name)"
-              class="h-20 w-20 rounded-full object-cover object-top ring-2 ring-[var(--rdp-forest)]/20"
-            />
-            <div
-              v-else
-              class="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-lg font-bold text-white"
-            >
-              {{ localized(secretariat.officer.name).slice(0, 1) }}
+        <div v-if="people.length" class="grid gap-4 md:grid-cols-2">
+          <aside
+            v-for="item in people"
+            :key="item.role"
+            class="rounded-2xl border border-[var(--rdp-forest)]/15 bg-white p-5"
+          >
+            <p class="mb-3 text-xs font-semibold tracking-wide text-[var(--rdp-forest)] uppercase">
+              {{ t(`secretariat.${item.role}Role`) }}
+            </p>
+            <div class="flex items-center gap-4">
+              <img
+                v-if="item.person.photo"
+                :src="item.person.photo"
+                :alt="localized(item.person.name)"
+                class="h-20 w-20 rounded-full object-cover object-top ring-2 ring-[var(--rdp-forest)]/20"
+              />
+              <div
+                v-else
+                class="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-lg font-bold text-white"
+              >
+                {{ localized(item.person.name).slice(0, 1) }}
+              </div>
+              <div>
+                <p class="font-semibold text-[var(--rdp-ink)]">{{ localized(item.person.name) }}</p>
+                <p class="text-sm text-[var(--rdp-forest)]">{{ localized(item.person.title) }}</p>
+              </div>
             </div>
-            <div>
-              <p class="font-semibold text-[var(--rdp-ink)]">{{ localized(secretariat.officer.name) }}</p>
-              <p class="text-sm text-[var(--rdp-forest)]">{{ localized(secretariat.officer.title) }}</p>
-            </div>
-          </div>
-          <p class="mt-3 text-sm text-slate-600">{{ localized(secretariat.officer.bio) }}</p>
-          <p v-if="secretariat.officer.email" class="mt-3 text-sm font-medium text-slate-700">
-            {{ secretariat.officer.email }}
-          </p>
-        </aside>
+            <p class="mt-3 text-sm text-slate-600">{{ localized(item.person.bio) }}</p>
+            <p v-if="item.person.email" class="mt-3 text-sm font-medium text-slate-700">
+              {{ item.person.email }}
+            </p>
+          </aside>
+        </div>
       </section>
 
       <!-- Vision / Mission / Objectives -->

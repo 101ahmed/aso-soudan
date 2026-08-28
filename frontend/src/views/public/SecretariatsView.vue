@@ -10,24 +10,37 @@ const departments = ref([])
 
 const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 
+function miniCard(apiPerson, fallback) {
+  if (apiPerson) {
+    const name = locale.value === 'ar'
+      ? apiPerson.name_ar || apiPerson.name_fr
+      : apiPerson.name_fr || apiPerson.name_ar
+    const title = locale.value === 'ar'
+      ? apiPerson.title_ar || apiPerson.title_fr
+      : apiPerson.title_fr || apiPerson.title_ar
+    return {
+      name: name || localized(fallback?.name),
+      title: title || localized(fallback?.title),
+      photo: apiPerson.photo_url || fallback?.photo || null,
+    }
+  }
+  return {
+    name: localized(fallback?.name),
+    title: localized(fallback?.title),
+    photo: fallback?.photo || null,
+  }
+}
+
 const cards = computed(() => {
   const byCode = Object.fromEntries((departments.value || []).map((d) => [d.code, d]))
   return secretariats.map((item) => {
     const dept = byCode[item.slug]
-    const officer = dept?.officer
     return {
       ...item,
-      officerCard: officer
-        ? {
-            name: locale.value === 'ar' ? officer.name_ar || officer.name_fr : officer.name_en || officer.name_fr || officer.name_ar,
-            title: locale.value === 'ar' ? officer.title_ar || officer.title_fr : officer.title_en || officer.title_fr || officer.title_ar,
-            photo: officer.photo_url || item.officer?.photo || null,
-          }
-        : {
-            name: localized(item.officer?.name),
-            title: localized(item.officer?.title),
-            photo: item.officer?.photo || null,
-          },
+      people: [
+        { role: 'officer', ...miniCard(dept?.officer, item.officer) },
+        { role: 'deputy', ...miniCard(dept?.deputy, item.deputy) },
+      ].filter((person) => person?.name),
     }
   })
 })
@@ -69,22 +82,29 @@ onMounted(async () => {
             {{ localized(item.summary) }}
           </p>
 
-          <div v-if="item.officerCard?.name" class="mt-4 flex items-center gap-3 rounded-xl bg-slate-50 p-3">
-            <img
-              v-if="item.officerCard.photo"
-              :src="item.officerCard.photo"
-              alt=""
-              class="h-12 w-12 rounded-full object-cover object-top"
-            />
+          <div v-if="item.people.length" class="mt-4 space-y-2">
             <div
-              v-else
-              class="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-sm font-bold text-white"
+              v-for="person in item.people"
+              :key="person.role"
+              class="flex items-center gap-3 rounded-xl bg-slate-50 p-3"
             >
-              {{ item.officerCard.name.slice(0, 1) }}
-            </div>
-            <div class="min-w-0">
-              <p class="truncate text-sm font-semibold text-[var(--rdp-ink)]">{{ item.officerCard.name }}</p>
-              <p class="truncate text-xs text-[var(--rdp-forest)]">{{ item.officerCard.title }}</p>
+              <img
+                v-if="person.photo"
+                :src="person.photo"
+                alt=""
+                class="h-12 w-12 rounded-full object-cover object-top"
+              />
+              <div
+                v-else
+                class="flex h-12 w-12 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-sm font-bold text-white"
+              >
+                {{ person.name.slice(0, 1) }}
+              </div>
+              <div class="min-w-0">
+                <p class="text-[11px] font-semibold text-[var(--rdp-forest)]">{{ t(`secretariat.${person.role}Role`) }}</p>
+                <p class="truncate text-sm font-semibold text-[var(--rdp-ink)]">{{ person.name }}</p>
+                <p class="truncate text-xs text-slate-500">{{ person.title }}</p>
+              </div>
             </div>
           </div>
 

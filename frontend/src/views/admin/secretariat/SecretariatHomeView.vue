@@ -14,6 +14,11 @@ const cards = computed(() => {
       label: t('secretariatAdmin.officer'),
       hint: t('secretariatAdmin.officerHint'),
     },
+    {
+      to: `/admin/secretariats/${code.value}/deputy`,
+      label: t('secretariatAdmin.deputy'),
+      hint: t('secretariatAdmin.deputyHint'),
+    },
     { to: `/admin/secretariats/${code.value}/news`, label: t('secretariatAdmin.news'), hint: t('secretariatAdmin.newsHint') },
     { to: `/admin/secretariats/${code.value}/announcements`, label: t('secretariatAdmin.announcements'), hint: t('secretariatAdmin.announcementsHint') },
     { to: `/admin/secretariats/${code.value}/albums`, label: t('secretariatAdmin.albums'), hint: t('secretariatAdmin.albumsHint') },

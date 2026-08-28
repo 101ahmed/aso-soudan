@@ -154,6 +154,7 @@ const router = createRouter({
             { path: 'announcements', name: 'admin.secretariat.announcements', component: SecretariatAnnouncementsView },
             { path: 'albums', name: 'admin.secretariat.albums', component: SecretariatAlbumsView },
             { path: 'officer', name: 'admin.secretariat.officer', component: SecretariatOfficerView },
+            { path: 'deputy', name: 'admin.secretariat.deputy', component: SecretariatOfficerView },
             {
               path: 'attendance',
               name: 'admin.secretariat.attendance',

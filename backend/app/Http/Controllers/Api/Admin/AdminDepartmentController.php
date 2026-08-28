@@ -37,6 +37,16 @@ class AdminDepartmentController extends Controller
 
     public function updateOfficer(Request $request, string $code): DepartmentResource
     {
+        return $this->updatePersonCard($request, $code, 'officer');
+    }
+
+    public function updateDeputy(Request $request, string $code): DepartmentResource
+    {
+        return $this->updatePersonCard($request, $code, 'deputy');
+    }
+
+    private function updatePersonCard(Request $request, string $code, string $prefix): DepartmentResource
+    {
         abort_unless(
             $request->user()?->hasPermission('news.update')
             || $request->user()?->hasPermission('news.create')
@@ -49,36 +59,40 @@ class AdminDepartmentController extends Controller
         $department = $request->attributes->get('department')
             ?? Department::query()->where('code', $code)->firstOrFail();
 
+        $photoColumn = "{$prefix}_photo_path";
+        $publicColumn = "{$prefix}_is_public";
+
         $data = $request->validate([
-            'officer_name_ar' => ['nullable', 'string', 'max:120'],
-            'officer_name_fr' => ['nullable', 'string', 'max:120'],
-            'officer_title_ar' => ['nullable', 'string', 'max:190'],
-            'officer_title_fr' => ['nullable', 'string', 'max:190'],
-            'officer_bio_ar' => ['nullable', 'string', 'max:2000'],
-            'officer_bio_fr' => ['nullable', 'string', 'max:2000'],
-            'officer_email' => ['nullable', 'email', 'max:190'],
-            'officer_phone' => ['nullable', 'string', 'max:50'],
-            'officer_is_public' => ['nullable', 'boolean'],
+            "{$prefix}_name_ar" => ['nullable', 'string', 'max:120'],
+            "{$prefix}_name_fr" => ['nullable', 'string', 'max:120'],
+            "{$prefix}_title_ar" => ['nullable', 'string', 'max:190'],
+            "{$prefix}_title_fr" => ['nullable', 'string', 'max:190'],
+            "{$prefix}_bio_ar" => ['nullable', 'string', 'max:2000'],
+            "{$prefix}_bio_fr" => ['nullable', 'string', 'max:2000'],
+            "{$prefix}_email" => ['nullable', 'email', 'max:190'],
+            "{$prefix}_phone" => ['nullable', 'string', 'max:50'],
+            $publicColumn => ['nullable', 'boolean'],
             'photo' => ['nullable', 'image', 'max:5120'],
             'remove_photo' => ['nullable', 'boolean'],
         ]);
 
-        if ($request->boolean('remove_photo') && $department->officer_photo_path) {
-            Storage::disk('public')->delete($department->officer_photo_path);
-            $data['officer_photo_path'] = null;
+        if ($request->boolean('remove_photo') && $department->{$photoColumn}) {
+            Storage::disk('public')->delete($department->{$photoColumn});
+            $data[$photoColumn] = null;
         }
 
         if ($request->hasFile('photo')) {
-            if ($department->officer_photo_path) {
-                Storage::disk('public')->delete($department->officer_photo_path);
+            if ($department->{$photoColumn}) {
+                Storage::disk('public')->delete($department->{$photoColumn});
             }
-            $data['officer_photo_path'] = $request->file('photo')->store('officers/'.$department->code, 'public');
+            $folder = $prefix === 'deputy' ? 'deputies' : 'officers';
+            $data[$photoColumn] = $request->file('photo')->store($folder.'/'.$department->code, 'public');
         }
 
         unset($data['photo'], $data['remove_photo']);
 
-        if (array_key_exists('officer_is_public', $data)) {
-            $data['officer_is_public'] = filter_var($data['officer_is_public'], FILTER_VALIDATE_BOOLEAN);
+        if (array_key_exists($publicColumn, $data)) {
+            $data[$publicColumn] = filter_var($data[$publicColumn], FILTER_VALIDATE_BOOLEAN);
         }
 
         $department->update($data);

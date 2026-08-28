@@ -1,3 +1,18 @@
+const announcedLater = { ar: 'يُعلن لاحقاً', fr: 'À annoncer' }
+
+function deputyCard(titleAr, titleFr, email) {
+  return {
+    name: announcedLater,
+    title: { ar: titleAr, fr: titleFr },
+    bio: {
+      ar: 'ينوب عن أمين الأمانة في المتابعة والتنسيق.',
+      fr: 'Assiste l’amin dans le suivi et la coordination.',
+    },
+    email,
+    photo: null,
+  }
+}
+
 export const secretariats = [
   {
     slug: 'general',
@@ -59,6 +74,7 @@ export const secretariats = [
       email: 'general@acs-rennes.fr',
       photo: null,
     },
+    deputy: deputyCard('نائب أمين الأمانة العامة', 'Vice-secrétaire général', 'general@acs-rennes.fr'),
     documents: {
       ar: [
         { title: 'إعلان تنظيمي عام', type: 'إعلان' },
@@ -147,6 +163,7 @@ export const secretariats = [
       email: 'hima171221@gmail.com',
       photo: '/officers/academic-ibrahim-suleiman.png',
     },
+    deputy: deputyCard('نائب أمين الأمانة الأكاديمية', 'Vice-secrétaire académique', 'academic@acs-rennes.fr'),
     showStudentRegister: true,
     contactLabel: { ar: 'تواصل مع الأمانة الأكاديمية', fr: 'Contacter le secrétariat académique' },
   },
@@ -232,6 +249,7 @@ export const secretariats = [
       email: 'social@acs-rennes.fr',
       photo: null,
     },
+    deputy: deputyCard('نائب أمين الأمانة الاجتماعية', 'Vice-secrétaire social', 'social@acs-rennes.fr'),
     showVolunteer: true,
     contactLabel: { ar: 'تواصل مع الأمانة الاجتماعية', fr: 'Contacter le secrétariat social' },
   },
@@ -301,6 +319,7 @@ export const secretariats = [
       email: 'media@acs-rennes.fr',
       photo: null,
     },
+    deputy: deputyCard('نائب أمين الأمانة الإعلامية', 'Vice-secrétaire médias', 'media@acs-rennes.fr'),
     contactLabel: { ar: 'تواصل مع الأمانة الإعلامية', fr: 'Contacter le secrétariat médias' },
   },
   {
@@ -369,6 +388,7 @@ export const secretariats = [
       email: 'women-children@acs-rennes.fr',
       photo: null,
     },
+    deputy: deputyCard('نائبة مسؤولة شؤون المرأة والطفل', 'Adjointe Femmes & Enfants', 'women-children@acs-rennes.fr'),
     showActivityRegister: true,
     contactLabel: { ar: 'تواصل مع شؤون المرأة والطفل', fr: 'Contacter Femmes & Enfants' },
   },
@@ -443,6 +463,7 @@ export const secretariats = [
       email: 'statistics@acs-rennes.fr',
       photo: null,
     },
+    deputy: deputyCard('نائب أمين أمانة الإحصاء', 'Vice-secrétaire statistiques', 'statistics@acs-rennes.fr'),
     contactLabel: { ar: 'تواصل مع أمانة الإحصاء', fr: 'Contacter le secrétariat statistiques' },
   },
   {
@@ -515,6 +536,7 @@ export const secretariats = [
       email: 'external@acs-rennes.fr',
       photo: null,
     },
+    deputy: deputyCard('نائب أمين الأمانة الخارجية', 'Vice-secrétaire aux relations extérieures', 'external@acs-rennes.fr'),
     contactLabel: { ar: 'تواصل مع الأمانة الخارجية', fr: 'Contacter les relations extérieures' },
   },
   {
@@ -587,6 +609,7 @@ export const secretariats = [
       email: 'sports@acs-rennes.fr',
       photo: null,
     },
+    deputy: deputyCard('نائب أمين الأمانة الرياضية', 'Vice-secrétaire sportif', 'sports@acs-rennes.fr'),
     documents: {
       ar: [
         { title: 'برنامج الأنشطة الرياضية', type: 'برنامج' },

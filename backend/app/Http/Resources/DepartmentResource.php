@@ -11,8 +11,9 @@ class DepartmentResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $showOfficer = (bool) ($this->officer_is_public ?? true)
-            || (bool) $request->user();
+        $authenticated = (bool) $request->user();
+        $showOfficer = (bool) ($this->officer_is_public ?? true) || $authenticated;
+        $showDeputy = (bool) ($this->deputy_is_public ?? true) || $authenticated;
 
         return [
             'id' => $this->id,
@@ -23,19 +24,25 @@ class DepartmentResource extends JsonResource
             'description_fr' => $this->description_fr,
             'is_active' => (bool) $this->is_active,
             'sort_order' => $this->sort_order,
-            'officer' => $this->when($showOfficer, fn () => [
-                'name_ar' => $this->officer_name_ar,
-                'name_fr' => $this->officer_name_fr,
-                'title_ar' => $this->officer_title_ar,
-                'title_fr' => $this->officer_title_fr,
-                'bio_ar' => $this->officer_bio_ar,
-                'bio_fr' => $this->officer_bio_fr,
-                'email' => $this->officer_email,
-                'phone' => $this->when((bool) $request->user(), $this->officer_phone),
-                'photo_path' => $this->officer_photo_path,
-                'photo_url' => MediaUrl::absolute($this->officer_photo_path),
-                'is_public' => (bool) ($this->officer_is_public ?? true),
-            ]),
+            'officer' => $this->when($showOfficer, fn () => $this->personCard('officer', $authenticated)),
+            'deputy' => $this->when($showDeputy, fn () => $this->personCard('deputy', $authenticated)),
+        ];
+    }
+
+    private function personCard(string $prefix, bool $authenticated): array
+    {
+        return [
+            'name_ar' => $this->{"{$prefix}_name_ar"},
+            'name_fr' => $this->{"{$prefix}_name_fr"},
+            'title_ar' => $this->{"{$prefix}_title_ar"},
+            'title_fr' => $this->{"{$prefix}_title_fr"},
+            'bio_ar' => $this->{"{$prefix}_bio_ar"},
+            'bio_fr' => $this->{"{$prefix}_bio_fr"},
+            'email' => $this->{"{$prefix}_email"},
+            'phone' => $this->when($authenticated, $this->{"{$prefix}_phone"}),
+            'photo_path' => $this->{"{$prefix}_photo_path"},
+            'photo_url' => MediaUrl::absolute($this->{"{$prefix}_photo_path"}),
+            'is_public' => (bool) ($this->{"{$prefix}_is_public"} ?? true),
         ];
     }
 }

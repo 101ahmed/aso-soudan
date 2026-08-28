@@ -304,6 +304,8 @@
     "events": "Upcoming events",
     "registerActivity": "Register for the activity",
     "contactHint": "This message will be sent to this secretariat. No internal data is shown here.",
+    "officerRole": "Amin",
+    "deputyRole": "Deputy amin",
     "statLabels": {
       "members": "Members",
       "students": "Students",
@@ -475,6 +477,9 @@
     "officer": "Officer profile",
     "officerHint": "Public photo and card of the secretariat lead.",
     "officerSaved": "Officer profile saved.",
+    "deputy": "Deputy amin profile",
+    "deputyHint": "Public photo and card of the secretariat deputy.",
+    "deputySaved": "Deputy amin profile saved.",
     "officerNameFr": "Name (FR)",
     "officerNameAr": "Name (AR)",
     "officerTitleFr": "Title (FR)",

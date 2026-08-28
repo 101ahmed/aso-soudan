@@ -304,6 +304,8 @@
     "events": "Événements à venir",
     "registerActivity": "S’inscrire à l’activité",
     "contactHint": "Ce message sera adressé à cette secrétariat. Aucune donnée interne n’est exposée ici.",
+    "officerRole": "Amin",
+    "deputyRole": "Nā’ib al-amīn",
     "statLabels": {
       "members": "Membres",
       "students": "Élèves",
@@ -475,6 +477,9 @@
     "officer": "Fiche de l’amin",
     "officerHint": "Photo et carte publique du responsable de l’amanah.",
     "officerSaved": "Fiche de l’amin enregistrée.",
+    "deputy": "Fiche du nā’ib al-amīn",
+    "deputyHint": "Photo et carte publique de l’adjoint de l’amanah.",
+    "deputySaved": "Fiche du nā’ib al-amīn enregistrée.",
     "officerNameFr": "Nom (FR)",
     "officerNameAr": "Nom (AR)",
     "officerTitleFr": "Fonction (FR)",

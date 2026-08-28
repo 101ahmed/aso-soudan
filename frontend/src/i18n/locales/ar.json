@@ -304,6 +304,8 @@
     "events": "الفعاليات القادمة",
     "registerActivity": "التسجيل في النشاط",
     "contactHint": "تُوجَّه هذه الرسالة إلى هذه الأمانة. لا تُعرض هنا أي بيانات داخلية.",
+    "officerRole": "الأمين",
+    "deputyRole": "نائب الأمين",
     "statLabels": {
       "members": "الأعضاء",
       "students": "الطلاب",
@@ -475,6 +477,9 @@
     "officer": "بطاقة الأمين",
     "officerHint": "صورة وبطاقة عامة لمسؤول الأمانة.",
     "officerSaved": "تم حفظ بطاقة الأمين.",
+    "deputy": "بطاقة نائب الأمين",
+    "deputyHint": "صورة وبطاقة عامة لنائب مسؤول الأمانة.",
+    "deputySaved": "تم حفظ بطاقة نائب الأمين.",
     "officerNameFr": "الاسم (FR)",
     "officerNameAr": "الاسم (AR)",
     "officerTitleFr": "الصفة (FR)",

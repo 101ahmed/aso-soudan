@@ -106,6 +106,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/', [AdminDepartmentController::class, 'show']);
             Route::post('/officer', [AdminDepartmentController::class, 'updateOfficer'])->middleware('department:write');
             Route::put('/officer', [AdminDepartmentController::class, 'updateOfficer'])->middleware('department:write');
+            Route::post('/deputy', [AdminDepartmentController::class, 'updateDeputy'])->middleware('department:write');
+            Route::put('/deputy', [AdminDepartmentController::class, 'updateDeputy'])->middleware('department:write');
 
             Route::get('/news', [AdminNewsController::class, 'index'])->middleware('permission:news.view');
             Route::post('/news', [AdminNewsController::class, 'store'])->middleware(['permission:news.create', 'department:write']);
