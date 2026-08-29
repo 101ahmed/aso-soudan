@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\MemberResource;
 use App\Mail\MemberBroadcastMail;
 use App\Models\Member;
+use App\Models\MemberCity;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -26,20 +27,13 @@ class AdminStatisticsMemberController extends Controller
             ->orderBy('first_name')
             ->paginate($request->integer('per_page', 20));
 
-        $cities = Member::query()
-            ->whereNotNull('city')
-            ->where('city', '!=', '')
-            ->distinct()
-            ->orderBy('city')
-            ->pluck('city');
-
         $emailCount = (clone $filtered)
             ->whereNotNull('email')
             ->where('email', '!=', '')
             ->count();
 
         return MemberResource::collection($members)->additional([
-            'cities' => $cities,
+            'extra_cities' => Member::extraCityNames(),
             'email_count' => $emailCount,
         ]);
     }
@@ -89,6 +83,34 @@ class AdminStatisticsMemberController extends Controller
         $member->delete();
 
         return response()->json(['message' => 'Deleted.']);
+    }
+
+    public function storeCity(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user?->hasPermission('member.create') && ! $user?->hasPermission('member.update')) {
+            abort(403);
+        }
+
+        $data = $request->validate([
+            'name' => ['required', 'string', 'max:120'],
+        ]);
+
+        $name = Member::normalizeCityName($data['name']);
+        if ($name === '') {
+            return response()->json(['message' => 'Invalid city name.'], 422);
+        }
+
+        if (Member::cityAlreadyExists($name)) {
+            return response()->json(['message' => 'City already exists.'], 422);
+        }
+
+        MemberCity::query()->create(['name' => $name]);
+
+        return response()->json([
+            'name' => $name,
+            'extra_cities' => Member::extraCityNames(),
+        ], 201);
     }
 
     public function message(Request $request): JsonResponse
@@ -167,7 +189,7 @@ class AdminStatisticsMemberController extends Controller
             'email' => $emailRule,
             'phone' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:120'],
+            'city' => ['nullable', Rule::in(Member::allowedCities())],
             'membership_type' => ['nullable', Rule::in(Member::MEMBERSHIP_TYPES)],
             'status' => ['nullable', Rule::in(Member::STATUSES)],
             'notes' => ['nullable', 'string', 'max:2000'],

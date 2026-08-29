@@ -3,6 +3,7 @@ import { computed, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PageHero from '@/components/public/PageHero.vue'
 import { registerPublicMember } from '@/services/members'
+import { RENNES_CITY, RENNES_SUBURBS } from '@/data/rennesMetropole'
 
 const { t } = useI18n()
 const step = ref(1)
@@ -11,6 +12,7 @@ const sending = ref(false)
 const error = ref('')
 
 const membershipTypes = ['adherent', 'volunteer', 'supporter', 'student', 'family', 'other']
+const suburbCities = RENNES_SUBURBS
 
 const form = reactive({
   first_name: '',
@@ -102,7 +104,13 @@ async function submit() {
         <div v-else-if="step === 2" class="space-y-3">
           <input v-model="form.email" type="email" required :placeholder="t('forms.email')" class="w-full rounded border px-3 py-2" />
           <input v-model="form.phone" :placeholder="t('forms.phone')" class="w-full rounded border px-3 py-2" />
-          <input v-model="form.city" :placeholder="t('forms.city')" class="w-full rounded border px-3 py-2" />
+          <select v-model="form.city" class="w-full rounded border px-3 py-2">
+            <option value="">{{ t('forms.city') }}</option>
+            <option :value="RENNES_CITY">{{ t('register.member.rennes') }}</option>
+            <optgroup :label="t('register.member.suburbsGroup')">
+              <option v-for="city in suburbCities" :key="city" :value="city">{{ city }}</option>
+            </optgroup>
+          </select>
         </div>
         <div v-else-if="step === 3" class="space-y-3">
           <select v-model="form.membership_type" required class="w-full rounded border px-3 py-2">

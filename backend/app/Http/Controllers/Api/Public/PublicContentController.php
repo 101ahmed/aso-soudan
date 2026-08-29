@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AlbumResource;
 use App\Http\Resources\AnnouncementResource;
 use App\Http\Resources\DepartmentResource;
+use App\Http\Resources\EventResource;
 use App\Http\Resources\NewsResource;
 use App\Models\Album;
 use App\Models\Announcement;
 use App\Models\Department;
+use App\Models\Event;
 use App\Models\News;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -56,11 +58,22 @@ class PublicContentController extends Controller
             ->limit(6)
             ->get();
 
+        $events = Event::query()
+            ->with('department')
+            ->where('department_id', $department->id)
+            ->published()
+            ->where('show_on_secretariat', true)
+            ->orderByDesc('starts_at')
+            ->orderByDesc('id')
+            ->limit(12)
+            ->get();
+
         return response()->json([
             'department' => (new DepartmentResource($department))->resolve(),
             'news' => NewsResource::collection($news)->resolve(),
             'announcements' => AnnouncementResource::collection($announcements)->resolve(),
             'albums' => AlbumResource::collection($albums)->resolve(),
+            'events' => EventResource::collection($events)->resolve(),
         ]);
     }
 
@@ -145,5 +158,31 @@ class PublicContentController extends Controller
         abort_unless($model->status === 'published', 404);
 
         return new AlbumResource($model);
+    }
+
+    public function events(Request $request): AnonymousResourceCollection
+    {
+        $query = Event::query()->with('department')->published();
+
+        if ($request->filled('department')) {
+            $query->whereHas('department', fn ($q) => $q->where('code', $request->string('department')));
+        }
+        if ($request->filled('type')) {
+            $query->where('type', $request->string('type'));
+        }
+        if ($request->boolean('home')) {
+            $query->where('show_on_home', true);
+        }
+
+        return EventResource::collection(
+            $query->orderByDesc('starts_at')->orderByDesc('id')->paginate($request->integer('per_page', 12))
+        );
+    }
+
+    public function eventShow(string $slug): EventResource
+    {
+        $event = Event::query()->with('department')->published()->where('slug', $slug)->firstOrFail();
+
+        return new EventResource($event);
     }
 }

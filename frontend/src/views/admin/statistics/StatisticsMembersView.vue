@@ -4,11 +4,13 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import {
   createMember,
+  createMemberCity,
   deleteMember,
   fetchMembers,
   sendMemberMessage,
   updateMember,
 } from '@/services/members'
+import { RENNES_CITY, RENNES_SUBURBS } from '@/data/rennesMetropole'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -19,7 +21,9 @@ const sending = ref(false)
 const error = ref('')
 const notice = ref('')
 const items = ref([])
-const cities = ref([])
+const extraCities = ref([])
+const newCity = ref('')
+const addingCity = ref(false)
 const meta = ref(null)
 const emailCount = ref(0)
 const editingId = ref(null)
@@ -51,6 +55,12 @@ const allOnPageSelected = computed(() => items.value.length > 0 && items.value.e
 const selectedCount = computed(() => selected.value.length)
 
 const membershipTypes = ['adherent', 'volunteer', 'supporter', 'student', 'family', 'other']
+const suburbCities = RENNES_SUBURBS
+
+function cityLabel(city) {
+  if (!city) return '—'
+  return city === RENNES_CITY ? t('statisticsMembers.rennes') : city
+}
 
 function emptyForm() {
   return {
@@ -93,7 +103,7 @@ async function load() {
     const response = await fetchMembers({ page: filters.page, ...filterParams() })
     items.value = response.data || []
     meta.value = response.meta || null
-    cities.value = response.cities || []
+    extraCities.value = response.extra_cities || []
     emailCount.value = response.email_count || 0
     const visibleIds = new Set(items.value.map((item) => item.id))
     selected.value = selected.value.filter((id) => visibleIds.has(id))
@@ -170,6 +180,26 @@ async function remove(item) {
     await load()
   } catch (e) {
     error.value = e.response?.data?.message || e.message
+  }
+}
+
+async function addCity() {
+  if (!(canCreate.value || canUpdate.value)) return
+  const name = newCity.value.trim()
+  if (!name) return
+  addingCity.value = true
+  error.value = ''
+  notice.value = ''
+  try {
+    const result = await createMemberCity(name)
+    extraCities.value = result.extra_cities || extraCities.value
+    form.city = result.name
+    newCity.value = ''
+    notice.value = t('statisticsMembers.cityAdded')
+  } catch (e) {
+    error.value = e.response?.data?.message || t('statisticsMembers.cityExists')
+  } finally {
+    addingCity.value = false
   }
 }
 
@@ -273,7 +303,10 @@ onMounted(load)
         </select>
         <select v-model="filters.city" class="rounded-md border px-3 py-2 text-sm">
           <option value="">{{ t('statisticsMembers.allCities') }}</option>
-          <option v-for="city in cities" :key="city" :value="city">{{ city }}</option>
+          <option :value="RENNES_CITY">{{ t('statisticsMembers.rennes') }}</option>
+          <optgroup :label="t('statisticsMembers.suburbsGroup')">
+            <option v-for="city in suburbCities" :key="city" :value="city">{{ city }}</option>
+          </optgroup>
         </select>
         <input v-model="filters.age_min" type="number" min="0" max="120" :placeholder="t('statisticsMembers.ageMin')" class="rounded-md border px-3 py-2 text-sm" />
         <input v-model="filters.age_max" type="number" min="0" max="120" :placeholder="t('statisticsMembers.ageMax')" class="rounded-md border px-3 py-2 text-sm" />
@@ -316,7 +349,7 @@ onMounted(load)
                   </td>
                   <td class="px-3 py-3">{{ item.age ?? '—' }}</td>
                   <td class="px-3 py-3">{{ item.gender ? t(`statisticsMembers.genders.${item.gender}`) : '—' }}</td>
-                  <td class="px-3 py-3">{{ item.city || '—' }}</td>
+                  <td class="px-3 py-3">{{ cityLabel(item.city) }}</td>
                   <td class="px-3 py-3">{{ item.membership_type ? t(`statisticsMembers.types.${item.membership_type}`) : '—' }}</td>
                   <td class="px-3 py-3">{{ t(`statisticsMembers.statuses.${item.status}`) }}</td>
                   <td class="px-3 py-3 whitespace-nowrap">
@@ -348,7 +381,13 @@ onMounted(load)
           </select>
           <input v-model="form.email" type="email" class="w-full rounded border px-3 py-2 text-sm" :placeholder="t('forms.email')" />
           <input v-model="form.phone" class="w-full rounded border px-3 py-2 text-sm" :placeholder="t('forms.phone')" />
-          <input v-model="form.city" class="w-full rounded border px-3 py-2 text-sm" :placeholder="t('forms.city')" />
+          <select v-model="form.city" class="w-full rounded border px-3 py-2 text-sm">
+            <option value="">{{ t('statisticsMembers.city') }}</option>
+            <option :value="RENNES_CITY">{{ t('statisticsMembers.rennes') }}</option>
+            <optgroup :label="t('statisticsMembers.suburbsGroup')">
+              <option v-for="city in suburbCities" :key="city" :value="city">{{ city }}</option>
+            </optgroup>
+          </select>
           <input v-model="form.address" class="w-full rounded border px-3 py-2 text-sm" :placeholder="t('statisticsMembers.address')" />
           <select v-model="form.membership_type" class="w-full rounded border px-3 py-2 text-sm">
             <option value="">{{ t('statisticsMembers.type') }}</option>

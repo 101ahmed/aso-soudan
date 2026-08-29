@@ -29,6 +29,7 @@ import PresidentDashboardView from '@/views/admin/PresidentDashboardView.vue'
 import SecretariatAdminShell from '@/views/admin/secretariat/SecretariatAdminShell.vue'
 import SecretariatHomeView from '@/views/admin/secretariat/SecretariatHomeView.vue'
 import SecretariatNewsView from '@/views/admin/secretariat/SecretariatNewsView.vue'
+import SecretariatEventsView from '@/views/admin/secretariat/SecretariatEventsView.vue'
 import SecretariatAnnouncementsView from '@/views/admin/secretariat/SecretariatAnnouncementsView.vue'
 import SecretariatAlbumsView from '@/views/admin/secretariat/SecretariatAlbumsView.vue'
 import SecretariatOfficerView from '@/views/admin/secretariat/SecretariatOfficerView.vue'
@@ -152,6 +153,7 @@ const router = createRouter({
           children: [
             { path: '', name: 'admin.secretariat', component: SecretariatHomeView },
             { path: 'news', name: 'admin.secretariat.news', component: SecretariatNewsView },
+            { path: 'events', name: 'admin.secretariat.events', component: SecretariatEventsView },
             { path: 'announcements', name: 'admin.secretariat.announcements', component: SecretariatAnnouncementsView },
             { path: 'albums', name: 'admin.secretariat.albums', component: SecretariatAlbumsView },
             { path: 'officer', name: 'admin.secretariat.officer', component: SecretariatOfficerView },

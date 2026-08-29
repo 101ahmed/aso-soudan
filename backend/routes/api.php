@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Admin\AdminAcademicTeacherController;
 use App\Http\Controllers\Api\Admin\AdminAlbumController;
 use App\Http\Controllers\Api\Admin\AdminAnnouncementController;
 use App\Http\Controllers\Api\Admin\AdminDepartmentController;
+use App\Http\Controllers\Api\Admin\AdminEventController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
 use App\Http\Controllers\Api\Admin\AdminStatisticsMemberController;
@@ -30,11 +31,14 @@ Route::prefix('public')->group(function () {
     Route::get('/announcements', [PublicContentController::class, 'announcements']);
     Route::get('/albums', [PublicContentController::class, 'albums']);
     Route::get('/albums/{album}', [PublicContentController::class, 'albumShow']);
+    Route::get('/events', [PublicContentController::class, 'events']);
+    Route::get('/events/{slug}', [PublicContentController::class, 'eventShow']);
     Route::get('/shura/members', [PublicShuraController::class, 'members']);
     Route::get('/shura/meetings', [PublicShuraController::class, 'meetings']);
     Route::get('/contact', [PublicContactController::class, 'info']);
     Route::post('/contact', [PublicContactController::class, 'store']);
     Route::post('/members', [PublicMemberController::class, 'store']);
+    Route::get('/member-cities', [PublicMemberController::class, 'cities']);
 });
 
 Route::prefix('auth')->group(function () {
@@ -107,6 +111,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/members', [AdminStatisticsMemberController::class, 'index']);
         Route::post('/members', [AdminStatisticsMemberController::class, 'store']);
         Route::post('/members/message', [AdminStatisticsMemberController::class, 'message']);
+        Route::post('/cities', [AdminStatisticsMemberController::class, 'storeCity']);
         Route::get('/members/{member}', [AdminStatisticsMemberController::class, 'show']);
         Route::put('/members/{member}', [AdminStatisticsMemberController::class, 'update']);
         Route::delete('/members/{member}', [AdminStatisticsMemberController::class, 'destroy']);
@@ -150,5 +155,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/albums/{album}/archive', [AdminAlbumController::class, 'archive'])->middleware(['permission:gallery.manage', 'department:write']);
             Route::post('/albums/{album}/media', [AdminAlbumController::class, 'storeMedia'])->middleware(['permission:gallery.manage', 'department:write']);
             Route::delete('/albums/{album}/media/{media}', [AdminAlbumController::class, 'destroyMedia'])->middleware(['permission:gallery.manage', 'department:write']);
+
+            Route::get('/events', [AdminEventController::class, 'index']);
+            Route::post('/events', [AdminEventController::class, 'store'])->middleware(['department:write']);
+            Route::get('/events/{event}', [AdminEventController::class, 'show']);
+            Route::put('/events/{event}', [AdminEventController::class, 'update'])->middleware(['department:write']);
+            Route::post('/events/{event}', [AdminEventController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/events/{event}', [AdminEventController::class, 'destroy'])->middleware(['department:write']);
+            Route::post('/events/{event}/publish', [AdminEventController::class, 'publish'])->middleware(['department:write']);
+            Route::post('/events/{event}/archive', [AdminEventController::class, 'archive'])->middleware(['department:write']);
         });
 });

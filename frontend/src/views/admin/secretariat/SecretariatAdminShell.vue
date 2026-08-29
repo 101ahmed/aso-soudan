@@ -23,6 +23,7 @@ const links = computed(() => {
     { to: `${base.value}/officer`, label: t('secretariatAdmin.officer') },
     { to: `${base.value}/deputy`, label: t('secretariatAdmin.deputy') },
     { to: `${base.value}/news`, label: t('secretariatAdmin.news') },
+    { to: `${base.value}/events`, label: t('secretariatAdmin.events') },
     { to: `${base.value}/announcements`, label: t('secretariatAdmin.announcements') },
     { to: `${base.value}/albums`, label: t('secretariatAdmin.albums') },
   ]

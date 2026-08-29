@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 
 class Member extends Model
 {
@@ -18,6 +19,53 @@ class Member extends Model
     public const GENDERS = ['male', 'female'];
 
     public const MEMBERSHIP_TYPES = ['adherent', 'volunteer', 'supporter', 'student', 'family', 'other'];
+
+    /** Rennes Métropole : Rennes puis les 42 communes de banlieue. */
+    public const CITIES = [
+        'Rennes',
+        'Acigné',
+        'Bécherel',
+        'Betton',
+        'Bourgbarré',
+        'Brécé',
+        'Bruz',
+        'Cesson-Sévigné',
+        'Chantepie',
+        'Chartres-de-Bretagne',
+        'Chavagne',
+        'Chevaigné',
+        'Cintré',
+        'Clayes',
+        'Corps-Nuds',
+        'Gévezé',
+        'L’Hermitage',
+        'La Chapelle-Chaussée',
+        'La Chapelle-des-Fougeretz',
+        'La Chapelle-Thouarault',
+        'Laillé',
+        'Langan',
+        'Le Rheu',
+        'Le Verger',
+        'Miniac-sous-Bécherel',
+        'Montgermont',
+        'Mordelles',
+        'Nouvoitou',
+        'Noyal-Châtillon-sur-Seiche',
+        'Orgères',
+        'Pacé',
+        'Parthenay-de-Bretagne',
+        'Pont-Péan',
+        'Romillé',
+        'Saint-Armel',
+        'Saint-Erblon',
+        'Saint-Gilles',
+        'Saint-Grégoire',
+        'Saint-Jacques-de-la-Lande',
+        'Saint-Sulpice-la-Forêt',
+        'Thorigné-Fouillard',
+        'Vern-sur-Seiche',
+        'Vezin-le-Coquet',
+    ];
 
     protected $fillable = [
         'user_id',
@@ -92,5 +140,36 @@ class Member extends Model
                 $q->whereNotNull('birth_date')
                     ->whereDate('birth_date', '>', now()->subYears($max + 1)->toDateString());
             });
+    }
+
+    public static function extraCityNames(): array
+    {
+        if (! Schema::hasTable('member_cities')) {
+            return [];
+        }
+
+        return MemberCity::query()->orderBy('name')->pluck('name')->all();
+    }
+
+    public static function allowedCities(): array
+    {
+        return array_values(array_unique([...self::CITIES, ...self::extraCityNames()]));
+    }
+
+    public static function normalizeCityName(string $name): string
+    {
+        return trim(preg_replace('/\s+/u', ' ', $name) ?? $name);
+    }
+
+    public static function cityAlreadyExists(string $name): bool
+    {
+        $needle = mb_strtolower(self::normalizeCityName($name));
+        foreach (self::allowedCities() as $existing) {
+            if (mb_strtolower((string) $existing) === $needle) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

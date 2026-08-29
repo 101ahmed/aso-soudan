@@ -161,6 +161,48 @@ export async function fetchPublicAlbum(slug) {
   return data.data || data
 }
 
+export async function fetchDepartmentEvents(code, params = {}) {
+  const { data } = await api.get(deptPath(code, '/events'), { params })
+  return data
+}
+
+export async function createEvent(code, payload) {
+  const body = toFormData(payload)
+  const { data } = await api.post(deptPath(code, '/events'), body)
+  return data.data || data
+}
+
+export async function updateEvent(code, id, payload) {
+  const body = toFormData(payload)
+  body.append('_method', 'PUT')
+  const { data } = await api.post(deptPath(code, `/events/${id}`), body)
+  return data.data || data
+}
+
+export async function publishEvent(code, id) {
+  const { data } = await api.post(deptPath(code, `/events/${id}/publish`))
+  return data.data || data
+}
+
+export async function archiveEvent(code, id) {
+  const { data } = await api.post(deptPath(code, `/events/${id}/archive`))
+  return data.data || data
+}
+
+export async function deleteEvent(code, id) {
+  await api.delete(deptPath(code, `/events/${id}`))
+}
+
+export async function fetchPublicEvents(params = {}) {
+  const { data } = await api.get('/public/events', { params })
+  return data
+}
+
+export async function fetchPublicEvent(slug) {
+  const { data } = await api.get(`/public/events/${slug}`)
+  return data.data || data
+}
+
 function toFormData(payload) {
   const body = new FormData()
   Object.entries(payload || {}).forEach(([key, value]) => {

@@ -24,6 +24,16 @@ export async function sendMemberMessage(payload) {
   return data
 }
 
+export async function createMemberCity(name) {
+  const { data } = await api.post('/admin/statistics/cities', { name })
+  return data
+}
+
+export async function fetchPublicMemberCities() {
+  const { data } = await api.get('/public/member-cities')
+  return data.extra_cities || []
+}
+
 export async function registerPublicMember(payload) {
   const { data } = await api.post('/public/members', payload)
   return data

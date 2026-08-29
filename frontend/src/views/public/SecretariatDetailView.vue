@@ -14,7 +14,7 @@ import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
 const route = useRoute()
 const { t, locale } = useI18n()
 const sent = ref(false)
-const feed = ref({ news: [], announcements: [], albums: [], department: null })
+const feed = ref({ news: [], announcements: [], albums: [], events: [], department: null })
 
 const form = reactive({
   name: '',
@@ -84,7 +84,23 @@ const news = computed(() => {
 
 const announcements = computed(() => feed.value.announcements || [])
 
-const events = computed(() => eventsBySecretariat(route.params.slug))
+const events = computed(() => {
+  if (feed.value.department) {
+    return (feed.value.events || []).map((item) => ({
+      id: item.id,
+      slug: item.slug,
+      type: item.type,
+      image: item.image_url || '/logo.png',
+      date: (item.starts_at || item.published_at || '').slice(0, 10),
+      time: item.starts_at ? item.starts_at.slice(11, 16) : '',
+      title: { ar: item.title_ar, fr: item.title_fr },
+      summary: { ar: item.description_ar, fr: item.description_fr },
+      place: { ar: item.location_ar || item.location, fr: item.location_fr || item.location },
+      registrationOpen: false,
+    }))
+  }
+  return eventsBySecretariat(route.params.slug)
+})
 
 const albums = computed(() => {
   if (feed.value.albums?.length) {
@@ -115,7 +131,7 @@ async function loadFeed(slug) {
   try {
     feed.value = await fetchSecretariatFeed(slug)
   } catch {
-    feed.value = { news: [], announcements: [], albums: [], department: null }
+    feed.value = { news: [], announcements: [], albums: [], events: [], department: null }
   }
 }
 
@@ -422,21 +438,20 @@ watch(
       <!-- Events -->
       <section v-if="events.length">
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('secretariat.events') }}</h2>
-        <div class="mt-4 grid gap-4 md:grid-cols-2">
-          <article v-for="event in events" :key="event.id" class="rounded-xl bg-white p-5 shadow-sm">
-            <h3 class="font-semibold">{{ localized(event.title) }}</h3>
-            <p class="mt-1 text-sm text-slate-500">{{ event.date }} · {{ event.time }}</p>
-            <p class="mt-2 text-sm text-slate-700">{{ localized(event.summary) }}</p>
-            <div class="mt-3 flex flex-wrap gap-3">
+        <div class="mt-4 grid gap-4 md:grid-cols-3">
+          <article v-for="event in events" :key="event.id" class="overflow-hidden rounded-xl bg-white shadow-sm">
+            <img :src="event.image || '/logo.png'" alt="" class="h-36 w-full object-cover" />
+            <div class="space-y-1 p-4">
+              <p v-if="event.type" class="text-xs font-semibold text-[var(--rdp-gold)]">
+                {{ t(`secretariat.eventTypes.${event.type}`) }}
+              </p>
+              <p class="text-xs text-slate-500">
+                {{ event.date }}<span v-if="event.time"> · {{ event.time }}</span>
+              </p>
+              <h3 class="font-semibold">{{ localized(event.title) }}</h3>
+              <p v-if="localized(event.summary)" class="line-clamp-2 text-sm text-slate-700">{{ localized(event.summary) }}</p>
               <RouterLink :to="`/events/${event.slug}`" class="text-sm font-semibold text-[var(--rdp-forest)] hover:underline">
                 {{ t('home.eventDetails') }}
-              </RouterLink>
-              <RouterLink
-                v-if="event.registrationOpen || secretariat.showActivityRegister"
-                :to="`/events/${event.slug}#register`"
-                class="text-sm font-semibold text-slate-700 hover:underline"
-              >
-                {{ t('secretariat.registerActivity') }}
               </RouterLink>
             </div>
           </article>

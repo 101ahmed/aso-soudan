@@ -87,6 +87,8 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'content.review', 'module' => 'content', 'name_fr' => 'Réviser contenu', 'name_ar' => 'مراجعة المحتوى'],
             ['code' => 'event.create', 'module' => 'events', 'name_fr' => 'Créer événement', 'name_ar' => 'إنشاء فعالية'],
             ['code' => 'event.update', 'module' => 'events', 'name_fr' => 'Modifier événement', 'name_ar' => 'تعديل فعالية'],
+            ['code' => 'event.delete', 'module' => 'events', 'name_fr' => 'Supprimer événement', 'name_ar' => 'حذف فعالية'],
+            ['code' => 'event.publish', 'module' => 'events', 'name_fr' => 'Publier événement', 'name_ar' => 'نشر فعالية'],
             ['code' => 'shura.member.view', 'module' => 'shura', 'name_fr' => 'Voir membres Choura', 'name_ar' => 'عرض أعضاء الشورى'],
             ['code' => 'shura.member.manage', 'module' => 'shura', 'name_fr' => 'Gérer membres Choura', 'name_ar' => 'إدارة أعضاء الشورى'],
             ['code' => 'shura.meeting.view', 'module' => 'shura', 'name_fr' => 'Voir réunions Choura', 'name_ar' => 'عرض اجتماعات الشورى'],
@@ -117,7 +119,7 @@ class RolePermissionSeeder extends Seeder
             'announcement.view', 'announcement.create', 'announcement.update', 'announcement.delete', 'announcement.publish',
             'gallery.view', 'gallery.manage', 'gallery.publish',
             'content.review',
-            'event.create', 'event.update',
+            'event.create', 'event.update', 'event.delete', 'event.publish',
         ];
 
         $contentOnlyIds = Permission::query()->whereIn('code', $contentCodes)->pluck('id');

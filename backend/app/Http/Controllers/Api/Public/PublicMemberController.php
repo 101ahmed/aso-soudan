@@ -11,6 +11,13 @@ use Illuminate\Validation\Rule;
 
 class PublicMemberController extends Controller
 {
+    public function cities(): JsonResponse
+    {
+        return response()->json([
+            'extra_cities' => Member::extraCityNames(),
+        ]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $key = 'member-register:'.$request->ip();
@@ -28,7 +35,7 @@ class PublicMemberController extends Controller
             'email' => ['required', 'email', 'max:190', Rule::unique('members', 'email')->whereNull('deleted_at')],
             'phone' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', 'string', 'max:120'],
+            'city' => ['nullable', Rule::in(Member::allowedCities())],
             'membership_type' => ['nullable', Rule::in(Member::MEMBERSHIP_TYPES)],
         ]);
 
