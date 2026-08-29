@@ -254,6 +254,79 @@ export const secretariats = [
     contactLabel: { ar: 'تواصل مع الأمانة الاجتماعية', fr: 'Contacter le secrétariat social' },
   },
   {
+    slug: 'finance',
+    nameKey: 'org.finance',
+    tagline: {
+      ar: 'شفافية مالية في خدمة الرابطة',
+      fr: 'Une gestion financière transparente au service de la Rabta',
+    },
+    summary: {
+      ar: 'تشرف الأمانة المالية على الاشتراكات والمصروفات وإعداد التقارير المالية وفق ضوابط الرابطة.',
+      fr: 'Le secrétariat financier gère les cotisations, les dépenses et les rapports financiers selon les règles de la Rabta.',
+    },
+    banner: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1600&q=80',
+    vision: {
+      ar: 'موارد منظمة وشفافة تدعم برامج الرابطة واستقرارها.',
+      fr: 'Des ressources organisées et transparentes au service des programmes de la Rabta.',
+    },
+    mission: {
+      ar: 'ضبط الحسابات ومتابعة الاشتراكات وإعداد التقارير المالية الدورية.',
+      fr: 'Tenir les comptes, suivre les cotisations et préparer les rapports financiers périodiques.',
+    },
+    objectives: {
+      ar: ['تنظيم الاشتراكات', 'متابعة الإيرادات والمصروفات', 'إعداد التقارير المالية', 'دعم الشفافية'],
+      fr: ['Organiser les cotisations', 'Suivre recettes et dépenses', 'Préparer les rapports financiers', 'Renforcer la transparence'],
+    },
+    tasks: {
+      ar: [
+        'متابعة اشتراكات الأعضاء',
+        'تسجيل الإيرادات والمصروفات',
+        'إعداد الميزانية التقديرية',
+        'إعداد التقارير المالية الدورية',
+        'حفظ الوثائق المالية',
+        'التنسيق مع الأمانات حول الاحتياجات المالية',
+        'متابعة الموردين والمدفوعات',
+        'دعم الشفافية أمام المكتب التنفيذي',
+      ],
+      fr: [
+        'Suivi des cotisations des adhérents',
+        'Enregistrement des recettes et dépenses',
+        'Préparation du budget prévisionnel',
+        'Rapports financiers périodiques',
+        'Conservation des pièces comptables',
+        'Coordination avec les secrétariats sur les besoins financiers',
+        'Suivi des fournisseurs et des paiements',
+        'Transparence auprès du bureau exécutif',
+      ],
+    },
+    programs: {
+      ar: ['الاشتراكات السنوية', 'التقارير المالية', 'ميزانية البرامج', 'متابعة المصروفات'],
+      fr: ['Cotisations annuelles', 'Rapports financiers', 'Budget des programmes', 'Suivi des dépenses'],
+    },
+    documents: {
+      ar: [
+        { title: 'تقرير مالي عام', type: 'تقرير' },
+        { title: 'إعلان الاشتراكات', type: 'إعلان' },
+      ],
+      fr: [
+        { title: 'Rapport financier public', type: 'Rapport' },
+        { title: 'Annonce des cotisations', type: 'Annonce' },
+      ],
+    },
+    officer: {
+      name: { ar: 'يُعلن لاحقاً', fr: 'À annoncer' },
+      title: { ar: 'أمين الأمانة المالية', fr: 'Secrétaire financier' },
+      bio: {
+        ar: 'يشرف على الاشتراكات والمصروفات والتقارير المالية للرابطة.',
+        fr: 'Supervise les cotisations, les dépenses et les rapports financiers de la Rabta.',
+      },
+      email: 'finance@acs-rennes.fr',
+      photo: null,
+    },
+    deputy: deputyCard('نائب أمين الأمانة المالية', 'Vice-secrétaire financier', 'finance@acs-rennes.fr'),
+    contactLabel: { ar: 'تواصل مع الأمانة المالية', fr: 'Contacter le secrétariat financier' },
+  },
+  {
     slug: 'media',
     nameKey: 'org.media',
     tagline: {

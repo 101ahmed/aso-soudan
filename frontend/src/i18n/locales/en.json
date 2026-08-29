@@ -25,6 +25,7 @@
     "general": "General Secretariat",
     "academic": "Academic Secretariat",
     "social": "Social Secretariat",
+    "finance": "Finance Secretariat",
     "media": "Media Secretariat",
     "womenChildren": "Women & Children",
     "statistics": "Statistics Secretariat",
@@ -47,6 +48,7 @@
     "newsTitle": "Latest news",
     "eventsTitle": "Upcoming events",
     "eventsSubtitle": "Find the next activities open to the public",
+    "eventsEmpty": "No published events yet. Activities from all secretariats will appear here once published.",
     "eventDetails": "See details",
     "eventRegister": "Register for the event",
     "statsTitle": "Public figures",
@@ -95,6 +97,7 @@
       "general": "The General Secretariat handles administrative coordination, follow-up of decisions and official correspondence.",
       "academic": "The Academic Secretariat manages school enrolment, classes, teachers and educational follow-up.",
       "social": "The Social Secretariat develops mutual-aid programmes and solidarity initiatives.",
+      "finance": "The Finance Secretariat manages membership fees, expenses and financial reports.",
       "media": "The Media Secretariat covers news, communication and the Rabta’s digital presence.",
       "womenChildren": "This unit supports programmes dedicated to women and children.",
       "statistics": "The Statistics Secretariat produces indicators and reports useful for steering.",
@@ -115,7 +118,8 @@
     },
     "events": {
       "subtitle": "Events open to the public",
-      "registered": "Your registration has been recorded. We will contact you if needed."
+      "registered": "Your registration has been recorded. We will contact you if needed.",
+      "empty": "No published events yet."
     },
     "gallery": {
       "subtitle": "Memories and moments of community life",
@@ -297,6 +301,10 @@
       "lecture": "Lecture",
       "activity": "Event"
     },
+    "rateHint": "Rate this event",
+    "rateStars": "{n} out of 5 stars",
+    "yourRating": "Your rating: {n}/5",
+    "ratingSummary": "{avg} ★ — {count} ratings",
     "registerActivity": "Register for the activity",
     "contactHint": "This message will be sent to this secretariat. No internal data is shown here.",
     "officerRole": "Amin",
@@ -526,6 +534,8 @@
     "studentsHint": "Add, edit or delete students.",
     "members": "Members database",
     "membersHint": "Search, filter members and send them a message.",
+    "helpRequests": "Help requests",
+    "helpRequestsHint": "Receive help requests and track their type and status.",
     "officer": "Officer profile",
     "officerHint": "Public photo and card of the secretariat lead.",
     "officerSaved": "Officer profile saved.",
@@ -768,6 +778,47 @@
       "saved": "Permissions updated",
       "loadError": "Unable to load roles",
       "saveError": "Update failed"
+    }
+  },
+  "socialHelp": {
+    "publicTitle": "Request for help",
+    "publicSubtitle": "Form sent to the Social Secretariat — no login required",
+    "privacyHint": "Requests are handled confidentially. No personal data is published on the website.",
+    "helpType": "Type of help",
+    "details": "Details of the request",
+    "familySize": "Household size (optional)",
+    "consent": "I agree that the Social Secretariat may process my data to follow up this request.",
+    "submit": "Submit the request",
+    "successTitle": "Request received",
+    "successText": "Current status: new — awaiting review by the Social Secretariat.",
+    "reference": "Request number",
+    "error": "Unable to send the request at the moment.",
+    "adminTitle": "Help requests",
+    "adminHint": "Track the type of help and the status of each request.",
+    "search": "Search by name, phone or number",
+    "allTypes": "All types",
+    "allStatuses": "All statuses",
+    "new": "New request",
+    "edit": "Edit request",
+    "adminNotes": "Internal notes",
+    "types": {
+      "financial": "Financial help",
+      "food": "Food support",
+      "housing": "Housing",
+      "admin_papers": "Administrative papers",
+      "health": "Health",
+      "family": "Family support",
+      "ramadan": "Ramadan solidarity",
+      "emergency": "Emergency",
+      "other": "Other"
+    },
+    "statuses": {
+      "pending": "New",
+      "reviewing": "Under review",
+      "approved": "Accepted",
+      "in_progress": "In progress",
+      "completed": "Completed",
+      "rejected": "Rejected"
     }
   }
 }

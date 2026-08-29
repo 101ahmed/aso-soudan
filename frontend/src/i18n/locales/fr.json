@@ -25,6 +25,7 @@
     "general": "Secrétariat général",
     "academic": "Secrétariat académique",
     "social": "Secrétariat social",
+    "finance": "Secrétariat financier",
     "media": "Secrétariat médias",
     "womenChildren": "Femmes & Enfants",
     "statistics": "Secrétariat statistiques",
@@ -47,6 +48,7 @@
     "newsTitle": "Dernières actualités",
     "eventsTitle": "Événements à venir",
     "eventsSubtitle": "Retrouvez les prochaines activités ouvertes au public",
+    "eventsEmpty": "Aucun événement publié pour le moment. Les activités de toutes les amanahs apparaîtront ici une fois publiées.",
     "eventDetails": "Voir les détails",
     "eventRegister": "S’inscrire à l’événement",
     "statsTitle": "Chiffres publics",
@@ -95,6 +97,7 @@
       "general": "L’aménée générale assure la coordination administrative, le suivi des décisions et la correspondance officielle.",
       "academic": "Le secrétariat académique gère les inscriptions scolaires, les classes, les enseignants et le suivi pédagogique.",
       "social": "Le secrétariat social développe les programmes d’entraide et les initiatives solidaires.",
+      "finance": "Le secrétariat financier gère les cotisations, les dépenses et les rapports financiers.",
       "media": "Le secrétariat médias couvre l’actualité, la communication et la présence numérique de la Rabta.",
       "womenChildren": "Ce pôle accompagne les programmes dédiés aux femmes et aux enfants.",
       "statistics": "Le secrétariat statistiques produit les indicateurs et rapports utiles au pilotage.",
@@ -115,7 +118,8 @@
     },
     "events": {
       "subtitle": "Événements ouverts au public",
-      "registered": "Votre inscription a bien été enregistrée. Nous vous recontacterons si nécessaire."
+      "registered": "Votre inscription a bien été enregistrée. Nous vous recontacterons si nécessaire.",
+      "empty": "Aucun événement publié pour le moment."
     },
     "gallery": {
       "subtitle": "Souvenirs et moments de la vie associative",
@@ -297,6 +301,10 @@
       "lecture": "Conférence",
       "activity": "Événement"
     },
+    "rateHint": "Notez cet événement",
+    "rateStars": "{n} sur 5 étoiles",
+    "yourRating": "Votre note : {n}/5",
+    "ratingSummary": "{avg} ★ — {count} avis",
     "registerActivity": "S’inscrire à l’activité",
     "contactHint": "Ce message sera adressé à cette secrétariat. Aucune donnée interne n’est exposée ici.",
     "officerRole": "Amin",
@@ -526,6 +534,8 @@
     "studentsHint": "Ajouter, modifier ou supprimer les élèves.",
     "members": "Base des adhérents",
     "membersHint": "Rechercher, filtrer les adhérents et leur envoyer un message.",
+    "helpRequests": "Demandes d’aide",
+    "helpRequestsHint": "Recevoir les demandes d’aide et suivre leur type et leur statut.",
     "officer": "Fiche de l’amin",
     "officerHint": "Photo et carte publique du responsable de l’amanah.",
     "officerSaved": "Fiche de l’amin enregistrée.",
@@ -768,6 +778,47 @@
       "saved": "Permissions mises à jour",
       "loadError": "Impossible de charger les rôles",
       "saveError": "Échec de la mise à jour"
+    }
+  },
+  "socialHelp": {
+    "publicTitle": "Demande d’aide",
+    "publicSubtitle": "Formulaire adressé au secrétariat social — sans compte",
+    "privacyHint": "Les demandes sont traitées de façon confidentielle. Aucune donnée personnelle n’est publiée sur le site.",
+    "helpType": "Type d’aide",
+    "details": "Détails de la demande",
+    "familySize": "Nombre de personnes au foyer (optionnel)",
+    "consent": "J’accepte que le secrétariat social traite mes données pour suivre cette demande.",
+    "submit": "Envoyer la demande",
+    "successTitle": "Demande bien reçue",
+    "successText": "Statut actuel : nouvelle — en attente d’examen par le secrétariat social.",
+    "reference": "Numéro de demande",
+    "error": "Impossible d’envoyer la demande pour le moment.",
+    "adminTitle": "Demandes d’aide",
+    "adminHint": "Suivez le type d’aide et le statut de chaque demande.",
+    "search": "Rechercher par nom, téléphone ou numéro",
+    "allTypes": "Tous les types",
+    "allStatuses": "Tous les statuts",
+    "new": "Nouvelle demande",
+    "edit": "Modifier la demande",
+    "adminNotes": "Notes internes",
+    "types": {
+      "financial": "Aide financière",
+      "food": "Aide alimentaire",
+      "housing": "Logement",
+      "admin_papers": "Démarches administratives",
+      "health": "Santé",
+      "family": "Soutien familial",
+      "ramadan": "Solidarité Ramadan",
+      "emergency": "Urgence",
+      "other": "Autre"
+    },
+    "statuses": {
+      "pending": "Nouvelle",
+      "reviewing": "En étude",
+      "approved": "Acceptée",
+      "in_progress": "En cours",
+      "completed": "Clôturée",
+      "rejected": "Refusée"
     }
   }
 }

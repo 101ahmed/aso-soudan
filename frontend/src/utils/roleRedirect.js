@@ -6,6 +6,7 @@ const ROLE_HOME = {
   GENERAL_SECRETARIAT: '/admin/secretariats/general',
   ACADEMIC_SECRETARIAT: '/admin/secretariats/academic',
   SOCIAL_SECRETARIAT: '/admin/secretariats/social',
+  FINANCE_SECRETARIAT: '/admin/secretariats/finance',
   MEDIA_SECRETARIAT: '/admin/secretariats/media',
   WOMEN_CHILDREN: '/admin/secretariats/women-children',
   STATISTICS_SECRETARIAT: '/admin/secretariats/statistics',

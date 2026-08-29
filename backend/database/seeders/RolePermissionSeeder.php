@@ -16,6 +16,7 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'GENERAL_SECRETARIAT', 'name_fr' => 'Secrétariat général', 'name_ar' => 'الأمانة العامة'],
             ['code' => 'ACADEMIC_SECRETARIAT', 'name_fr' => 'Secrétariat académique', 'name_ar' => 'الأمانة الأكاديمية'],
             ['code' => 'SOCIAL_SECRETARIAT', 'name_fr' => 'Secrétariat social', 'name_ar' => 'الأمانة الاجتماعية'],
+            ['code' => 'FINANCE_SECRETARIAT', 'name_fr' => 'Secrétariat financier', 'name_ar' => 'الأمانة المالية'],
             ['code' => 'MEDIA_SECRETARIAT', 'name_fr' => 'Secrétariat médias', 'name_ar' => 'الأمانة الإعلامية'],
             ['code' => 'WOMEN_CHILDREN', 'name_fr' => 'Femmes & Enfants', 'name_ar' => 'شؤون المرأة والطفل'],
             ['code' => 'STATISTICS_SECRETARIAT', 'name_fr' => 'Secrétariat statistiques', 'name_ar' => 'أمانة الإحصاء'],
@@ -89,6 +90,10 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'event.update', 'module' => 'events', 'name_fr' => 'Modifier événement', 'name_ar' => 'تعديل فعالية'],
             ['code' => 'event.delete', 'module' => 'events', 'name_fr' => 'Supprimer événement', 'name_ar' => 'حذف فعالية'],
             ['code' => 'event.publish', 'module' => 'events', 'name_fr' => 'Publier événement', 'name_ar' => 'نشر فعالية'],
+            ['code' => 'help.view', 'module' => 'social', 'name_fr' => 'Voir demandes d’aide', 'name_ar' => 'عرض طلبات المساعدة'],
+            ['code' => 'help.create', 'module' => 'social', 'name_fr' => 'Créer demande d’aide', 'name_ar' => 'إنشاء طلب مساعدة'],
+            ['code' => 'help.update', 'module' => 'social', 'name_fr' => 'Modifier demande d’aide', 'name_ar' => 'تعديل طلب مساعدة'],
+            ['code' => 'help.delete', 'module' => 'social', 'name_fr' => 'Supprimer demande d’aide', 'name_ar' => 'حذف طلب مساعدة'],
             ['code' => 'shura.member.view', 'module' => 'shura', 'name_fr' => 'Voir membres Choura', 'name_ar' => 'عرض أعضاء الشورى'],
             ['code' => 'shura.member.manage', 'module' => 'shura', 'name_fr' => 'Gérer membres Choura', 'name_ar' => 'إدارة أعضاء الشورى'],
             ['code' => 'shura.meeting.view', 'module' => 'shura', 'name_fr' => 'Voir réunions Choura', 'name_ar' => 'عرض اجتماعات الشورى'],
@@ -128,7 +133,7 @@ class RolePermissionSeeder extends Seeder
 
         Role::query()->where('code', 'PRESIDENT')->first()?->permissions()->sync(
             Permission::query()->whereIn('code', [
-                'news.view', 'announcement.view', 'gallery.view', 'report.view', 'statistics.view', 'member.view',
+                'news.view', 'announcement.view', 'gallery.view', 'report.view', 'statistics.view', 'member.view', 'help.view',
             ])->pluck('id')
         );
 
@@ -144,7 +149,10 @@ class RolePermissionSeeder extends Seeder
                 'teacher.view', 'teacher.create', 'teacher.update',
                 'attendance.view', 'attendance.create',
             ]),
-            'SOCIAL_SECRETARIAT' => $secretariatManagerCodes,
+            'SOCIAL_SECRETARIAT' => array_merge($secretariatManagerCodes, [
+                'help.view', 'help.create', 'help.update', 'help.delete',
+            ]),
+            'FINANCE_SECRETARIAT' => $secretariatManagerCodes,
             'MEDIA_SECRETARIAT' => $secretariatManagerCodes,
             'WOMEN_CHILDREN' => $secretariatManagerCodes,
             'STATISTICS_SECRETARIAT' => array_merge($contentCodes, [

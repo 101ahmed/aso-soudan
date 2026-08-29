@@ -11,6 +11,7 @@ class DepartmentRoleMap
         'GENERAL_SECRETARIAT' => 'general',
         'ACADEMIC_SECRETARIAT' => 'academic',
         'SOCIAL_SECRETARIAT' => 'social',
+        'FINANCE_SECRETARIAT' => 'finance',
         'MEDIA_SECRETARIAT' => 'media',
         'WOMEN_CHILDREN' => 'women-children',
         'STATISTICS_SECRETARIAT' => 'statistics',

@@ -166,6 +166,15 @@ export const aboutPage = {
       path: '/secretariats/social',
     },
     {
+      key: 'finance',
+      title: { ar: 'المجال المالي', fr: 'Domaine financier' },
+      items: {
+        ar: ['الاشتراكات', 'الميزانية', 'التقارير المالية', 'متابعة المصروفات', 'الشفافية'],
+        fr: ['Cotisations', 'Budget', 'Rapports financiers', 'Suivi des dépenses', 'Transparence'],
+      },
+      path: '/secretariats/finance',
+    },
+    {
       key: 'womenChildren',
       title: { ar: 'المرأة والطفل', fr: 'Femmes & Enfants' },
       items: {
@@ -216,6 +225,7 @@ export const aboutPage = {
     { nameKey: 'org.general', path: '/secretariats/general' },
     { nameKey: 'org.academic', path: '/secretariats/academic' },
     { nameKey: 'org.social', path: '/secretariats/social' },
+    { nameKey: 'org.finance', path: '/secretariats/finance' },
     { nameKey: 'org.media', path: '/secretariats/media' },
     { nameKey: 'org.womenChildren', path: '/secretariats/women-children' },
     { nameKey: 'org.statistics', path: '/secretariats/statistics' },
@@ -228,6 +238,7 @@ export const aboutPage = {
     { nameKey: 'org.general', path: '/secretariats/general', text: { ar: 'التنسيق الإداري ومتابعة القرارات.', fr: 'Coordination administrative et suivi des décisions.' } },
     { nameKey: 'org.academic', path: '/secretariats/academic', text: { ar: 'إدارة البرامج التعليمية والطلاب والمعلمين.', fr: 'Gestion des programmes, élèves et enseignants.' } },
     { nameKey: 'org.social', path: '/secretariats/social', text: { ar: 'تنظيم المبادرات الاجتماعية.', fr: 'Organisation des initiatives sociales.' } },
+    { nameKey: 'org.finance', path: '/secretariats/finance', text: { ar: 'إدارة الاشتراكات والمصروفات والتقارير المالية.', fr: 'Cotisations, dépenses et rapports financiers.' } },
     { nameKey: 'org.media', path: '/secretariats/media', text: { ar: 'إدارة الأخبار والإعلام والتوثيق.', fr: 'Actualités, médias et documentation.' } },
     { nameKey: 'org.womenChildren', path: '/secretariats/women-children', text: { ar: 'برامج ومبادرات الأسرة والمرأة والطفل.', fr: 'Programmes famille, femmes et enfants.' } },
     { nameKey: 'org.statistics', path: '/secretariats/statistics', text: { ar: 'إدارة البيانات والإحصاءات والتقارير.', fr: 'Données, statistiques et rapports.' } },
