@@ -76,11 +76,11 @@ onMounted(async () => {
     <section class="relative min-h-[100svh] overflow-hidden">
       <div class="absolute inset-0">
         <img
-          class="hero-media h-full w-full object-cover object-[center_30%]"
-          src="/hero-home.png"
-          alt=""
+          class="hero-media h-full w-full object-cover object-[center_42%]"
+          src="/hero-home.jpg"
+          :alt="t('app.name')"
         />
-        <div class="absolute inset-0 bg-[linear-gradient(115deg,rgba(18,40,28,0.88)_6%,rgba(18,40,28,0.55)_48%,rgba(18,40,28,0.28)_100%)]" />
+        <div class="absolute inset-0 bg-[linear-gradient(180deg,rgba(18,40,28,0.22)_0%,rgba(18,40,28,0.38)_42%,rgba(18,40,28,0.86)_100%)]" />
       </div>
 
       <div class="hero-copy relative z-10 mx-auto flex min-h-[100svh] max-w-6xl flex-col justify-end px-5 pb-16 pt-28 md:px-8 md:pb-24">
