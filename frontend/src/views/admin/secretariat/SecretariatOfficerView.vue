@@ -1,8 +1,9 @@
 <script setup>
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, reactive, ref, shallowRef, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { fetchDepartment, updateDepartmentDeputy, updateDepartmentOfficer } from '@/services/content'
+import { prepareUploadImage } from '@/utils/prepareUploadImage'
 
 const route = useRoute()
 const { t } = useI18n()
@@ -12,6 +13,8 @@ const error = ref('')
 const success = ref('')
 const saving = ref(false)
 const photoPreview = ref(null)
+const photoFile = shallowRef(null)
+const fileInput = ref(null)
 
 const form = reactive({
   name_fr: '',
@@ -23,7 +26,6 @@ const form = reactive({
   email: '',
   phone: '',
   is_public: true,
-  photo: null,
   remove_photo: false,
 })
 
@@ -39,10 +41,11 @@ function applyCard(card) {
     email: o.email || '',
     phone: o.phone || '',
     is_public: o.is_public !== false,
-    photo: null,
     remove_photo: false,
   })
+  photoFile.value = null
   photoPreview.value = o.photo_url || null
+  if (fileInput.value) fileInput.value.value = ''
 }
 
 async function load() {
@@ -56,17 +59,27 @@ async function load() {
   }
 }
 
-function onPhotoPick(event) {
+async function onPhotoPick(event) {
   const file = event.target.files?.[0] || null
-  form.photo = file
   form.remove_photo = false
-  photoPreview.value = file ? URL.createObjectURL(file) : photoPreview.value
+  if (!file) {
+    photoFile.value = null
+    return
+  }
+  try {
+    photoFile.value = await prepareUploadImage(file)
+    photoPreview.value = URL.createObjectURL(photoFile.value)
+  } catch {
+    photoFile.value = file
+    photoPreview.value = URL.createObjectURL(file)
+  }
 }
 
 function clearPhoto() {
-  form.photo = null
+  photoFile.value = null
   form.remove_photo = true
   photoPreview.value = null
+  if (fileInput.value) fileInput.value.value = ''
 }
 
 async function save() {
@@ -84,7 +97,7 @@ async function save() {
     [`${prefix}_email`]: form.email,
     [`${prefix}_phone`]: form.phone,
     [`${prefix}_is_public`]: form.is_public,
-    photo: form.photo,
+    photo: photoFile.value,
     remove_photo: form.remove_photo,
   }
   try {
@@ -130,7 +143,7 @@ watch([code, role], load, { immediate: true })
           {{ (form.name_ar || form.name_fr || '?').slice(0, 1) }}
         </div>
         <div class="space-y-2">
-          <input type="file" accept="image/*" class="block w-full text-sm" @change="onPhotoPick" />
+          <input ref="fileInput" type="file" accept="image/*" class="block w-full text-sm" @change="onPhotoPick" />
           <button v-if="photoPreview" type="button" class="text-xs text-rose-700 hover:underline" @click="clearPhoto">
             {{ t('secretariatAdmin.removePhoto') }}
           </button>

@@ -72,7 +72,7 @@ class AdminDepartmentController extends Controller
             "{$prefix}_email" => ['nullable', 'email', 'max:190'],
             "{$prefix}_phone" => ['nullable', 'string', 'max:50'],
             $publicColumn => ['nullable', 'boolean'],
-            'photo' => ['nullable', 'image', 'max:5120'],
+            'photo' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png,webp,gif', 'max:12288'],
             'remove_photo' => ['nullable', 'boolean'],
         ]);
 

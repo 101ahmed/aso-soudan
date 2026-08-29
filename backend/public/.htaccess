@@ -26,6 +26,9 @@
     RewriteRule ^sanctum(?:/|$) index.php [L]
     RewriteRule ^up$ index.php [L]
 
+    # Uploaded media (officer/deputy photos, albums, news)
+    RewriteRule ^storage(?:/|$) - [L]
+
     # Serve existing static files (Vite assets, logo, robots.txt, …)
     RewriteCond %{REQUEST_FILENAME} -f [OR]
     RewriteCond %{REQUEST_FILENAME} -d

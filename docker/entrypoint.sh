@@ -35,8 +35,11 @@ fi
 
 cd /var/www/html
 
-# Ensure writable dirs
-mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache
+# Ensure writable dirs + public uploads (officer/deputy photos)
+mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cache storage/app/public
+if [[ -e public/storage && ! -L public/storage ]]; then
+  rm -rf public/storage
+fi
 chown -R www-data:www-data storage bootstrap/cache || true
 
 # Strip accidental quotes from dashboard paste
@@ -69,6 +72,7 @@ fi
 php artisan config:cache
 php artisan route:cache || echo "WARNING: route:cache skipped"
 php artisan view:cache || true
-php artisan storage:link || true
+php artisan storage:link --force || true
+chown -R www-data:www-data storage bootstrap/cache public/storage || true
 
 exec "$@"

@@ -39,6 +39,8 @@ RUN apt-get update \
   && a2enmod rewrite headers \
   && rm -rf /var/lib/apt/lists/*
 
+COPY docker/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+
 WORKDIR /var/www/html
 
 COPY --from=vendor /app /var/www/html

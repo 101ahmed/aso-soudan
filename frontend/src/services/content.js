@@ -1,4 +1,5 @@
 import api from '@/services/api'
+import { toRaw } from 'vue'
 
 function deptPath(code, suffix = '') {
   return `/admin/departments/${code}${suffix}`
@@ -163,16 +164,33 @@ export async function fetchPublicAlbum(slug) {
 function toFormData(payload) {
   const body = new FormData()
   Object.entries(payload || {}).forEach(([key, value]) => {
-    if (value === undefined || value === null || value === '') return
-    if (typeof value === 'boolean') {
-      body.append(key, value ? '1' : '0')
+    const raw = unwrapUploadValue(value)
+    if (raw === undefined || raw === null || raw === '') return
+    if (typeof raw === 'boolean') {
+      body.append(key, raw ? '1' : '0')
       return
     }
-    if (Array.isArray(value)) {
-      value.forEach((item) => body.append(`${key}[]`, item))
+    if (Array.isArray(raw)) {
+      raw.forEach((item) => body.append(`${key}[]`, unwrapUploadValue(item)))
       return
     }
-    body.append(key, value)
+    if (raw instanceof File) {
+      body.append(key, raw, raw.name)
+      return
+    }
+    if (raw instanceof Blob) {
+      body.append(key, raw)
+      return
+    }
+    body.append(key, raw)
   })
   return body
+}
+
+function unwrapUploadValue(value) {
+  if (value === undefined || value === null) return value
+  const raw = toRaw(value)
+  if (raw instanceof File || raw instanceof Blob) return raw
+  if (typeof File !== 'undefined' && value instanceof File) return value
+  return raw
 }
