@@ -193,16 +193,6 @@
       "menuTitle": "Suivi",
       "comingSoon": "Les indicateurs, rapports et notifications seront progressivement reliés aux données du système.",
       "publicPage": "Voir la page publique du Président",
-      "kpis": {
-        "members": "Membres",
-        "students": "Élèves",
-        "teachers": "Enseignants",
-        "secretariats": "Secrétariats",
-        "events": "Événements",
-        "attendance": "Assiduité académique",
-        "requests": "Nouvelles demandes",
-        "reports": "Nouveaux rapports"
-      },
       "menu": {
         "overview": "Vue d’ensemble",
         "secretariats": "Secrétariats",
@@ -418,6 +408,57 @@
       "female": "Fille"
     }
   },
+  "statisticsMembers": {
+    "title": "Base des adhérents",
+    "subtitle": "Recherche et classification par âge, genre, ville et type d’adhésion, puis envoi d’un message.",
+    "forbidden": "Permission member.view requise.",
+    "search": "Rechercher par nom, e-mail ou téléphone",
+    "filter": "Filtrer",
+    "allStatuses": "Tous les statuts",
+    "allGenders": "Tous les genres",
+    "allTypes": "Tous les types",
+    "allCities": "Toutes les villes",
+    "ageMin": "Âge min.",
+    "ageMax": "Âge max.",
+    "name": "Nom",
+    "age": "Âge",
+    "gender": "Genre",
+    "city": "Ville",
+    "type": "Type d’adhésion",
+    "status": "Statut",
+    "address": "Adresse",
+    "notes": "Notes",
+    "empty": "Aucun adhérent pour le moment.",
+    "newMember": "Nouvel adhérent",
+    "editMember": "Modifier l’adhérent",
+    "confirmDelete": "Supprimer l’adhérent {name} ?",
+    "messageSelected": "Message aux sélectionnés ({n})",
+    "messageFiltered": "Message aux résultats ({n} e-mails)",
+    "selectFirst": "Sélectionnez au moins un adhérent.",
+    "composeTitle": "Envoyer un message aux adhérents",
+    "composeSelected": "Envoi vers {n} adhérent(s) sélectionné(s) (sans e-mail = ignoré).",
+    "composeFiltered": "Envoi vers les adhérents filtrés qui ont un e-mail ({n}).",
+    "sending": "Envoi…",
+    "sentResult": "{sent} envoyé(s) · {skipped} ignoré(s) · {failed} échec(s)",
+    "statuses": {
+      "active": "Actif",
+      "pending": "En attente",
+      "inactive": "Inactif",
+      "archived": "Archivé"
+    },
+    "genders": {
+      "male": "Homme",
+      "female": "Femme"
+    },
+    "types": {
+      "adherent": "Adhérent",
+      "volunteer": "Bénévole",
+      "supporter": "Soutien",
+      "student": "Étudiant",
+      "family": "Famille",
+      "other": "Autre"
+    }
+  },
   "teacherAdmin": {
     "badge": "Espace enseignant",
     "title": "Espace des enseignants",
@@ -474,6 +515,8 @@
     "teachersHint": "Ajouter les enseignants, leurs matières et leurs comptes d’accès.",
     "students": "Élèves",
     "studentsHint": "Ajouter, modifier ou supprimer les élèves.",
+    "members": "Base des adhérents",
+    "membersHint": "Rechercher, filtrer les adhérents et leur envoyer un message.",
     "officer": "Fiche de l’amin",
     "officerHint": "Photo et carte publique du responsable de l’amanah.",
     "officerSaved": "Fiche de l’amin enregistrée.",
@@ -578,6 +621,22 @@
       "consent": "J’accepte les conditions d’adhésion et la politique de confidentialité.",
       "successTitle": "Demande reçue",
       "successText": "Votre demande d’adhésion a bien été reçue. Nous vous contacterons après revue.",
+      "error": "Impossible d’envoyer la demande. Vérifiez les informations ou réessayez plus tard.",
+      "sending": "Envoi…",
+      "birthDate": "Date de naissance",
+      "gender": "Genre",
+      "genders": {
+        "male": "Homme",
+        "female": "Femme"
+      },
+      "types": {
+        "adherent": "Adhérent",
+        "volunteer": "Bénévole",
+        "supporter": "Soutien",
+        "student": "Étudiant",
+        "family": "Famille",
+        "other": "Autre"
+      },
       "steps": {
         "personal": "Données personnelles",
         "contact": "Coordonnées",
@@ -609,6 +668,7 @@
     "login": "Se connecter",
     "loggingIn": "Connexion…",
     "loginFailed": "Identifiants invalides",
+    "networkError": "Impossible de joindre le serveur. Vérifiez que Laravel tourne sur le port 8001 et que MySQL est démarré.",
     "remember": "Se souvenir de moi",
     "forgot": "Mot de passe oublié ?",
     "forgotTitle": "Mot de passe oublié",

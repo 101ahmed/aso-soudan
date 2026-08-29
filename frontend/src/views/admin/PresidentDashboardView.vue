@@ -7,17 +7,6 @@ import { useAuthStore } from '@/stores/auth'
 const { t } = useI18n()
 const auth = useAuthStore()
 
-const kpis = computed(() => [
-  { key: 'members', label: t('president.dash.kpis.members'), value: '—' },
-  { key: 'students', label: t('president.dash.kpis.students'), value: '—' },
-  { key: 'teachers', label: t('president.dash.kpis.teachers'), value: '—' },
-  { key: 'secretariats', label: t('president.dash.kpis.secretariats'), value: '8' },
-  { key: 'events', label: t('president.dash.kpis.events'), value: '—' },
-  { key: 'attendance', label: t('president.dash.kpis.attendance'), value: '—' },
-  { key: 'requests', label: t('president.dash.kpis.requests'), value: '—' },
-  { key: 'reports', label: t('president.dash.kpis.reports'), value: '—' },
-])
-
 const menus = computed(() => [
   { to: '/admin/president', label: t('president.dash.menu.overview') },
   { to: '/secretariats', label: t('president.dash.menu.secretariats'), external: true },
@@ -40,17 +29,6 @@ const menus = computed(() => [
         {{ t('president.dash.welcome', { name: auth.fullName || t('org.president') }) }}
       </p>
       <p class="mt-1 text-sm text-slate-500">{{ t('president.dash.note') }}</p>
-    </div>
-
-    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-      <article
-        v-for="kpi in kpis"
-        :key="kpi.key"
-        class="rounded-xl border border-slate-200 bg-white p-4"
-      >
-        <p class="text-xs text-slate-500">{{ kpi.label }}</p>
-        <p class="mt-2 text-2xl font-semibold text-[var(--rdp-forest)]">{{ kpi.value }}</p>
-      </article>
     </div>
 
     <div>

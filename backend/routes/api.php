@@ -8,11 +8,13 @@ use App\Http\Controllers\Api\Admin\AdminAnnouncementController;
 use App\Http\Controllers\Api\Admin\AdminDepartmentController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
+use App\Http\Controllers\Api\Admin\AdminStatisticsMemberController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\Public\PublicContactController;
 use App\Http\Controllers\Api\Public\PublicContentController;
+use App\Http\Controllers\Api\Public\PublicMemberController;
 use App\Http\Controllers\Api\Public\PublicShuraController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
@@ -32,6 +34,7 @@ Route::prefix('public')->group(function () {
     Route::get('/shura/meetings', [PublicShuraController::class, 'meetings']);
     Route::get('/contact', [PublicContactController::class, 'info']);
     Route::post('/contact', [PublicContactController::class, 'store']);
+    Route::post('/members', [PublicMemberController::class, 'store']);
 });
 
 Route::prefix('auth')->group(function () {
@@ -98,6 +101,15 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/teachers/{teacher}', [AdminAcademicTeacherController::class, 'show']);
         Route::put('/teachers/{teacher}', [AdminAcademicTeacherController::class, 'update']);
         Route::delete('/teachers/{teacher}', [AdminAcademicTeacherController::class, 'destroy']);
+    });
+
+    Route::prefix('admin/statistics')->group(function () {
+        Route::get('/members', [AdminStatisticsMemberController::class, 'index']);
+        Route::post('/members', [AdminStatisticsMemberController::class, 'store']);
+        Route::post('/members/message', [AdminStatisticsMemberController::class, 'message']);
+        Route::get('/members/{member}', [AdminStatisticsMemberController::class, 'show']);
+        Route::put('/members/{member}', [AdminStatisticsMemberController::class, 'update']);
+        Route::delete('/members/{member}', [AdminStatisticsMemberController::class, 'destroy']);
     });
 
     Route::prefix('admin/departments/{code}')

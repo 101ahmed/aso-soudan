@@ -66,6 +66,11 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'report.view', 'module' => 'reports', 'name_fr' => 'Voir rapports', 'name_ar' => 'عرض التقارير'],
             ['code' => 'report.export', 'module' => 'reports', 'name_fr' => 'Exporter rapports', 'name_ar' => 'تصدير التقارير'],
             ['code' => 'statistics.view', 'module' => 'statistics', 'name_fr' => 'Voir statistiques', 'name_ar' => 'عرض الإحصاءات'],
+            ['code' => 'member.view', 'module' => 'members', 'name_fr' => 'Voir adhérents', 'name_ar' => 'عرض الأعضاء'],
+            ['code' => 'member.create', 'module' => 'members', 'name_fr' => 'Créer adhérent', 'name_ar' => 'إنشاء عضو'],
+            ['code' => 'member.update', 'module' => 'members', 'name_fr' => 'Modifier adhérent', 'name_ar' => 'تعديل عضو'],
+            ['code' => 'member.delete', 'module' => 'members', 'name_fr' => 'Supprimer adhérent', 'name_ar' => 'حذف عضو'],
+            ['code' => 'member.message', 'module' => 'members', 'name_fr' => 'Envoyer un message aux adhérents', 'name_ar' => 'إرسال رسالة للأعضاء'],
             ['code' => 'news.view', 'module' => 'news', 'name_fr' => 'Voir actualités', 'name_ar' => 'عرض الأخبار'],
             ['code' => 'news.create', 'module' => 'news', 'name_fr' => 'Créer actualité', 'name_ar' => 'إنشاء خبر'],
             ['code' => 'news.update', 'module' => 'news', 'name_fr' => 'Modifier actualité', 'name_ar' => 'تعديل خبر'],
@@ -121,7 +126,7 @@ class RolePermissionSeeder extends Seeder
 
         Role::query()->where('code', 'PRESIDENT')->first()?->permissions()->sync(
             Permission::query()->whereIn('code', [
-                'news.view', 'announcement.view', 'gallery.view', 'report.view', 'statistics.view',
+                'news.view', 'announcement.view', 'gallery.view', 'report.view', 'statistics.view', 'member.view',
             ])->pluck('id')
         );
 
@@ -142,6 +147,7 @@ class RolePermissionSeeder extends Seeder
             'WOMEN_CHILDREN' => $secretariatManagerCodes,
             'STATISTICS_SECRETARIAT' => array_merge($contentCodes, [
                 'statistics.view', 'report.view', 'report.export',
+                'member.view', 'member.create', 'member.update', 'member.delete', 'member.message',
                 'student.view', 'teacher.view', 'attendance.view',
             ]),
             'EXTERNAL_RELATIONS' => $secretariatManagerCodes,

@@ -42,6 +42,13 @@ const cards = computed(() => {
       },
     )
   }
+  if (code.value === 'statistics') {
+    items.unshift({
+      to: `/admin/secretariats/statistics/members`,
+      label: t('secretariatAdmin.members'),
+      hint: t('secretariatAdmin.membersHint'),
+    })
+  }
   return items
 })
 </script>

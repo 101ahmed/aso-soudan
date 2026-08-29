@@ -39,13 +39,15 @@ async function submit() {
 
     router.replace(redirect)
   } catch (error) {
-    formError.value =
-      error.userMessage ||
-      error.response?.data?.errors?.email?.[0] ||
-      error.response?.data?.message ||
-      auth.error ||
-      error.message ||
-      t('auth.loginFailed')
+    const network = error.userMessage === 'network' || error.message === 'Network Error' || error.code === 'ERR_NETWORK'
+    formError.value = network
+      ? t('auth.networkError')
+      : error.userMessage ||
+        error.response?.data?.errors?.email?.[0] ||
+        error.response?.data?.message ||
+        auth.error ||
+        error.message ||
+        t('auth.loginFailed')
   }
 }
 </script>

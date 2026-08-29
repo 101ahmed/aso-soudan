@@ -46,6 +46,10 @@ api.interceptors.response.use(
         'Le serveur met trop de temps à répondre (réveil Render possible). Réessayez dans quelques secondes.'
     }
 
+    if (!error.response && (error.code === 'ERR_NETWORK' || error.message === 'Network Error')) {
+      error.userMessage = 'network'
+    }
+
     if (error.response?.status === 401) {
       localStorage.removeItem('rdp_token')
       localStorage.removeItem('rdp_user')

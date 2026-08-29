@@ -35,6 +35,9 @@ const links = computed(() => {
   if (props.code === 'academic' && auth.hasPermission('student.view')) {
     items.push({ to: `${base.value}/students`, label: t('secretariatAdmin.students') })
   }
+  if (props.code === 'statistics' && auth.hasPermission('member.view')) {
+    items.push({ to: `${base.value}/members`, label: t('secretariatAdmin.members') })
+  }
   return items
 })
 

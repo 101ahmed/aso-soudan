@@ -37,6 +37,7 @@ import AcademicSubjectAttendanceView from '@/views/admin/academic/AcademicSubjec
 import AcademicAttendanceSheetView from '@/views/admin/academic/AcademicAttendanceSheetView.vue'
 import AcademicTeachersView from '@/views/admin/academic/AcademicTeachersView.vue'
 import AcademicStudentsView from '@/views/admin/academic/AcademicStudentsView.vue'
+import StatisticsMembersView from '@/views/admin/statistics/StatisticsMembersView.vue'
 import TeacherAdminShell from '@/views/admin/teacher/TeacherAdminShell.vue'
 import TeacherHomeView from '@/views/admin/teacher/TeacherHomeView.vue'
 import ShuraAdminShell from '@/views/admin/shura/ShuraAdminShell.vue'
@@ -184,6 +185,12 @@ const router = createRouter({
               name: 'admin.secretariat.students',
               component: AcademicStudentsView,
               meta: { permission: 'student.view' },
+            },
+            {
+              path: 'members',
+              name: 'admin.secretariat.members',
+              component: StatisticsMembersView,
+              meta: { permission: 'member.view' },
             },
           ],
         },

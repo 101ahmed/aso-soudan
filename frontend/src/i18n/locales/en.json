@@ -193,16 +193,6 @@
       "menuTitle": "Follow-up",
       "comingSoon": "Indicators, reports and notifications will gradually be connected to system data.",
       "publicPage": "View the public President page",
-      "kpis": {
-        "members": "Members",
-        "students": "Students",
-        "teachers": "Teachers",
-        "secretariats": "Secretariats",
-        "events": "Events",
-        "attendance": "Academic attendance",
-        "requests": "New requests",
-        "reports": "New reports"
-      },
       "menu": {
         "overview": "Overview",
         "secretariats": "Secretariats",
@@ -418,6 +408,57 @@
       "female": "Girl"
     }
   },
+  "statisticsMembers": {
+    "title": "Members database",
+    "subtitle": "Search and classify by age, gender, city and membership type, then send a message.",
+    "forbidden": "The member.view permission is required.",
+    "search": "Search by name, email or phone",
+    "filter": "Filter",
+    "allStatuses": "All statuses",
+    "allGenders": "All genders",
+    "allTypes": "All types",
+    "allCities": "All cities",
+    "ageMin": "Min age",
+    "ageMax": "Max age",
+    "name": "Name",
+    "age": "Age",
+    "gender": "Gender",
+    "city": "City",
+    "type": "Membership type",
+    "status": "Status",
+    "address": "Address",
+    "notes": "Notes",
+    "empty": "No members yet.",
+    "newMember": "New member",
+    "editMember": "Edit member",
+    "confirmDelete": "Delete member {name}?",
+    "messageSelected": "Message selected ({n})",
+    "messageFiltered": "Message matching filter ({n} emails)",
+    "selectFirst": "Select at least one member.",
+    "composeTitle": "Send a message to members",
+    "composeSelected": "Will send to {n} selected member(s) (no email = skipped).",
+    "composeFiltered": "Will send to filtered members who have an email ({n}).",
+    "sending": "Sending…",
+    "sentResult": "{sent} sent · {skipped} skipped · {failed} failed",
+    "statuses": {
+      "active": "Active",
+      "pending": "Pending",
+      "inactive": "Inactive",
+      "archived": "Archived"
+    },
+    "genders": {
+      "male": "Male",
+      "female": "Female"
+    },
+    "types": {
+      "adherent": "Member",
+      "volunteer": "Volunteer",
+      "supporter": "Supporter",
+      "student": "Student",
+      "family": "Family",
+      "other": "Other"
+    }
+  },
   "teacherAdmin": {
     "badge": "Teacher space",
     "title": "Teachers’ area",
@@ -474,6 +515,8 @@
     "teachersHint": "Add teachers, their subjects and their login accounts.",
     "students": "Students",
     "studentsHint": "Add, edit or delete students.",
+    "members": "Members database",
+    "membersHint": "Search, filter members and send them a message.",
     "officer": "Officer profile",
     "officerHint": "Public photo and card of the secretariat lead.",
     "officerSaved": "Officer profile saved.",
@@ -578,6 +621,22 @@
       "consent": "I accept the membership terms and the privacy policy.",
       "successTitle": "Request received",
       "successText": "Your membership request has been received. We will contact you after review.",
+      "error": "Unable to send the request. Check the details or try again later.",
+      "sending": "Sending…",
+      "birthDate": "Date of birth",
+      "gender": "Gender",
+      "genders": {
+        "male": "Male",
+        "female": "Female"
+      },
+      "types": {
+        "adherent": "Member",
+        "volunteer": "Volunteer",
+        "supporter": "Supporter",
+        "student": "Student",
+        "family": "Family",
+        "other": "Other"
+      },
       "steps": {
         "personal": "Personal details",
         "contact": "Contact details",
@@ -609,6 +668,7 @@
     "login": "Log in",
     "loggingIn": "Signing in…",
     "loginFailed": "Invalid credentials",
+    "networkError": "Cannot reach the server. Make sure Laravel is running on port 8001 and MySQL is started.",
     "remember": "Remember me",
     "forgot": "Forgot password?",
     "forgotTitle": "Forgot password",
