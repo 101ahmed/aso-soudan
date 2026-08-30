@@ -7,6 +7,7 @@ import {
   deleteShuraMeeting,
   fetchShuraMeetings,
 } from '@/services/shura'
+import MeetingMap from '@/components/public/MeetingMap.vue'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
@@ -70,6 +71,7 @@ onMounted(load)
         <p class="mt-1 text-xs text-slate-500">
           {{ item.reference || '—' }} · {{ item.scheduled_at || '—' }} · {{ item.visibility }} · {{ item.status }}
         </p>
+        <MeetingMap :url="item.map_url" :location="item.location" />
         <button
           v-if="canManage()"
           type="button"

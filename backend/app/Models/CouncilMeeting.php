@@ -54,4 +54,23 @@ class CouncilMeeting extends Model
     {
         return $query->where('visibility', 'public');
     }
+
+    public function resolvedMapUrl(): ?string
+    {
+        $url = trim((string) $this->map_url);
+        if ($url !== '') {
+            if (! preg_match('#^https?://#i', $url)) {
+                $url = 'https://'.ltrim($url, '/');
+            }
+
+            return $url;
+        }
+
+        $location = trim((string) $this->location);
+        if ($location === '') {
+            return null;
+        }
+
+        return 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($location);
+    }
 }

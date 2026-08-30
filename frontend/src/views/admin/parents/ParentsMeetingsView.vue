@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { createParentMeeting, deleteParentMeeting, fetchParentMeetings } from '@/services/parents'
+import MeetingMap from '@/components/public/MeetingMap.vue'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
@@ -67,15 +68,7 @@ onMounted(load)
         <p class="mt-1 text-xs text-slate-500">
           {{ item.scheduled_at || '—' }} · {{ item.location || '—' }} · {{ item.visibility }}
         </p>
-        <a
-          v-if="item.map_url"
-          :href="item.map_url"
-          target="_blank"
-          rel="noopener"
-          class="mt-2 inline-flex text-sm font-semibold text-teal-800 hover:underline"
-        >
-          {{ t('parents.mapLink') }}
-        </a>
+        <MeetingMap :url="item.map_url" :location="item.location" />
         <button
           v-if="canManage()"
           type="button"

@@ -10,7 +10,7 @@ return new class extends Migration
     {
         if (Schema::hasTable('council_meetings') && ! Schema::hasColumn('council_meetings', 'map_url')) {
             Schema::table('council_meetings', function (Blueprint $table) {
-                $table->string('map_url', 500)->nullable()->after('location');
+                $table->string('map_url', 2048)->nullable()->after('location');
             });
         }
 

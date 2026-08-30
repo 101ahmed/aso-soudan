@@ -13,6 +13,7 @@ import {
 } from '@/services/parents'
 import { RENNES_CITY, RENNES_SUBURBS } from '@/data/rennesMetropole'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
+import MeetingMap from '@/components/public/MeetingMap.vue'
 
 const { t, locale } = useI18n()
 const contactSent = ref(false)
@@ -352,15 +353,7 @@ onMounted(async () => {
             <p v-if="locale === 'ar' ? meeting.agenda_ar : meeting.agenda_fr" class="mt-3 text-sm text-slate-700">
               {{ locale === 'ar' ? meeting.agenda_ar : meeting.agenda_fr }}
             </p>
-            <a
-              v-if="meeting.map_url"
-              :href="meeting.map_url"
-              target="_blank"
-              rel="noopener"
-              class="mt-3 inline-flex text-sm font-semibold text-[var(--rdp-forest)] hover:underline"
-            >
-              {{ t('parents.mapLink') }}
-            </a>
+            <MeetingMap :url="meeting.map_url" :location="meeting.location" />
           </article>
         </div>
         <div v-else class="mt-4 grid gap-4 md:grid-cols-2">
@@ -379,15 +372,7 @@ onMounted(async () => {
               {{ meeting.date }} · {{ meeting.time }} · {{ localized(meeting.place) }}
             </p>
             <p class="mt-3 text-sm text-slate-700">{{ localized(meeting.summary) }}</p>
-            <a
-              v-if="meeting.mapUrl"
-              :href="meeting.mapUrl"
-              target="_blank"
-              rel="noopener"
-              class="mt-3 inline-flex text-sm font-semibold text-[var(--rdp-forest)] hover:underline"
-            >
-              {{ t('parents.mapLink') }}
-            </a>
+            <MeetingMap :url="meeting.mapUrl" :location="localized(meeting.place)" />
           </article>
         </div>
       </section>

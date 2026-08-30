@@ -20,7 +20,7 @@ class CouncilMeetingResource extends JsonResource
             'title_fr' => $this->title_fr,
             'scheduled_at' => $this->scheduled_at?->toIso8601String(),
             'location' => $this->location,
-            'map_url' => $this->map_url,
+            'map_url' => $this->resolvedMapUrl(),
             'status' => $this->status,
             'agenda_ar' => $this->agenda_ar,
             'agenda_fr' => $this->agenda_fr,

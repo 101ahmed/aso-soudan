@@ -127,6 +127,7 @@ export const parentsCouncil = {
       date: '2026-09-20',
       time: '15:00',
       place: { ar: 'المقر الأكاديمي — رين', fr: 'Siège académique — Rennes' },
+      mapUrl: 'https://www.google.com/maps/search/?api=1&query=Association%20communaut%C3%A9%20soudanaise%20Rennes',
       status: { ar: 'قادم', fr: 'À venir' },
       summary: {
         ar: 'لقاء عام حول تنظيم الدراسة وبرامج السنة الأكاديمية والتواصل مع المعلمين.',
@@ -143,6 +144,7 @@ export const parentsCouncil = {
       date: '2026-01-18',
       time: '15:30',
       place: { ar: 'رين', fr: 'Rennes' },
+      mapUrl: 'https://www.google.com/maps/search/?api=1&query=Rennes%2C%20France',
       status: { ar: 'مكتمل', fr: 'Terminé' },
       summary: {
         ar: 'استعراض عام للبرامج والأنشطة وملاحظات أولياء الأمور خلال النصف الأول.',

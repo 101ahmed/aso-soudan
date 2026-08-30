@@ -158,18 +158,28 @@ class AdminParentsController extends Controller
 
     private function validatedMeeting(Request $request, ?CouncilMeeting $meeting = null): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'reference' => ['nullable', 'string', 'max:50'],
             'title_ar' => [$meeting ? 'sometimes' : 'required', 'string', 'max:255'],
             'title_fr' => [$meeting ? 'sometimes' : 'required', 'string', 'max:255'],
             'scheduled_at' => ['nullable', 'date'],
             'location' => ['nullable', 'string', 'max:255'],
-            'map_url' => ['nullable', 'string', 'max:500'],
+            'map_url' => ['nullable', 'string', 'max:2048'],
             'status' => ['nullable', Rule::in(['planned', 'held', 'cancelled'])],
             'agenda_ar' => ['nullable', 'string'],
             'agenda_fr' => ['nullable', 'string'],
             'visibility' => ['nullable', Rule::in(['public', 'internal'])],
         ]);
+
+        $mapUrl = trim((string) ($data['map_url'] ?? ''));
+        $location = trim((string) ($data['location'] ?? ''));
+        if ($mapUrl === '' && $location !== '') {
+            $data['map_url'] = 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($location);
+        } elseif ($mapUrl !== '' && ! preg_match('#^https?://#i', $mapUrl)) {
+            $data['map_url'] = 'https://'.ltrim($mapUrl, '/');
+        }
+
+        return $data;
     }
 
     private function validatedSurvey(Request $request, ?ParentSurvey $survey = null): array
