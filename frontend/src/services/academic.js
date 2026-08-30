@@ -73,6 +73,25 @@ export async function deleteTeacher(id) {
   await api.delete(`/admin/academic/teachers/${id}`)
 }
 
+export async function fetchTimetable(params = {}) {
+  const { data } = await api.get('/admin/academic/timetable', { params })
+  return data
+}
+
+export async function createTimetableEntry(payload) {
+  const { data } = await api.post('/admin/academic/timetable', payload)
+  return data.data || data
+}
+
+export async function updateTimetableEntry(id, payload) {
+  const { data } = await api.put(`/admin/academic/timetable/${id}`, payload)
+  return data.data || data
+}
+
+export async function deleteTimetableEntry(id) {
+  await api.delete(`/admin/academic/timetable/${id}`)
+}
+
 export async function fetchStudentCatalog() {
   const { data } = await api.get('/admin/academic/catalog')
   return {

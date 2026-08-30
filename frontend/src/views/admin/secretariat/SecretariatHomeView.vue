@@ -59,6 +59,11 @@ const cards = computed(() => {
         label: t('secretariatAdmin.attendance'),
         hint: t('secretariatAdmin.attendanceHint'),
       },
+      {
+        to: `/admin/secretariats/academic/timetable`,
+        label: t('secretariatAdmin.timetable'),
+        hint: t('secretariatAdmin.timetableHint'),
+      },
     )
   }
   if (code.value === 'statistics') {
@@ -86,6 +91,13 @@ const cards = computed(() => {
         hint: t('secretariatAdmin.financeExpensesHint'),
       },
     )
+  }
+  if (code.value === 'general') {
+    items.unshift({
+      to: `/admin/secretariats/general/decisions`,
+      label: t('secretariatAdmin.executiveDecisions'),
+      hint: t('secretariatAdmin.executiveDecisionsHint'),
+    })
   }
   if (code.value === 'media') {
     items.unshift(

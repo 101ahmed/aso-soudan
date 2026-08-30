@@ -15,6 +15,8 @@ const error = ref('')
 const overview = ref(null)
 const openSubjectId = ref(null)
 const openLevelId = ref(null)
+const selectedSubjectId = ref('')
+const selectedLevelId = ref('')
 const attendanceBase = computed(() => attendanceBaseFromPath(route.path))
 const canView = computed(() => auth.hasPermission('attendance.view'))
 
@@ -36,6 +38,38 @@ function share(count, recorded) {
   return Math.round((count / recorded) * 100)
 }
 
+const visibleSubjects = computed(() => {
+  const list = overview.value?.subjects || []
+  if (!selectedSubjectId.value) return list
+  return list.filter((item) => String(item.id) === String(selectedSubjectId.value))
+})
+
+const visibleLevels = computed(() => {
+  const list = overview.value?.levels || []
+  if (!selectedLevelId.value) return list
+  return list.filter((item) => String(item.id) === String(selectedLevelId.value))
+})
+
+function nestedLevels(subject) {
+  const list = subject.levels || []
+  if (!selectedLevelId.value) return list
+  return list.filter((item) => String(item.id) === String(selectedLevelId.value))
+}
+
+function nestedSubjects(level) {
+  const list = level.subjects || []
+  if (!selectedSubjectId.value) return list
+  return list.filter((item) => String(item.id) === String(selectedSubjectId.value))
+}
+
+function openCell(subjectId, levelId) {
+  return `${attendanceBase.value}/subjects/${subjectId}?levelId=${levelId}`
+}
+
+function openLevelCell(levelId, subjectId) {
+  return `${attendanceBase.value}/levels/${levelId}?subjectId=${subjectId}`
+}
+
 async function load({ silent = false } = {}) {
   if (!canView.value) {
     loading.value = false
@@ -45,7 +79,10 @@ async function load({ silent = false } = {}) {
   try {
     overview.value = await fetchAttendanceOverview()
   } catch (e) {
-    if (!silent) error.value = e.response?.data?.message || e.message
+    const message = e.response?.data?.message || e.message || ''
+    if (!silent && message && !/fileinfo|MIME type|SQLSTATE|Stack trace/i.test(message)) {
+      error.value = message
+    }
   } finally {
     loading.value = false
   }
@@ -126,14 +163,161 @@ onBeforeUnmount(() => {
         </article>
       </div>
 
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="rounded-full px-3 py-1.5 text-sm"
+          :class="!selectedSubjectId ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
+          @click="selectedSubjectId = ''"
+        >
+          {{ t('academicAttendance.allSubjects') }}
+        </button>
+        <button
+          v-for="subject in overview.subjects"
+          :key="`chip-subject-${subject.id}`"
+          type="button"
+          class="rounded-full px-3 py-1.5 text-sm"
+          :class="String(selectedSubjectId) === String(subject.id) ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
+          @click="selectedSubjectId = String(subject.id)"
+        >
+          {{ subjectName(subject) }}
+        </button>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="rounded-full px-3 py-1.5 text-sm"
+          :class="!selectedLevelId ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
+          @click="selectedLevelId = ''"
+        >
+          {{ t('academicAttendance.allLevels') }}
+        </button>
+        <button
+          v-for="level in overview.levels"
+          :key="`chip-level-${level.id}`"
+          type="button"
+          class="rounded-full px-3 py-1.5 text-sm"
+          :class="String(selectedLevelId) === String(level.id) ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
+          @click="selectedLevelId = String(level.id)"
+        >
+          {{ subjectName(level) }}
+        </button>
+      </div>
+
       <p v-if="!overview.totals?.recorded_count" class="rounded-xl border border-dashed bg-white px-4 py-6 text-center text-sm text-slate-500">
         {{ t('academicAttendance.noRecords') }}
       </p>
 
       <section class="space-y-3">
+        <h3 class="text-base font-semibold text-[var(--rdp-forest)]">{{ t('academicAttendance.bySubject') }}</h3>
+        <article
+          v-for="subject in visibleSubjects"
+          :key="`subject-${subject.id}`"
+          class="overflow-hidden rounded-xl border bg-white"
+        >
+          <div class="flex flex-wrap items-center gap-3 px-4 py-3">
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold">{{ subjectName(subject) }}</p>
+              <p class="text-xs text-slate-500">
+                {{ subject.classes_count }} {{ t('academicAttendance.classes') }}
+                · {{ subject.sessions_count }} {{ t('academicAttendance.sessions') }}
+                · {{ subject.students_count }} {{ t('academicAttendance.students') }}
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-sm">
+              <span class="text-emerald-700">{{ subject.present_count }} {{ t('academicAttendance.present') }}</span>
+              <span class="text-rose-700">{{ subject.absent_count }} {{ t('academicAttendance.absent') }}</span>
+              <span class="font-semibold">
+                {{ subject.attendance_rate != null ? `${subject.attendance_rate}%` : '—' }}
+              </span>
+              <button
+                type="button"
+                class="rounded border px-2 py-1 text-xs"
+                @click="openSubjectId = openSubjectId === subject.id ? null : subject.id"
+              >
+                {{ t('academicAttendance.details') }}
+              </button>
+              <RouterLink
+                :to="`${attendanceBase}/subjects/${subject.id}`"
+                class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
+              >
+                {{ t('academicAttendance.open') }}
+              </RouterLink>
+            </div>
+          </div>
+          <div class="h-2 bg-slate-100">
+            <div class="flex h-full overflow-hidden">
+              <div class="bg-emerald-500" :style="{ width: `${share(subject.present_count, subject.recorded_count)}%` }" />
+              <div class="bg-amber-400" :style="{ width: `${share(subject.late_count, subject.recorded_count)}%` }" />
+              <div class="bg-sky-400" :style="{ width: `${share(subject.excused_count, subject.recorded_count)}%` }" />
+              <div class="bg-rose-500" :style="{ width: `${share(subject.absent_count, subject.recorded_count)}%` }" />
+            </div>
+          </div>
+          <div class="divide-y">
+            <div
+              v-for="cell in nestedLevels(subject)"
+              :key="`subject-${subject.id}-level-${cell.id}`"
+              class="flex flex-wrap items-center gap-3 px-4 py-2 text-sm"
+            >
+              <p class="min-w-[8rem] font-medium text-slate-700">{{ subjectName(cell) }}</p>
+              <p class="text-xs text-slate-500">
+                {{ cell.students_count }} {{ t('academicAttendance.students') }}
+                · {{ cell.sessions_count }} {{ t('academicAttendance.sessions') }}
+              </p>
+              <span class="text-emerald-700">{{ cell.present_count }} {{ t('academicAttendance.present') }}</span>
+              <span class="text-rose-700">{{ cell.absent_count }} {{ t('academicAttendance.absent') }}</span>
+              <span class="font-semibold">{{ cell.attendance_rate != null ? `${cell.attendance_rate}%` : '—' }}</span>
+              <RouterLink
+                v-if="cell.class_group_id"
+                :to="openCell(subject.id, cell.id)"
+                class="ms-auto text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
+              >
+                {{ t('academicAttendance.sheet') }}
+              </RouterLink>
+              <span v-else class="ms-auto text-xs text-slate-400">{{ t('academicAttendance.emptyCell') }}</span>
+            </div>
+          </div>
+          <div v-if="openSubjectId === subject.id" class="border-t">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50 text-start text-xs text-slate-500">
+                <tr>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.student') }}</th>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.present') }}</th>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.absent') }}</th>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.late') }}</th>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.excused') }}</th>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.rate') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="student in subject.students" :key="student.id" class="border-t">
+                  <td class="px-4 py-2 font-medium">{{ student.full_name }}</td>
+                  <td class="px-4 py-2 text-emerald-700">{{ student.present_count }}</td>
+                  <td class="px-4 py-2 text-rose-700">{{ student.absent_count }}</td>
+                  <td class="px-4 py-2 text-amber-700">{{ student.late_count }}</td>
+                  <td class="px-4 py-2 text-sky-700">{{ student.excused_count }}</td>
+                  <td class="px-4 py-2">
+                    <span
+                      class="inline-block rounded-full px-2 py-0.5 text-xs text-white"
+                      :class="rateStyle(student.attendance_rate)"
+                    >
+                      {{ student.attendance_rate != null ? `${student.attendance_rate}%` : '—' }}
+                    </span>
+                  </td>
+                </tr>
+                <tr v-if="!subject.students?.length">
+                  <td colspan="6" class="px-4 py-6 text-center text-slate-500">{{ t('academicAttendance.noStudents') }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="space-y-3">
         <h3 class="text-base font-semibold text-[var(--rdp-forest)]">{{ t('academicAttendance.byLevel') }}</h3>
         <article
-          v-for="level in overview.levels"
+          v-for="level in visibleLevels"
           :key="`level-${level.id}`"
           class="overflow-hidden rounded-xl border bg-white"
         >
@@ -144,9 +328,6 @@ onBeforeUnmount(() => {
                 {{ level.students_count }} {{ t('academicAttendance.students') }}
                 · {{ level.classes_count }} {{ t('academicAttendance.classes') }}
                 · {{ level.sessions_count }} {{ t('academicAttendance.sessions') }}
-                <span v-if="level.last_session_date">
-                  · {{ t('academicAttendance.lastSession') }} {{ level.last_session_date }}
-                </span>
               </p>
             </div>
             <div class="flex flex-wrap items-center gap-3 text-sm">
@@ -176,6 +357,30 @@ onBeforeUnmount(() => {
               <div class="bg-amber-400" :style="{ width: `${share(level.late_count, level.recorded_count)}%` }" />
               <div class="bg-sky-400" :style="{ width: `${share(level.excused_count, level.recorded_count)}%` }" />
               <div class="bg-rose-500" :style="{ width: `${share(level.absent_count, level.recorded_count)}%` }" />
+            </div>
+          </div>
+          <div class="divide-y">
+            <div
+              v-for="cell in nestedSubjects(level)"
+              :key="`level-${level.id}-subject-${cell.id}`"
+              class="flex flex-wrap items-center gap-3 px-4 py-2 text-sm"
+            >
+              <p class="min-w-[8rem] font-medium text-slate-700">{{ subjectName(cell) }}</p>
+              <p class="text-xs text-slate-500">
+                {{ cell.students_count }} {{ t('academicAttendance.students') }}
+                · {{ cell.sessions_count }} {{ t('academicAttendance.sessions') }}
+              </p>
+              <span class="text-emerald-700">{{ cell.present_count }} {{ t('academicAttendance.present') }}</span>
+              <span class="text-rose-700">{{ cell.absent_count }} {{ t('academicAttendance.absent') }}</span>
+              <span class="font-semibold">{{ cell.attendance_rate != null ? `${cell.attendance_rate}%` : '—' }}</span>
+              <RouterLink
+                v-if="cell.class_group_id"
+                :to="openLevelCell(level.id, cell.id)"
+                class="ms-auto text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
+              >
+                {{ t('academicAttendance.sheet') }}
+              </RouterLink>
+              <span v-else class="ms-auto text-xs text-slate-400">{{ t('academicAttendance.emptyCell') }}</span>
             </div>
           </div>
           <div v-if="openLevelId === level.id" class="border-t">
@@ -214,91 +419,6 @@ onBeforeUnmount(() => {
           </div>
         </article>
       </section>
-
-      <div class="space-y-3">
-        <h3 class="text-base font-semibold text-[var(--rdp-forest)]">{{ t('academicAttendance.bySubject') }}</h3>
-        <article
-          v-for="subject in overview.subjects"
-          :key="subject.id"
-          class="overflow-hidden rounded-xl border bg-white"
-        >
-          <div class="flex flex-wrap items-center gap-3 px-4 py-3">
-            <div class="min-w-0 flex-1">
-              <p class="font-semibold">{{ subjectName(subject) }}</p>
-              <p class="text-xs text-slate-500">
-                {{ subject.classes_count }} {{ t('academicAttendance.classes') }}
-                · {{ subject.sessions_count }} {{ t('academicAttendance.sessions') }}
-                · {{ subject.students_count }} {{ t('academicAttendance.students') }}
-                <span v-if="subject.last_session_date">
-                  · {{ t('academicAttendance.lastSession') }} {{ subject.last_session_date }}
-                </span>
-              </p>
-            </div>
-            <div class="flex flex-wrap items-center gap-3 text-sm">
-              <span class="text-emerald-700">{{ subject.present_count }} {{ t('academicAttendance.present') }}</span>
-              <span class="text-rose-700">{{ subject.absent_count }} {{ t('academicAttendance.absent') }}</span>
-              <span class="font-semibold">
-                {{ subject.attendance_rate != null ? `${subject.attendance_rate}%` : '—' }}
-              </span>
-              <button
-                type="button"
-                class="rounded border px-2 py-1 text-xs"
-                @click="openSubjectId = openSubjectId === subject.id ? null : subject.id"
-              >
-                {{ t('academicAttendance.details') }}
-              </button>
-              <RouterLink
-                :to="`${attendanceBase}/subjects/${subject.id}`"
-                class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
-              >
-                {{ t('academicAttendance.open') }}
-              </RouterLink>
-            </div>
-          </div>
-          <div class="h-2 bg-slate-100">
-            <div class="flex h-full overflow-hidden">
-              <div class="bg-emerald-500" :style="{ width: `${share(subject.present_count, subject.recorded_count)}%` }" />
-              <div class="bg-amber-400" :style="{ width: `${share(subject.late_count, subject.recorded_count)}%` }" />
-              <div class="bg-sky-400" :style="{ width: `${share(subject.excused_count, subject.recorded_count)}%` }" />
-              <div class="bg-rose-500" :style="{ width: `${share(subject.absent_count, subject.recorded_count)}%` }" />
-            </div>
-          </div>
-          <div v-if="openSubjectId === subject.id" class="border-t">
-            <table class="min-w-full text-sm">
-              <thead class="bg-slate-50 text-start text-xs text-slate-500">
-                <tr>
-                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.student') }}</th>
-                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.present') }}</th>
-                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.absent') }}</th>
-                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.late') }}</th>
-                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.excused') }}</th>
-                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.rate') }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="student in subject.students" :key="student.id" class="border-t">
-                  <td class="px-4 py-2 font-medium">{{ student.full_name }}</td>
-                  <td class="px-4 py-2 text-emerald-700">{{ student.present_count }}</td>
-                  <td class="px-4 py-2 text-rose-700">{{ student.absent_count }}</td>
-                  <td class="px-4 py-2 text-amber-700">{{ student.late_count }}</td>
-                  <td class="px-4 py-2 text-sky-700">{{ student.excused_count }}</td>
-                  <td class="px-4 py-2">
-                    <span
-                      class="inline-block rounded-full px-2 py-0.5 text-xs text-white"
-                      :class="rateStyle(student.attendance_rate)"
-                    >
-                      {{ student.attendance_rate != null ? `${student.attendance_rate}%` : '—' }}
-                    </span>
-                  </td>
-                </tr>
-                <tr v-if="!subject.students?.length">
-                  <td colspan="6" class="px-4 py-6 text-center text-slate-500">{{ t('academicAttendance.noStudents') }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </article>
-      </div>
     </template>
   </div>
 </template>

@@ -14,7 +14,7 @@ class AdminMediaDecisionController extends Controller
 {
     public function index(Request $request, string $code): AnonymousResourceCollection
     {
-        $this->assertMedia($code);
+        $this->assertSecretariat($code);
         $this->authorizePermission($request, 'decision.view');
 
         return MediaDecisionResource::collection(
@@ -29,7 +29,7 @@ class AdminMediaDecisionController extends Controller
 
     public function store(Request $request, string $code): JsonResponse
     {
-        $this->assertMedia($code);
+        $this->assertSecretariat($code);
         $this->authorizePermission($request, 'decision.create');
 
         $item = MediaDecision::query()->create([
@@ -42,7 +42,7 @@ class AdminMediaDecisionController extends Controller
 
     public function update(Request $request, string $code, MediaDecision $mediaDecision): MediaDecisionResource
     {
-        $this->assertMedia($code);
+        $this->assertSecretariat($code);
         $this->authorizePermission($request, 'decision.update');
         $mediaDecision->update($this->validated($request, $mediaDecision));
 
@@ -51,7 +51,7 @@ class AdminMediaDecisionController extends Controller
 
     public function destroy(Request $request, string $code, MediaDecision $mediaDecision): JsonResponse
     {
-        $this->assertMedia($code);
+        $this->assertSecretariat($code);
         $this->authorizePermission($request, 'decision.delete');
         $mediaDecision->delete();
 
@@ -72,6 +72,7 @@ class AdminMediaDecisionController extends Controller
             'decided_on' => [$item ? 'sometimes' : 'required', 'date'],
             'due_on' => ['nullable', 'date', 'after_or_equal:decided_on'],
             'status' => ['nullable', Rule::in(MediaDecision::STATUSES)],
+            'show_on_home' => ['sometimes', 'boolean'],
             'notes' => ['nullable', 'string', 'max:4000'],
         ]);
 
@@ -85,9 +86,9 @@ class AdminMediaDecisionController extends Controller
         return $data;
     }
 
-    private function assertMedia(string $code): void
+    private function assertSecretariat(string $code): void
     {
-        abort_unless($code === 'media', 404);
+        abort_unless(in_array($code, ['general', 'media'], true), 404);
     }
 
     private function authorizePermission(Request $request, string $permission): void

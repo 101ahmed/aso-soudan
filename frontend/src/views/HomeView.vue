@@ -11,7 +11,7 @@ import {
   publicStats,
   recentActivities,
 } from '@/data/publicContent'
-import { fetchPublicAlbums, fetchPublicAnnouncements, fetchPublicEvents, fetchPublicNews, mapPublicEvent } from '@/services/content'
+import { fetchPublicAlbums, fetchPublicAnnouncements, fetchPublicDecisions, fetchPublicEvents, fetchPublicNews, mapPublicEvent } from '@/services/content'
 import { albumsToSlides } from '@/utils/gallerySlides'
 import { useAuthStore } from '@/stores/auth'
 import { resolveAdminEntryPath } from '@/utils/roleRedirect'
@@ -23,6 +23,7 @@ const apiNews = ref([])
 const apiAnnouncements = ref([])
 const apiAlbums = ref([])
 const apiEvents = ref([])
+const apiDecisions = ref([])
 const eventsLoaded = ref(false)
 
 function localized(item) {
@@ -66,6 +67,19 @@ const homeSlides = computed(() => {
 
 const homeEvents = computed(() => apiEvents.value.map(mapPublicEvent).filter(Boolean))
 
+const homeDecisions = computed(() =>
+  apiDecisions.value.slice(0, 6).map((item) => ({
+    id: item.id,
+    date: item.decided_on || '',
+    kind: item.kind,
+    title: { ar: item.title_ar, fr: item.title_fr },
+    excerpt: {
+      ar: (item.details_ar || '').slice(0, 180),
+      fr: (item.details_fr || '').slice(0, 180),
+    },
+  })),
+)
+
 onMounted(async () => {
   try {
     const data = await fetchPublicNews({ home: 1, per_page: 6 })
@@ -94,6 +108,13 @@ onMounted(async () => {
       : (await fetchPublicAlbums({ per_page: 8 })).data || []
   } catch {
     apiAlbums.value = []
+  }
+
+  try {
+    const data = await fetchPublicDecisions({ per_page: 6 })
+    apiDecisions.value = data.data || []
+  } catch {
+    apiDecisions.value = []
   }
 
   try {
@@ -181,6 +202,27 @@ onMounted(async () => {
           >
             {{ t(unit.nameKey) }}
           </RouterLink>
+        </div>
+      </div>
+    </section>
+
+    <section v-if="homeDecisions.length" class="bg-[var(--rdp-cream)] py-16">
+      <div class="mx-auto max-w-6xl px-5 md:px-8">
+        <SectionHeading :title="t('home.decisionsTitle')" :subtitle="t('home.decisionsSubtitle')" />
+        <div class="space-y-4">
+          <article
+            v-for="item in homeDecisions"
+            :key="item.id"
+            class="rounded-xl border border-[var(--rdp-forest)]/15 bg-white p-5 shadow-sm"
+          >
+            <p class="text-xs font-semibold tracking-wide text-[var(--rdp-forest)] uppercase">
+              {{ item.date }}
+            </p>
+            <h3 class="mt-2 text-lg font-semibold text-[var(--rdp-ink)]">{{ localized(item.title) }}</h3>
+            <p v-if="localized(item.excerpt)" class="mt-2 text-sm leading-relaxed text-slate-600">
+              {{ localized(item.excerpt) }}
+            </p>
+          </article>
         </div>
       </div>
     </section>

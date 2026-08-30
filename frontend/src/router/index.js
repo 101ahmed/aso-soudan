@@ -45,6 +45,7 @@ import AcademicLevelAttendanceView from '@/views/admin/academic/AcademicLevelAtt
 import AcademicAttendanceSheetView from '@/views/admin/academic/AcademicAttendanceSheetView.vue'
 import AcademicTeachersView from '@/views/admin/academic/AcademicTeachersView.vue'
 import AcademicStudentsView from '@/views/admin/academic/AcademicStudentsView.vue'
+import AcademicTimetableView from '@/views/admin/academic/AcademicTimetableView.vue'
 import StatisticsMembersView from '@/views/admin/statistics/StatisticsMembersView.vue'
 import SocialHelpRequestsView from '@/views/admin/secretariat/SocialHelpRequestsView.vue'
 import FinanceOverviewView from '@/views/admin/secretariat/FinanceOverviewView.vue'
@@ -240,6 +241,12 @@ const router = createRouter({
               meta: { permission: 'attendance.view' },
             },
             {
+              path: 'timetable',
+              name: 'admin.secretariat.timetable',
+              component: AcademicTimetableView,
+              meta: { permission: 'attendance.view' },
+            },
+            {
               path: 'teachers',
               name: 'admin.secretariat.teachers',
               component: AcademicTeachersView,
@@ -353,6 +360,12 @@ const router = createRouter({
               path: 'attendance/sessions/:sessionId',
               name: 'admin.teacher.attendance.sheet',
               component: AcademicAttendanceSheetView,
+              meta: { permission: 'attendance.view' },
+            },
+            {
+              path: 'timetable',
+              name: 'admin.teacher.timetable',
+              component: AcademicTimetableView,
               meta: { permission: 'attendance.view' },
             },
           ],

@@ -30,6 +30,7 @@ const canCreate = computed(() => auth.hasPermission('decision.create'))
 const canUpdate = computed(() => auth.hasPermission('decision.update'))
 const canDelete = computed(() => auth.hasPermission('decision.delete'))
 const canManage = computed(() => (editingId.value ? canUpdate.value : canCreate.value))
+const isGeneral = computed(() => code.value === 'general')
 
 const secretariatOptions = computed(() =>
   (departments.value || []).filter((dept) => isSecretariatCode(dept.code)),
@@ -51,6 +52,7 @@ function emptyForm() {
     decided_on: new Date().toISOString().slice(0, 10),
     due_on: '',
     status: 'pending',
+    show_on_home: code.value === 'general',
     notes: '',
   }
 }
@@ -97,6 +99,7 @@ function edit(item) {
   form.decided_on = item.decided_on
   form.due_on = item.due_on || ''
   form.status = item.status
+  form.show_on_home = !!item.show_on_home
   form.notes = item.notes || ''
   formBox.value?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
@@ -166,8 +169,8 @@ onMounted(async () => {
     <div class="space-y-3">
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 class="text-lg font-semibold">📋 {{ t('mediaDecisions.title') }}</h2>
-          <p class="mt-1 text-sm text-slate-600">{{ t('mediaDecisions.hint') }}</p>
+          <h2 class="text-lg font-semibold">📋 {{ isGeneral ? t('mediaDecisions.executiveTitle') : t('mediaDecisions.title') }}</h2>
+          <p class="mt-1 text-sm text-slate-600">{{ isGeneral ? t('mediaDecisions.executiveHint') : t('mediaDecisions.hint') }}</p>
         </div>
         <button
           v-if="canCreate"
@@ -203,6 +206,7 @@ onMounted(async () => {
             <p class="mt-2 text-sm text-slate-700">👤 {{ responsibleOf(item) }}</p>
             <p v-if="departmentOf(item)" class="text-xs text-slate-500">{{ departmentOf(item) }}</p>
             <p class="mt-2 text-sm text-slate-600">📅 {{ t('mediaDecisions.decidedOn') }}: {{ item.decided_on }}</p>
+            <p v-if="item.show_on_home" class="mt-1 text-xs font-medium text-teal-800">{{ t('secretariatAdmin.showOnHome') }}</p>
             <p class="text-sm text-slate-600">⏳ {{ t('mediaDecisions.dueOn') }}: {{ item.due_on || '—' }}</p>
           </div>
           <div class="flex flex-col items-end gap-2">
@@ -270,6 +274,10 @@ onMounted(async () => {
         </select>
       </label>
       <textarea v-model="form.notes" rows="2" class="w-full rounded border px-3 py-2 text-sm" :placeholder="t('mediaDecisions.notes')" />
+      <label class="flex items-center gap-2 text-sm">
+        <input v-model="form.show_on_home" type="checkbox" />
+        {{ t('secretariatAdmin.showOnHome') }}
+      </label>
       <div class="flex gap-2">
         <button type="submit" class="rounded bg-teal-800 px-4 py-2 text-sm text-white">{{ t('forms.save') }}</button>
         <button type="button" class="rounded border px-4 py-2 text-sm" @click="resetForm">{{ t('forms.cancel') }}</button>

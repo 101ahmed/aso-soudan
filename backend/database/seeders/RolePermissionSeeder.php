@@ -168,7 +168,9 @@ class RolePermissionSeeder extends Seeder
         ]);
 
         $managerRoleMap = [
-            'GENERAL_SECRETARIAT' => $secretariatManagerCodes,
+            'GENERAL_SECRETARIAT' => array_merge($secretariatManagerCodes, [
+                'decision.view', 'decision.create', 'decision.update', 'decision.delete',
+            ]),
             'ACADEMIC_SECRETARIAT' => array_merge($secretariatManagerCodes, [
                 'student.view', 'student.create', 'student.update', 'student.delete',
                 'teacher.view', 'teacher.create', 'teacher.update',

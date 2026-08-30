@@ -46,6 +46,11 @@ async function loadClasses() {
     if (!selectedClassId.value && classes.value[0]) {
       selectedClassId.value = classes.value[0].id
     }
+    const wantedLevel = route.query.levelId
+    if (wantedLevel) {
+      const match = classes.value.find((item) => String(item.level_id || item.level?.id) === String(wantedLevel))
+      if (match) selectedClassId.value = match.id
+    }
   } catch (e) {
     error.value = e.response?.data?.message || e.message
   }
@@ -75,6 +80,11 @@ async function createSession() {
 }
 
 watch(selectedClassId, loadSessions)
+watch(subjectId, async () => {
+  selectedClassId.value = null
+  await loadClasses()
+  await loadSessions()
+})
 onMounted(async () => {
   await loadClasses()
   await loadSessions()

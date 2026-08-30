@@ -35,6 +35,7 @@ class MediaDecision extends Model
         'decided_on',
         'due_on',
         'status',
+        'show_on_home',
         'notes',
         'recorded_by',
     ];
@@ -44,6 +45,7 @@ class MediaDecision extends Model
         return [
             'decided_on' => 'date',
             'due_on' => 'date',
+            'show_on_home' => 'boolean',
         ];
     }
 

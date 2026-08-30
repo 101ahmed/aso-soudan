@@ -2,11 +2,13 @@
 
 namespace App\Providers;
 
+use App\Support\ExtensionMimeTypeGuesser;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Validation\Rules\Password;
+use Symfony\Component\Mime\MimeTypes;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,7 +17,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        if (! extension_loaded('fileinfo') && class_exists(MimeTypes::class)) {
+            MimeTypes::getDefault()->registerGuesser(new ExtensionMimeTypeGuesser);
+        }
     }
 
     /**

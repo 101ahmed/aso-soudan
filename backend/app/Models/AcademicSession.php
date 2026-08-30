@@ -38,4 +38,9 @@ class AcademicSession extends Model
     {
         return $this->hasMany(StudentAttendance::class);
     }
+
+    public function teacher(): BelongsTo
+    {
+        return $this->belongsTo(Teacher::class);
+    }
 }

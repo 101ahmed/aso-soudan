@@ -47,6 +47,11 @@ export async function fetchPublicNewsItem(slug) {
   return data.data || data
 }
 
+export async function fetchPublicDecisions(params = {}) {
+  const { data } = await api.get('/public/decisions', { params })
+  return data
+}
+
 export async function fetchPublicAnnouncements(params = {}) {
   const { data } = await api.get('/public/announcements', { params })
   return data

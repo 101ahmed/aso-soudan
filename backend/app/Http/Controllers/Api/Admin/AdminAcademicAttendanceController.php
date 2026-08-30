@@ -197,6 +197,53 @@ class AdminAcademicAttendanceController extends Controller
             $sessionById,
         );
 
+        $pairStats = $this->summarizeBySubjectAndLevel(
+            $classes,
+            $sessions,
+            $attendance,
+            $enrollments,
+            $classById,
+            $sessionById,
+        );
+
+        $payload = $payload->map(function (array $subject) use ($levels, $pairStats, $classes) {
+            $subject['levels'] = $levels->map(function ($level) use ($subject, $pairStats, $classes) {
+                return $this->pairCell(
+                    $pairStats,
+                    $classes,
+                    (int) $subject['id'],
+                    (int) $level->id,
+                    [
+                        'id' => $level->id,
+                        'code' => $level->code,
+                        'name_ar' => $level->name_ar,
+                        'name_fr' => $level->name_fr,
+                    ],
+                );
+            })->values();
+
+            return $subject;
+        });
+
+        $levelPayload = $levelPayload->map(function (array $level) use ($subjects, $pairStats, $classes) {
+            $level['subjects'] = $subjects->map(function (Subject $subject) use ($level, $pairStats, $classes) {
+                return $this->pairCell(
+                    $pairStats,
+                    $classes,
+                    (int) $subject->id,
+                    (int) $level['id'],
+                    [
+                        'id' => $subject->id,
+                        'code' => $subject->code,
+                        'name_ar' => $subject->name_ar,
+                        'name_fr' => $subject->name_fr,
+                    ],
+                );
+            })->values();
+
+            return $level;
+        });
+
         $studentsByClass = $enrollments->groupBy('class_group_id')->map->count();
 
         return response()->json([
@@ -574,6 +621,81 @@ class AdminAcademicAttendanceController extends Controller
                 'students' => $students,
             ];
         })->values();
+    }
+
+    private function summarizeBySubjectAndLevel(
+        $classes,
+        $sessions,
+        $attendance,
+        $enrollments,
+        $classById,
+        $sessionById,
+    ): array {
+        $statusByPair = [];
+        foreach ($attendance as $row) {
+            $session = $sessionById->get($row->academic_session_id);
+            $class = $session ? $classById->get($session->class_group_id) : null;
+            if (! $class?->subject_id || ! $class?->level_id) {
+                continue;
+            }
+            $key = (int) $class->subject_id.':'.(int) $class->level_id;
+            $status = (string) $row->status;
+            $statusByPair[$key][$status] = ($statusByPair[$key][$status] ?? 0) + 1;
+        }
+
+        $result = [];
+        foreach ($classes->groupBy(fn ($class) => (int) $class->subject_id.':'.(int) $class->level_id) as $key => $pairClasses) {
+            $ids = $pairClasses->pluck('id');
+            $counts = $statusByPair[$key] ?? [];
+            $present = (int) ($counts[StudentAttendance::STATUS_PRESENT] ?? 0);
+            $absent = (int) ($counts[StudentAttendance::STATUS_ABSENT] ?? 0);
+            $late = (int) ($counts[StudentAttendance::STATUS_LATE] ?? 0);
+            $excused = (int) ($counts[StudentAttendance::STATUS_EXCUSED] ?? 0);
+            $recorded = $present + $absent + $late + $excused;
+            $pairSessions = $sessions->whereIn('class_group_id', $ids);
+            $last = $pairSessions->sortByDesc(function ($session) {
+                return $session->session_date?->toDateString().' '.$session->starts_at;
+            })->first();
+
+            $result[$key] = [
+                'present_count' => $present,
+                'absent_count' => $absent,
+                'late_count' => $late,
+                'excused_count' => $excused,
+                'recorded_count' => $recorded,
+                'attendance_rate' => $recorded > 0
+                    ? round((($present + $late) / $recorded) * 100, 1)
+                    : null,
+                'sessions_count' => $pairSessions->count(),
+                'students_count' => $enrollments->whereIn('class_group_id', $ids)->pluck('student_id')->unique()->count(),
+                'last_session_date' => $last?->session_date?->toDateString(),
+            ];
+        }
+
+        return $result;
+    }
+
+    private function pairCell(array $pairStats, $classes, int $subjectId, int $levelId, array $names): array
+    {
+        $key = $subjectId.':'.$levelId;
+        $stats = $pairStats[$key] ?? [
+            'present_count' => 0,
+            'absent_count' => 0,
+            'late_count' => 0,
+            'excused_count' => 0,
+            'recorded_count' => 0,
+            'attendance_rate' => null,
+            'sessions_count' => 0,
+            'students_count' => 0,
+            'last_session_date' => null,
+        ];
+        $class = $classes->first(
+            fn ($item) => (int) $item->subject_id === $subjectId && (int) $item->level_id === $levelId
+        );
+
+        return array_merge($names, $stats, [
+            'class_group_id' => $class?->id,
+        ]);
     }
 
     private function summarizeByClassKey(

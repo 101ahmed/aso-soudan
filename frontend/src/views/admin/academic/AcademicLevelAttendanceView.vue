@@ -50,6 +50,11 @@ async function loadClasses() {
     if (!classes.value.some((item) => item.id === selectedClassId.value)) {
       selectedClassId.value = classes.value[0]?.id || null
     }
+    const wantedSubject = route.query.subjectId
+    if (wantedSubject) {
+      const match = classes.value.find((item) => String(item.subject_id || item.subject?.id) === String(wantedSubject))
+      if (match) selectedClassId.value = match.id
+    }
   } catch (e) {
     error.value = e.response?.data?.message || e.message
   }

@@ -44,6 +44,7 @@ const links = computed(() => {
   )
   if (props.code === 'academic' && (auth.hasPermission('attendance.view') || auth.hasPermission('student.view'))) {
     items.push({ to: `${base.value}/attendance`, label: t('secretariatAdmin.attendance') })
+    items.push({ to: `${base.value}/timetable`, label: t('secretariatAdmin.timetable') })
   }
   if (props.code === 'academic' && auth.hasPermission('teacher.view')) {
     items.push({ to: `${base.value}/teachers`, label: t('secretariatAdmin.teachers') })
@@ -62,8 +63,8 @@ const links = computed(() => {
     items.push({ to: `${base.value}/revenues`, label: t('secretariatAdmin.financeRevenues') })
     items.push({ to: `${base.value}/expenses`, label: t('secretariatAdmin.financeExpenses') })
   }
-  if (props.code === 'media' && auth.hasPermission('decision.view')) {
-    items.push({ to: `${base.value}/decisions`, label: t('secretariatAdmin.decisions') })
+  if ((props.code === 'media' || props.code === 'general') && auth.hasPermission('decision.view')) {
+    items.push({ to: `${base.value}/decisions`, label: props.code === 'general' ? t('secretariatAdmin.executiveDecisions') : t('secretariatAdmin.decisions') })
   }
   if (props.code === 'media' && auth.hasPermission('press.view')) {
     items.push({ to: `${base.value}/media-center`, label: t('secretariatAdmin.mediaCenter') })

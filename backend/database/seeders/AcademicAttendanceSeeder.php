@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\AcademicSession;
 use App\Models\AcademicYear;
 use App\Models\ClassGroup;
+use App\Models\ClassSchedule;
 use App\Models\EducationStage;
 use App\Models\Level;
 use App\Models\Role;
@@ -185,6 +186,8 @@ class AcademicAttendanceSeeder extends Seeder
                 }
             }
         }
+
+        $this->seedWeeklySchedules($subjectModels, $levels, $year);
     }
 
     /**
@@ -223,6 +226,56 @@ class AcademicAttendanceSeeder extends Seeder
         }
 
         return $levels;
+    }
+
+    private function seedWeeklySchedules(array $subjectModels, array $levels, AcademicYear $year): void
+    {
+        if (! Schema::hasTable('class_schedules')) {
+            return;
+        }
+
+        $templates = [
+            'AR' => [
+                ['weekday' => 6, 'starts_at' => '10:00:00', 'ends_at' => '11:00:00', 'room' => 'Salle A'],
+                ['weekday' => 7, 'starts_at' => '10:00:00', 'ends_at' => '11:00:00', 'room' => 'Salle A'],
+            ],
+            'QURAN' => [
+                ['weekday' => 6, 'starts_at' => '11:15:00', 'ends_at' => '12:15:00', 'room' => 'Salle A'],
+            ],
+            'MATH' => [
+                ['weekday' => 7, 'starts_at' => '11:15:00', 'ends_at' => '12:15:00', 'room' => 'Salle B'],
+            ],
+        ];
+
+        foreach ($levels as $level) {
+            foreach ($templates as $code => $slots) {
+                $subject = $subjectModels[$code] ?? null;
+                if (! $subject) {
+                    continue;
+                }
+                $class = ClassGroup::query()
+                    ->where('academic_year_id', $year->id)
+                    ->where('subject_id', $subject->id)
+                    ->where('level_id', $level->id)
+                    ->first();
+                if (! $class) {
+                    continue;
+                }
+                foreach ($slots as $slot) {
+                    ClassSchedule::query()->updateOrCreate(
+                        [
+                            'class_group_id' => $class->id,
+                            'weekday' => $slot['weekday'],
+                            'starts_at' => $slot['starts_at'],
+                        ],
+                        [
+                            'ends_at' => $slot['ends_at'],
+                            'room' => $slot['room'],
+                        ]
+                    );
+                }
+            }
+        }
     }
 
     private function removeFrenchLanguageSubject(): void

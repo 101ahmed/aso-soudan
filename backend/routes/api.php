@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\AdminAcademicAttendanceController;
 use App\Http\Controllers\Api\Admin\AdminAcademicStudentController;
 use App\Http\Controllers\Api\Admin\AdminAcademicTeacherController;
+use App\Http\Controllers\Api\Admin\AdminAcademicTimetableController;
 use App\Http\Controllers\Api\Admin\AdminAlbumController;
 use App\Http\Controllers\Api\Admin\AdminAnnouncementController;
 use App\Http\Controllers\Api\Admin\AdminDepartmentController;
@@ -42,6 +43,7 @@ Route::prefix('public')->group(function () {
     Route::post('/secretariats/{code}/messages', [PublicSecretariatMessageController::class, 'store']);
     Route::get('/news', [PublicContentController::class, 'news']);
     Route::get('/news/{slug}', [PublicContentController::class, 'newsShow']);
+    Route::get('/decisions', [PublicContentController::class, 'decisions']);
     Route::get('/media-center', [PublicContentController::class, 'mediaCenter']);
     Route::get('/media-center/{slug}', [PublicContentController::class, 'mediaCenterShow']);
     Route::get('/announcements', [PublicContentController::class, 'announcements']);
@@ -123,7 +125,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::prefix('admin/academic')->group(function () {
-        Route::get('/attendance/overview', [AdminAcademicAttendanceController::class, 'overview']);
+        Route::get('/timetable', [AdminAcademicTimetableController::class, 'index']);
+        Route::post('/timetable', [AdminAcademicTimetableController::class, 'store']);
+        Route::put('/timetable/{session}', [AdminAcademicTimetableController::class, 'update']);
+        Route::delete('/timetable/{session}', [AdminAcademicTimetableController::class, 'destroy']);
         Route::get('/subjects', [AdminAcademicAttendanceController::class, 'subjects']);
         Route::get('/levels', [AdminAcademicAttendanceController::class, 'levels']);
         Route::get('/subjects/{subject}/classes', [AdminAcademicAttendanceController::class, 'classesBySubject']);

@@ -7,6 +7,7 @@ use App\Http\Resources\AlbumResource;
 use App\Http\Resources\AnnouncementResource;
 use App\Http\Resources\DepartmentResource;
 use App\Http\Resources\EventResource;
+use App\Http\Resources\MediaDecisionResource;
 use App\Http\Resources\MediaCenterItemResource;
 use App\Http\Resources\NewsResource;
 use App\Models\Album;
@@ -15,6 +16,7 @@ use App\Models\Department;
 use App\Models\Event;
 use App\Models\EventRating;
 use App\Models\MediaCenterItem;
+use App\Models\MediaDecision;
 use App\Models\News;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -117,6 +119,18 @@ class PublicContentController extends Controller
         $news = News::query()->with('department')->published()->where('slug', $slug)->firstOrFail();
 
         return new NewsResource($news);
+    }
+
+    public function decisions(Request $request): AnonymousResourceCollection
+    {
+        return MediaDecisionResource::collection(
+            MediaDecision::query()
+                ->where('show_on_home', true)
+                ->whereNotIn('status', ['cancelled'])
+                ->latest('decided_on')
+                ->latest('id')
+                ->paginate($request->integer('per_page', 8))
+        );
     }
 
     public function mediaCenter(Request $request): AnonymousResourceCollection
