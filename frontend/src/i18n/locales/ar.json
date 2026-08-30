@@ -379,7 +379,7 @@
     "allSubjects": "كل المواد",
     "allLevels": "كل المستويات",
     "levels": "المستويات",
-    "teachersCount": "معلمين"
+    "teachersCount": "معلمين",
     "emptyGroup": "لا يوجد معلمون في هذا التصنيف.",
     "unassigned": "غير مصنّف",
     "forbidden": "صلاحية teacher.view مطلوبة.",

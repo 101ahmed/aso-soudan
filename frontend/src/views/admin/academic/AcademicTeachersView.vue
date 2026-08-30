@@ -22,7 +22,6 @@ const items = ref([])
 const subjects = ref([])
 const levels = ref([])
 const editingId = ref(null)
-const groupBy = ref('subject')
 
 const filters = reactive({ search: '', status: '', subject_id: '', level_id: '', page: 1 })
 const form = reactive({
@@ -49,20 +48,31 @@ function label(item) {
   return pickName(item, locale.value)
 }
 
+function hasId(list, id) {
+  return (list || []).some((item) => String(item.id) === String(id))
+}
+
 function resetForm() {
   editingId.value = null
   Object.assign(form, {
     first_name: '', last_name: '', email: '', phone: '', locale: 'ar', status: 'active',
     hired_on: '', notes: '', password: '', password_confirmation: '',
     subject_ids: [],
-    level_ids: levels.value.map((level) => level.id),
+    level_ids: [],
   })
 }
 
 function toggleId(listName, id) {
   const value = Number(id)
-  if (form[listName].includes(value)) form[listName] = form[listName].filter((item) => item !== value)
-  else form[listName].push(value)
+  if (form[listName].map(Number).includes(value)) {
+    form[listName] = form[listName].filter((item) => Number(item) !== value)
+  } else {
+    form[listName].push(value)
+  }
+}
+
+function isChecked(listName, id) {
+  return form[listName].map(Number).includes(Number(id))
 }
 
 function names(list) {
@@ -70,16 +80,39 @@ function names(list) {
 }
 
 function teachersForSubject(subjectId) {
-  return items.value.filter((item) => (item.subjects || []).some((subject) => String(subject.id) === String(subjectId)))
+  return items.value.filter((item) => {
+    if (!hasId(item.subjects, subjectId)) return false
+    if (filters.level_id && !hasId(item.levels, filters.level_id)) return false
+    return true
+  })
 }
 
 function teachersForLevel(levelId) {
-  return items.value.filter((item) => (item.levels || []).some((level) => String(level.id) === String(levelId)))
+  return items.value.filter((item) => {
+    if (!hasId(item.levels, levelId)) return false
+    if (filters.subject_id && !hasId(item.subjects, filters.subject_id)) return false
+    return true
+  })
 }
 
+function teachersForSubjectAndLevel(subjectId, levelId) {
+  return items.value.filter((item) => hasId(item.subjects, subjectId) && hasId(item.levels, levelId))
+}
+
+const visibleSubjects = computed(() => {
+  if (!filters.subject_id) return subjects.value
+  return subjects.value.filter((subject) => String(subject.id) === String(filters.subject_id))
+})
+
+const visibleLevels = computed(() => {
+  if (!filters.level_id) return levels.value
+  return levels.value.filter((level) => String(level.id) === String(filters.level_id))
+})
+
 const unassigned = computed(() => items.value.filter((item) => {
-  if (groupBy.value === 'level') return !(item.levels || []).length
-  return !(item.subjects || []).length
+  const noSubject = !(item.subjects || []).length
+  const noLevel = !(item.levels || []).length
+  return noSubject || noLevel
 }))
 
 function selectSubject(id) {
@@ -128,8 +161,8 @@ function edit(item) {
     notes: item.notes || '',
     password: '',
     password_confirmation: '',
-    subject_ids: (item.subjects || []).map((subject) => subject.id),
-    level_ids: (item.levels || []).map((level) => level.id),
+    subject_ids: (item.subjects || []).map((subject) => Number(subject.id)),
+    level_ids: (item.levels || []).map((level) => Number(level.id)),
   })
 }
 
@@ -217,25 +250,6 @@ onMounted(async () => {
         <button
           type="button"
           class="rounded-full px-3 py-1.5 text-sm"
-          :class="groupBy === 'subject' ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
-          @click="groupBy = 'subject'; filters.level_id = ''; load()"
-        >
-          {{ t('academicTeachers.bySubject') }}
-        </button>
-        <button
-          type="button"
-          class="rounded-full px-3 py-1.5 text-sm"
-          :class="groupBy === 'level' ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
-          @click="groupBy = 'level'; filters.subject_id = ''; load()"
-        >
-          {{ t('academicTeachers.byLevel') }}
-        </button>
-      </div>
-
-      <div v-if="groupBy === 'subject'" class="flex flex-wrap gap-2">
-        <button
-          type="button"
-          class="rounded-full px-3 py-1.5 text-sm"
           :class="!filters.subject_id ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
           @click="selectSubject('')"
         >
@@ -243,16 +257,17 @@ onMounted(async () => {
         </button>
         <button
           v-for="subject in subjects"
-          :key="subject.id"
+          :key="`subject-${subject.id}`"
           type="button"
           class="rounded-full px-3 py-1.5 text-sm"
           :class="String(filters.subject_id) === String(subject.id) ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
           @click="selectSubject(String(subject.id))"
         >
           {{ label(subject) }}
+          <span class="opacity-80">({{ teachersForSubject(subject.id).length }})</span>
         </button>
       </div>
-      <div v-else class="flex flex-wrap gap-2">
+      <div class="flex flex-wrap gap-2">
         <button
           type="button"
           class="rounded-full px-3 py-1.5 text-sm"
@@ -263,93 +278,86 @@ onMounted(async () => {
         </button>
         <button
           v-for="level in levels"
-          :key="level.id"
+          :key="`level-${level.id}`"
           type="button"
           class="rounded-full px-3 py-1.5 text-sm"
           :class="String(filters.level_id) === String(level.id) ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
           @click="selectLevel(String(level.id))"
         >
           {{ label(level) }}
+          <span class="opacity-80">({{ teachersForLevel(level.id).length }})</span>
         </button>
       </div>
 
       <p v-if="error" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ error }}</p>
       <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <div class="space-y-4">
-          <template v-if="groupBy === 'subject' && !filters.subject_id">
-            <div v-for="subject in subjects" :key="subject.id" class="overflow-x-auto rounded-xl border bg-white">
+        <div class="space-y-6">
+          <section class="space-y-3">
+            <h3 class="text-base font-semibold text-[var(--rdp-forest)]">{{ t('academicTeachers.bySubject') }}</h3>
+            <div v-for="subject in visibleSubjects" :key="`group-subject-${subject.id}`" class="overflow-hidden rounded-xl border bg-white">
               <div class="flex items-center justify-between border-b px-4 py-3">
-                <h3 class="font-semibold text-[var(--rdp-forest)]">{{ label(subject) }}</h3>
+                <h4 class="font-semibold">{{ label(subject) }}</h4>
                 <p class="text-xs text-slate-500">{{ teachersForSubject(subject.id).length }} {{ t('academicTeachers.teachersCount') }}</p>
               </div>
-              <table class="min-w-full text-sm">
-                <tbody>
-                  <tr v-if="!teachersForSubject(subject.id).length">
-                    <td class="px-4 py-6 text-center text-slate-500">{{ t('academicTeachers.emptyGroup') }}</td>
-                  </tr>
-                  <tr v-for="item in teachersForSubject(subject.id)" :key="item.id" class="border-t">
-                    <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
-                    <td class="px-4 py-3 text-slate-600">{{ names(item.levels) }}</td>
-                    <td class="px-4 py-3 flex gap-2">
-                      <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
-                      <button v-if="canUpdate" type="button" class="text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <p v-if="!teachersForSubject(subject.id).length" class="px-4 py-6 text-center text-sm text-slate-500">{{ t('academicTeachers.emptyGroup') }}</p>
+              <div
+                v-for="level in visibleLevels"
+                v-show="teachersForSubjectAndLevel(subject.id, level.id).length"
+                :key="`subject-${subject.id}-level-${level.id}`"
+                class="border-b last:border-b-0"
+              >
+                <p class="bg-slate-50 px-4 py-2 text-xs font-medium text-slate-600">{{ label(level) }}</p>
+                <table class="min-w-full text-sm">
+                  <tbody>
+                    <tr v-if="!teachersForSubjectAndLevel(subject.id, level.id).length">
+                      <td class="px-4 py-3 text-slate-400">{{ t('academicTeachers.emptyGroup') }}</td>
+                    </tr>
+                    <tr v-for="item in teachersForSubjectAndLevel(subject.id, level.id)" :key="item.id" class="border-t">
+                      <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
+                      <td class="px-4 py-3 flex gap-2">
+                        <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
+                        <button v-if="canUpdate" type="button" class="text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </template>
-          <template v-else-if="groupBy === 'level' && !filters.level_id">
-            <div v-for="level in levels" :key="level.id" class="overflow-x-auto rounded-xl border bg-white">
+          </section>
+
+          <section class="space-y-3">
+            <h3 class="text-base font-semibold text-[var(--rdp-forest)]">{{ t('academicTeachers.byLevel') }}</h3>
+            <div v-for="level in visibleLevels" :key="`group-level-${level.id}`" class="overflow-hidden rounded-xl border bg-white">
               <div class="flex items-center justify-between border-b px-4 py-3">
-                <h3 class="font-semibold text-[var(--rdp-forest)]">{{ label(level) }}</h3>
+                <h4 class="font-semibold">{{ label(level) }}</h4>
                 <p class="text-xs text-slate-500">{{ teachersForLevel(level.id).length }} {{ t('academicTeachers.teachersCount') }}</p>
               </div>
-              <table class="min-w-full text-sm">
-                <tbody>
-                  <tr v-if="!teachersForLevel(level.id).length">
-                    <td class="px-4 py-6 text-center text-slate-500">{{ t('academicTeachers.emptyGroup') }}</td>
-                  </tr>
-                  <tr v-for="item in teachersForLevel(level.id)" :key="item.id" class="border-t">
-                    <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
-                    <td class="px-4 py-3 text-slate-600">{{ names(item.subjects) }}</td>
-                    <td class="px-4 py-3 flex gap-2">
-                      <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
-                      <button v-if="canUpdate" type="button" class="text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <p v-if="!teachersForLevel(level.id).length" class="px-4 py-6 text-center text-sm text-slate-500">{{ t('academicTeachers.emptyGroup') }}</p>
+              <div
+                v-for="subject in visibleSubjects"
+                v-show="teachersForSubjectAndLevel(subject.id, level.id).length"
+                :key="`level-${level.id}-subject-${subject.id}`"
+                class="border-b last:border-b-0"
+              >
+                <p class="bg-slate-50 px-4 py-2 text-xs font-medium text-slate-600">{{ label(subject) }}</p>
+                <table class="min-w-full text-sm">
+                  <tbody>
+                    <tr v-if="!teachersForSubjectAndLevel(subject.id, level.id).length">
+                      <td class="px-4 py-3 text-slate-400">{{ t('academicTeachers.emptyGroup') }}</td>
+                    </tr>
+                    <tr v-for="item in teachersForSubjectAndLevel(subject.id, level.id)" :key="item.id" class="border-t">
+                      <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
+                      <td class="px-4 py-3 flex gap-2">
+                        <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
+                        <button v-if="canUpdate" type="button" class="text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </template>
-          <div v-else class="overflow-x-auto rounded-xl border bg-white">
-            <table class="min-w-full text-sm">
-              <thead class="bg-slate-50 text-start text-xs text-slate-500">
-                <tr>
-                  <th class="px-4 py-3 font-medium">{{ t('academicTeachers.name') }}</th>
-                  <th class="px-4 py-3 font-medium">{{ t('academicTeachers.subjects') }}</th>
-                  <th class="px-4 py-3 font-medium">{{ t('academicTeachers.levels') }}</th>
-                  <th class="px-4 py-3 font-medium">{{ t('academicTeachers.status') }}</th>
-                  <th class="px-4 py-3"></th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="!loading && !items.length">
-                  <td colspan="5" class="px-4 py-6 text-center text-slate-500">{{ t('academicTeachers.empty') }}</td>
-                </tr>
-                <tr v-for="item in items" :key="item.id" class="border-t">
-                  <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
-                  <td class="px-4 py-3">{{ names(item.subjects) }}</td>
-                  <td class="px-4 py-3">{{ names(item.levels) }}</td>
-                  <td class="px-4 py-3">{{ t(`academicTeachers.statuses.${item.status}`) }}</td>
-                  <td class="px-4 py-3 flex gap-2">
-                    <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
-                    <button v-if="canUpdate" type="button" class="text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          </section>
+
           <div v-if="unassigned.length && !filters.subject_id && !filters.level_id" class="overflow-x-auto rounded-xl border bg-white">
             <div class="border-b px-4 py-3">
               <h3 class="font-semibold text-slate-700">{{ t('academicTeachers.unassigned') }}</h3>
@@ -358,6 +366,7 @@ onMounted(async () => {
               <tbody>
                 <tr v-for="item in unassigned" :key="item.id" class="border-t">
                   <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
+                  <td class="px-4 py-3 text-slate-500">{{ names(item.subjects) }} · {{ names(item.levels) }}</td>
                   <td class="px-4 py-3 flex gap-2">
                     <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
                   </td>
@@ -379,14 +388,14 @@ onMounted(async () => {
           <fieldset class="rounded-lg border p-3">
             <legend class="px-1 text-xs">{{ t('academicTeachers.subjects') }}</legend>
             <label v-for="subject in subjects" :key="subject.id" class="flex items-center gap-2 text-sm">
-              <input type="checkbox" :checked="form.subject_ids.includes(subject.id)" @change="toggleId('subject_ids', subject.id)" />
+              <input type="checkbox" :checked="isChecked('subject_ids', subject.id)" @change="toggleId('subject_ids', subject.id)" />
               {{ label(subject) }}
             </label>
           </fieldset>
           <fieldset class="rounded-lg border p-3">
             <legend class="px-1 text-xs">{{ t('academicTeachers.levels') }}</legend>
             <label v-for="level in levels" :key="level.id" class="flex items-center gap-2 text-sm">
-              <input type="checkbox" :checked="form.level_ids.includes(level.id)" @change="toggleId('level_ids', level.id)" />
+              <input type="checkbox" :checked="isChecked('level_ids', level.id)" @change="toggleId('level_ids', level.id)" />
               {{ label(level) }}
             </label>
           </fieldset>
