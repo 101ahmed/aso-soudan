@@ -1,13 +1,20 @@
 <script setup>
-import { computed, onMounted, onActivated, ref } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { computed, onMounted, onActivated, reactive, ref } from 'vue'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
-import { fetchAttendanceSheet, saveAttendanceSheet } from '@/services/academic'
+import {
+  deleteClassSession,
+  deleteStudentAttendance,
+  fetchAttendanceSheet,
+  saveAttendanceSheet,
+  updateClassSession,
+} from '@/services/academic'
 import { attendanceBaseFromPath } from '@/utils/academicPaths'
 import { pickName } from '@/utils/localized'
 
 const route = useRoute()
+const router = useRouter()
 const { t, locale } = useI18n()
 const auth = useAuthStore()
 const attendanceBase = computed(() => attendanceBaseFromPath(route.path))
@@ -18,12 +25,28 @@ const statuses = ref(['present', 'absent', 'late', 'excused'])
 const error = ref('')
 const success = ref('')
 const saving = ref(false)
-const canEdit = computed(() => auth.hasPermission('attendance.create'))
+const canEdit = computed(() => (
+  auth.hasPermission('attendance.create')
+  || auth.hasPermission('attendance.update')
+  || auth.hasPermission('attendance.delete')
+))
+
+const sessionForm = reactive({
+  session_date: '',
+  starts_at: '',
+  ends_at: '',
+  room: '',
+})
 
 const subjectLabel = computed(() => {
   const s = session.value?.class_group?.subject
   if (!s) return ''
   return pickName(s, locale.value)
+})
+
+const backTo = computed(() => {
+  const subjectId = session.value?.class_group?.subject_id
+  return subjectId ? `${attendanceBase.value}/subjects/${subjectId}` : attendanceBase.value
 })
 
 const counts = computed(() => {
@@ -43,11 +66,19 @@ function statusClass(status) {
   }[status] || 'border-slate-200'
 }
 
+function applySession(item) {
+  session.value = item
+  sessionForm.session_date = (item?.session_date || '').slice(0, 10)
+  sessionForm.starts_at = String(item?.starts_at || '').slice(0, 5)
+  sessionForm.ends_at = String(item?.ends_at || '').slice(0, 5)
+  sessionForm.room = item?.room || ''
+}
+
 async function load() {
   error.value = ''
   try {
     const data = await fetchAttendanceSheet(route.params.sessionId)
-    session.value = data.session
+    applySession(data.session)
     rows.value = (data.rows || []).map((r) => ({ ...r, status: r.status || '' }))
     if (data.statuses?.length) statuses.value = data.statuses
   } catch (e) {
@@ -73,13 +104,47 @@ async function save() {
         notes: r.notes || null,
       })),
     )
-    session.value = data.session
+    applySession(data.session)
     rows.value = (data.rows || []).map((r) => ({ ...r, status: r.status || '' }))
     success.value = t('academicAttendance.saved')
   } catch (e) {
     error.value = e.response?.data?.message || e.message
   } finally {
     saving.value = false
+  }
+}
+
+async function saveSessionMeta() {
+  error.value = ''
+  success.value = ''
+  try {
+    await updateClassSession(route.params.sessionId, { ...sessionForm })
+    await load()
+    success.value = t('academicAttendance.sessionUpdated')
+  } catch (e) {
+    error.value = e.response?.data?.message || e.message
+  }
+}
+
+async function removeSession() {
+  if (!confirm(t('academicAttendance.confirmDeleteSession'))) return
+  try {
+    await deleteClassSession(route.params.sessionId)
+    router.push(backTo.value)
+  } catch (e) {
+    error.value = e.response?.data?.message || e.message
+  }
+}
+
+async function removeRow(row) {
+  if (!confirm(t('academicAttendance.confirmDeleteRow', { name: row.full_name }))) return
+  try {
+    const data = await deleteStudentAttendance(route.params.sessionId, row.student_id)
+    applySession(data.session)
+    rows.value = (data.rows || []).map((r) => ({ ...r, status: r.status || '' }))
+    success.value = t('academicAttendance.rowDeleted')
+  } catch (e) {
+    error.value = e.response?.data?.message || e.message
   }
 }
 
@@ -95,11 +160,7 @@ onActivated(load)
   <div class="space-y-5">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
-        <RouterLink
-          v-if="session?.class_group?.subject_id"
-          :to="`${attendanceBase}/subjects/${session.class_group.subject_id}`"
-          class="text-xs text-[var(--rdp-forest)] hover:underline"
-        >
+        <RouterLink :to="backTo" class="text-xs text-[var(--rdp-forest)] hover:underline">
           ← {{ t('academicAttendance.back') }}
         </RouterLink>
         <h2 class="mt-1 text-lg font-semibold text-[var(--rdp-forest)]">{{ t('academicAttendance.sheet') }}</h2>
@@ -118,8 +179,25 @@ onActivated(load)
         >
           {{ saving ? t('academicAttendance.saving') : t('forms.save') }}
         </button>
+        <button type="button" class="rounded border border-rose-300 px-3 py-1.5 text-sm text-rose-700" @click="removeSession">
+          {{ t('academicAttendance.deleteSession') }}
+        </button>
       </div>
     </div>
+
+    <form
+      v-if="canEdit && session"
+      class="grid gap-3 rounded-xl border bg-white p-4 sm:grid-cols-2 lg:grid-cols-5"
+      @submit.prevent="saveSessionMeta"
+    >
+      <input v-model="sessionForm.session_date" type="date" required class="rounded border px-3 py-2 text-sm" />
+      <input v-model="sessionForm.starts_at" type="time" required class="rounded border px-3 py-2 text-sm" />
+      <input v-model="sessionForm.ends_at" type="time" required class="rounded border px-3 py-2 text-sm" />
+      <input v-model="sessionForm.room" :placeholder="t('academicAttendance.room')" class="rounded border px-3 py-2 text-sm" />
+      <button type="submit" class="rounded border border-teal-800 px-3 py-2 text-sm text-teal-800">
+        {{ t('academicAttendance.saveSession') }}
+      </button>
+    </form>
 
     <p v-if="error" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ error }}</p>
     <p v-if="success" class="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{{ success }}</p>
@@ -151,6 +229,7 @@ onActivated(load)
             <th class="px-4 py-3 text-start font-medium">{{ t('academicAttendance.student') }}</th>
             <th class="px-4 py-3 text-start font-medium">{{ t('academicAttendance.status') }}</th>
             <th class="px-4 py-3 text-start font-medium">{{ t('academicAttendance.notes') }}</th>
+            <th v-if="canEdit" class="px-4 py-3"></th>
           </tr>
         </thead>
         <tbody>
@@ -178,9 +257,18 @@ onActivated(load)
                 :placeholder="t('academicAttendance.notes')"
               />
             </td>
+            <td v-if="canEdit" class="px-4 py-3 text-end">
+              <button
+                type="button"
+                class="text-xs font-semibold text-rose-700 hover:underline"
+                @click="removeRow(row)"
+              >
+                {{ t('forms.delete') }}
+              </button>
+            </td>
           </tr>
           <tr v-if="!rows.length">
-            <td colspan="4" class="px-4 py-8 text-center text-slate-500">{{ t('academicAttendance.noStudents') }}</td>
+            <td :colspan="canEdit ? 5 : 4" class="px-4 py-8 text-center text-slate-500">{{ t('academicAttendance.noStudents') }}</td>
           </tr>
         </tbody>
       </table>

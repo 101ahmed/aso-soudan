@@ -64,6 +64,8 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'teacher.update', 'module' => 'teachers', 'name_fr' => 'Modifier enseignant', 'name_ar' => 'تعديل معلم'],
             ['code' => 'attendance.view', 'module' => 'attendance', 'name_fr' => 'Voir présence', 'name_ar' => 'عرض الحضور'],
             ['code' => 'attendance.create', 'module' => 'attendance', 'name_fr' => 'Saisir présence', 'name_ar' => 'تسجيل الحضور'],
+            ['code' => 'attendance.update', 'module' => 'attendance', 'name_fr' => 'Modifier présence', 'name_ar' => 'تعديل الحضور'],
+            ['code' => 'attendance.delete', 'module' => 'attendance', 'name_fr' => 'Supprimer présence', 'name_ar' => 'حذف الحضور'],
             ['code' => 'report.view', 'module' => 'reports', 'name_fr' => 'Voir rapports', 'name_ar' => 'عرض التقارير'],
             ['code' => 'report.export', 'module' => 'reports', 'name_fr' => 'Exporter rapports', 'name_ar' => 'تصدير التقارير'],
             ['code' => 'statistics.view', 'module' => 'statistics', 'name_fr' => 'Voir statistiques', 'name_ar' => 'عرض الإحصاءات'],
@@ -180,7 +182,7 @@ class RolePermissionSeeder extends Seeder
             'ACADEMIC_SECRETARIAT' => array_merge($secretariatManagerCodes, [
                 'student.view', 'student.create', 'student.update', 'student.delete',
                 'teacher.view', 'teacher.create', 'teacher.update',
-                'attendance.view', 'attendance.create',
+                'attendance.view', 'attendance.create', 'attendance.update', 'attendance.delete',
             ]),
             'SOCIAL_SECRETARIAT' => array_merge($secretariatManagerCodes, [
                 'help.view', 'help.create', 'help.update', 'help.delete',
@@ -216,7 +218,7 @@ class RolePermissionSeeder extends Seeder
         $teacher?->permissions()->sync(
             Permission::query()->whereIn('code', [
                 'student.view', 'student.create', 'student.update', 'student.delete',
-                'attendance.view', 'attendance.create',
+                'attendance.view', 'attendance.create', 'attendance.update', 'attendance.delete',
             ])->pluck('id')
         );
 

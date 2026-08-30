@@ -39,6 +39,20 @@ export async function createClassSession(classId, payload) {
   return data.data || data
 }
 
+export async function updateClassSession(sessionId, payload) {
+  const { data } = await api.put(`/admin/academic/sessions/${sessionId}`, payload)
+  return data.data || data
+}
+
+export async function deleteClassSession(sessionId) {
+  await api.delete(`/admin/academic/sessions/${sessionId}`)
+}
+
+export async function deleteStudentAttendance(sessionId, studentId) {
+  const { data } = await api.delete(`/admin/academic/sessions/${sessionId}/students/${studentId}/attendance`)
+  return data
+}
+
 export async function fetchAttendanceSheet(sessionId) {
   const { data } = await api.get(`/admin/academic/sessions/${sessionId}/sheet`)
   return data

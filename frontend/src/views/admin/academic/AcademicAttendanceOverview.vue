@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
-import { fetchAttendanceOverview } from '@/services/academic'
+import { fetchAttendanceOverview, fetchLevels, fetchSubjects } from '@/services/academic'
 import { attendanceBaseFromPath } from '@/utils/academicPaths'
 import { pickName } from '@/utils/localized'
 
@@ -13,12 +13,19 @@ const route = useRoute()
 const loading = ref(true)
 const error = ref('')
 const overview = ref(null)
+const catalogSubjects = ref([])
+const catalogLevels = ref([])
 const openSubjectId = ref(null)
 const openLevelId = ref(null)
 const selectedSubjectId = ref('')
 const selectedLevelId = ref('')
 const attendanceBase = computed(() => attendanceBaseFromPath(route.path))
 const canView = computed(() => auth.hasPermission('attendance.view'))
+const canManage = computed(() => (
+  auth.hasPermission('attendance.create')
+  || auth.hasPermission('attendance.update')
+  || auth.hasPermission('attendance.delete')
+))
 
 let pollId = 0
 
@@ -37,6 +44,13 @@ function share(count, recorded) {
   if (!recorded) return 0
   return Math.round((count / recorded) * 100)
 }
+
+const manageSubjects = computed(() => (
+  overview.value?.subjects?.length ? overview.value.subjects : catalogSubjects.value
+))
+const manageLevels = computed(() => (
+  overview.value?.levels?.length ? overview.value.levels : catalogLevels.value
+))
 
 const visibleSubjects = computed(() => {
   const list = overview.value?.subjects || []
@@ -77,7 +91,14 @@ async function load({ silent = false } = {}) {
   }
   if (!silent) error.value = ''
   try {
-    overview.value = await fetchAttendanceOverview()
+    const [data, subjects, levels] = await Promise.all([
+      fetchAttendanceOverview(),
+      fetchSubjects().catch(() => []),
+      fetchLevels().catch(() => []),
+    ])
+    overview.value = data
+    catalogSubjects.value = subjects || []
+    catalogLevels.value = Array.isArray(levels) ? levels : (levels?.data || [])
   } catch (e) {
     const message = e.response?.data?.message || e.message || ''
     if (!silent && message && !/fileinfo|MIME type|SQLSTATE|Stack trace/i.test(message)) {
@@ -124,6 +145,7 @@ onBeforeUnmount(() => {
       <div>
         <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('academicAttendance.title') }}</h2>
         <p class="mt-1 text-sm text-slate-600">{{ t('academicAttendance.subtitle') }}</p>
+        <p v-if="canManage" class="mt-2 text-sm font-medium text-teal-800">{{ t('academicAttendance.manageHint') }}</p>
       </div>
       <p v-if="overview?.generated_at" class="text-xs text-slate-500">
         {{ t('academicAttendance.live') }}
@@ -138,6 +160,33 @@ onBeforeUnmount(() => {
     <p v-else-if="loading" class="text-sm text-slate-500">{{ t('academicAttendance.loading') }}</p>
 
     <template v-else-if="overview">
+      <section v-if="canManage" class="rounded-xl border border-teal-800/25 bg-teal-50 p-5">
+        <h3 class="text-base font-semibold text-teal-900">{{ t('academicAttendance.manageTitle') }}</h3>
+        <p class="mt-1 text-sm text-teal-900/80">{{ t('academicAttendance.manageHint') }}</p>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <RouterLink
+            v-for="subject in manageSubjects"
+            :key="`add-subject-${subject.id}`"
+            :to="`${attendanceBase}/subjects/${subject.id}`"
+            class="rounded-lg bg-teal-800 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-900"
+          >
+            + {{ t('academicAttendance.addFor') }} {{ subjectName(subject) }}
+          </RouterLink>
+        </div>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <RouterLink
+            v-for="level in manageLevels"
+            :key="`add-level-${level.id}`"
+            :to="`${attendanceBase}/levels/${level.id}`"
+            class="rounded-lg border border-teal-800 px-4 py-2 text-sm font-semibold text-teal-800 hover:bg-white"
+          >
+            {{ t('academicAttendance.addFor') }} {{ subjectName(level) }}
+          </RouterLink>
+        </div>
+        <p v-if="!manageSubjects.length && !manageLevels.length" class="mt-3 text-sm text-teal-900/80">
+          {{ t('academicAttendance.noCatalog') }}
+        </p>
+      </section>
       <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
         <article class="rounded-xl border bg-white p-4">
           <p class="text-xs text-slate-500">{{ t('academicAttendance.year') }}</p>
@@ -238,6 +287,14 @@ onBeforeUnmount(() => {
                 {{ t('academicAttendance.details') }}
               </button>
               <RouterLink
+                v-if="canManage"
+                :to="`${attendanceBase}/subjects/${subject.id}`"
+                class="rounded bg-teal-800 px-3 py-1.5 text-xs font-semibold text-white"
+              >
+                {{ t('academicAttendance.manageActions') }}
+              </RouterLink>
+              <RouterLink
+                v-else
                 :to="`${attendanceBase}/subjects/${subject.id}`"
                 class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
               >
@@ -344,6 +401,14 @@ onBeforeUnmount(() => {
                 {{ t('academicAttendance.details') }}
               </button>
               <RouterLink
+                v-if="canManage"
+                :to="`${attendanceBase}/levels/${level.id}`"
+                class="rounded bg-teal-800 px-3 py-1.5 text-xs font-semibold text-white"
+              >
+                {{ t('academicAttendance.manageActions') }}
+              </RouterLink>
+              <RouterLink
+                v-else
                 :to="`${attendanceBase}/levels/${level.id}`"
                 class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
               >

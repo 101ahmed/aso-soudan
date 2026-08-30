@@ -154,10 +154,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/levels', [AdminAcademicAttendanceController::class, 'levels']);
         Route::get('/subjects/{subject}/classes', [AdminAcademicAttendanceController::class, 'classesBySubject']);
         Route::get('/levels/{level}/classes', [AdminAcademicAttendanceController::class, 'classesByLevel']);
+        Route::get('/attendance/overview', [AdminAcademicAttendanceController::class, 'overview']);
         Route::get('/classes/{classGroup}/sessions', [AdminAcademicAttendanceController::class, 'sessionsIndex']);
         Route::post('/classes/{classGroup}/sessions', [AdminAcademicAttendanceController::class, 'sessionsStore']);
+        Route::put('/sessions/{session}', [AdminAcademicAttendanceController::class, 'sessionsUpdate']);
+        Route::delete('/sessions/{session}', [AdminAcademicAttendanceController::class, 'sessionsDestroy']);
         Route::get('/sessions/{session}/sheet', [AdminAcademicAttendanceController::class, 'sheet']);
         Route::post('/sessions/{session}/sheet', [AdminAcademicAttendanceController::class, 'syncSheet']);
+        Route::delete('/sessions/{session}/students/{student}/attendance', [AdminAcademicAttendanceController::class, 'destroyAttendance']);
         Route::get('/students/{student}/attendance', [AdminAcademicAttendanceController::class, 'studentReport']);
 
         Route::get('/catalog', [AdminAcademicStudentController::class, 'catalog']);

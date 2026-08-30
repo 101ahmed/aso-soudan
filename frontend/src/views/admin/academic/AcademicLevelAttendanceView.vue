@@ -1,36 +1,21 @@
 <script setup>
-import { computed, onActivated, onMounted, reactive, ref, watch } from 'vue'
-import { RouterLink, useRoute, useRouter } from 'vue-router'
+import { computed, onActivated, onMounted, ref, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useAuthStore } from '@/stores/auth'
-import {
-  createClassSession,
-  fetchClassSessions,
-  fetchClassesByLevel,
-} from '@/services/academic'
+import { fetchClassesByLevel } from '@/services/academic'
 import { attendanceBaseFromPath } from '@/utils/academicPaths'
 import { pickName } from '@/utils/localized'
+import AttendanceSessionsPanel from '@/components/admin/AttendanceSessionsPanel.vue'
 
 const route = useRoute()
-const router = useRouter()
 const { t, locale } = useI18n()
-const auth = useAuthStore()
 const attendanceBase = computed(() => attendanceBaseFromPath(route.path))
 
 const levelId = computed(() => route.params.levelId)
 const level = ref(null)
 const classes = ref([])
 const selectedClassId = ref(null)
-const sessions = ref([])
 const error = ref('')
-const canCreate = computed(() => auth.hasPermission('attendance.create'))
-
-const form = reactive({
-  session_date: new Date().toISOString().slice(0, 10),
-  starts_at: '10:00',
-  ends_at: '11:00',
-  room: '',
-})
 
 function label(item) {
   if (!item) return ''
@@ -60,43 +45,12 @@ async function loadClasses() {
   }
 }
 
-async function loadSessions() {
-  if (!selectedClassId.value) {
-    sessions.value = []
-    return
-  }
-  try {
-    const data = await fetchClassSessions(selectedClassId.value)
-    sessions.value = data.data || []
-  } catch (e) {
-    error.value = e.response?.data?.message || e.message
-  }
-}
-
-async function createSession() {
-  try {
-    const session = await createClassSession(selectedClassId.value, { ...form })
-    await loadSessions()
-    router.push(`${attendanceBase.value}/sessions/${session.id}`)
-  } catch (e) {
-    error.value = e.response?.data?.message || e.message
-  }
-}
-
-watch(selectedClassId, loadSessions)
 watch(levelId, async () => {
   selectedClassId.value = null
   await loadClasses()
-  await loadSessions()
 })
-onMounted(async () => {
-  await loadClasses()
-  await loadSessions()
-})
-onActivated(async () => {
-  await loadClasses()
-  await loadSessions()
-})
+onMounted(loadClasses)
+onActivated(loadClasses)
 </script>
 
 <template>
@@ -130,54 +84,11 @@ onActivated(async () => {
         <p v-if="!classes.length" class="px-1 text-xs text-slate-500">{{ t('academicAttendance.noClasses') }}</p>
       </aside>
 
-      <div class="space-y-4">
-        <form
-          v-if="canCreate && selectedClassId"
-          class="grid gap-3 rounded-xl border bg-white p-4 sm:grid-cols-2 lg:grid-cols-5"
-          @submit.prevent="createSession"
-        >
-          <input v-model="form.session_date" type="date" required class="rounded border px-3 py-2 text-sm" />
-          <input v-model="form.starts_at" type="time" required class="rounded border px-3 py-2 text-sm" />
-          <input v-model="form.ends_at" type="time" required class="rounded border px-3 py-2 text-sm" />
-          <input v-model="form.room" :placeholder="t('academicAttendance.room')" class="rounded border px-3 py-2 text-sm" />
-          <button type="submit" class="rounded bg-teal-800 px-3 py-2 text-sm text-white">
-            {{ t('academicAttendance.newSession') }}
-          </button>
-        </form>
-
-        <div class="overflow-hidden rounded-xl border bg-white">
-          <table class="min-w-full text-sm">
-            <thead class="bg-slate-50 text-xs text-slate-500">
-              <tr>
-                <th class="px-4 py-3 text-start font-medium">{{ t('academicAttendance.date') }}</th>
-                <th class="px-4 py-3 text-start font-medium">{{ t('academicAttendance.time') }}</th>
-                <th class="px-4 py-3 text-start font-medium">{{ t('academicAttendance.present') }}</th>
-                <th class="px-4 py-3 text-start font-medium">{{ t('academicAttendance.absent') }}</th>
-                <th class="px-4 py-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="s in sessions" :key="s.id" class="border-t">
-                <td class="px-4 py-3">{{ (s.session_date || '').slice(0, 10) }}</td>
-                <td class="px-4 py-3">{{ String(s.starts_at).slice(0, 5) }} – {{ String(s.ends_at).slice(0, 5) }}</td>
-                <td class="px-4 py-3 text-emerald-700">{{ s.present_count }}</td>
-                <td class="px-4 py-3 text-rose-700">{{ s.absent_count }}</td>
-                <td class="px-4 py-3 text-end">
-                  <RouterLink
-                    :to="`${attendanceBase}/sessions/${s.id}`"
-                    class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
-                  >
-                    {{ t('academicAttendance.sheet') }}
-                  </RouterLink>
-                </td>
-              </tr>
-              <tr v-if="!sessions.length">
-                <td colspan="5" class="px-4 py-8 text-center text-slate-500">{{ t('academicAttendance.noSessions') }}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <AttendanceSessionsPanel
+        :class-id="selectedClassId"
+        :attendance-base="attendanceBase"
+        @error="error = $event"
+      />
     </div>
   </div>
 </template>

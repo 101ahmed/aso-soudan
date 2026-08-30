@@ -364,13 +364,7 @@ class AdminAcademicAttendanceController extends Controller
         $this->authorizePermission($request, 'attendance.create');
         $this->assertClassAccess($request, $classGroup);
 
-        $data = $request->validate([
-            'session_date' => ['required', 'date'],
-            'starts_at' => ['required', 'date_format:H:i'],
-            'ends_at' => ['required', 'date_format:H:i', 'after:starts_at'],
-            'room' => ['nullable', 'string', 'max:100'],
-            'notes' => ['nullable', 'string'],
-        ]);
+        $data = $this->validatedSessionPayload($request);
 
         $session = AcademicSession::query()->create([
             ...$data,
@@ -382,6 +376,51 @@ class AdminAcademicAttendanceController extends Controller
         ]);
 
         return response()->json(['data' => $session], 201);
+    }
+
+    public function sessionsUpdate(Request $request, AcademicSession $session): JsonResponse
+    {
+        $this->authorizeAttendanceManage($request);
+        $session->loadMissing('classGroup');
+        abort_unless($session->classGroup, 404);
+        $this->assertClassAccess($request, $session->classGroup);
+
+        $data = $this->validatedSessionPayload($request);
+        $session->update([
+            ...$data,
+            'starts_at' => $data['starts_at'].':00',
+            'ends_at' => $data['ends_at'].':00',
+        ]);
+
+        return response()->json(['data' => $session->fresh()]);
+    }
+
+    public function sessionsDestroy(Request $request, AcademicSession $session): JsonResponse
+    {
+        $this->authorizeAttendanceManage($request);
+        $session->loadMissing('classGroup');
+        abort_unless($session->classGroup, 404);
+        $this->assertClassAccess($request, $session->classGroup);
+
+        $session->attendances()->delete();
+        $session->delete();
+
+        return response()->json(['message' => 'Deleted.']);
+    }
+
+    public function destroyAttendance(Request $request, AcademicSession $session, Student $student): JsonResponse
+    {
+        $this->authorizeAttendanceManage($request);
+        $session->loadMissing('classGroup');
+        abort_unless($session->classGroup, 404);
+        $this->assertClassAccess($request, $session->classGroup);
+
+        StudentAttendance::query()
+            ->where('academic_session_id', $session->id)
+            ->where('student_id', $student->id)
+            ->delete();
+
+        return $this->sheet($request, $session->fresh(['classGroup.subject', 'classGroup.level', 'attendances']));
     }
 
     public function sheet(Request $request, AcademicSession $session): JsonResponse
@@ -504,6 +543,36 @@ class AdminAcademicAttendanceController extends Controller
     private function authorizePermission(Request $request, string $permission): void
     {
         abort_unless($request->user()?->hasPermission($permission), 403);
+    }
+
+    private function authorizeAttendanceManage(Request $request): void
+    {
+        $user = $request->user();
+        abort_unless(
+            $user?->hasPermission('attendance.create')
+            || $user?->hasPermission('attendance.update')
+            || $user?->hasPermission('attendance.delete'),
+            403
+        );
+    }
+
+    private function validatedSessionPayload(Request $request): array
+    {
+        $payload = $request->all();
+        foreach (['starts_at', 'ends_at'] as $key) {
+            if (isset($payload[$key]) && preg_match('/^\d{2}:\d{2}:\d{2}$/', (string) $payload[$key])) {
+                $payload[$key] = substr((string) $payload[$key], 0, 5);
+            }
+        }
+        $request->merge($payload);
+
+        return $request->validate([
+            'session_date' => ['required', 'date'],
+            'starts_at' => ['required', 'date_format:H:i'],
+            'ends_at' => ['required', 'date_format:H:i', 'after:starts_at'],
+            'room' => ['nullable', 'string', 'max:100'],
+            'notes' => ['nullable', 'string'],
+        ]);
     }
 
     private function assertClassAccess(Request $request, ClassGroup $classGroup): void
