@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\Admin\AdminFinanceController;
 use App\Http\Controllers\Api\Admin\AdminMediaCenterController;
 use App\Http\Controllers\Api\Admin\AdminMediaDecisionController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
+use App\Http\Controllers\Api\Admin\AdminParentsController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatMessageController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatReportController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
@@ -30,6 +31,7 @@ use App\Http\Controllers\Api\Public\PublicExternalController;
 use App\Http\Controllers\Api\Public\PublicHelpRequestController;
 use App\Http\Controllers\Api\Public\PublicMemberController;
 use App\Http\Controllers\Api\Public\PublicSecretariatMessageController;
+use App\Http\Controllers\Api\Public\PublicParentsController;
 use App\Http\Controllers\Api\Public\PublicShuraController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
@@ -54,6 +56,10 @@ Route::prefix('public')->group(function () {
     Route::post('/events/{slug}/rate', [PublicContentController::class, 'rateEvent']);
     Route::get('/shura/members', [PublicShuraController::class, 'members']);
     Route::get('/shura/meetings', [PublicShuraController::class, 'meetings']);
+    Route::get('/parents/meetings', [PublicParentsController::class, 'meetings']);
+    Route::get('/parents/surveys', [PublicParentsController::class, 'surveys']);
+    Route::post('/parents/registrations', [PublicParentsController::class, 'storeRegistration']);
+    Route::post('/parents/surveys/{survey}/responses', [PublicParentsController::class, 'storeSurveyResponse']);
     Route::get('/contact', [PublicContactController::class, 'info']);
     Route::post('/contact', [PublicContactController::class, 'store']);
     Route::post('/members', [PublicMemberController::class, 'store']);
@@ -122,6 +128,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/meetings/{meeting}', [AdminShuraController::class, 'meetingsUpdate']);
         Route::delete('/meetings/{meeting}', [AdminShuraController::class, 'meetingsDestroy']);
         Route::post('/meetings/{meeting}/attendance', [AdminShuraController::class, 'syncAttendance']);
+    });
+
+    Route::prefix('admin/parents')->group(function () {
+        Route::get('/registrations', [AdminParentsController::class, 'registrationsIndex']);
+        Route::put('/registrations/{registration}', [AdminParentsController::class, 'registrationsUpdate']);
+        Route::delete('/registrations/{registration}', [AdminParentsController::class, 'registrationsDestroy']);
+        Route::get('/meetings', [AdminParentsController::class, 'meetingsIndex']);
+        Route::post('/meetings', [AdminParentsController::class, 'meetingsStore']);
+        Route::put('/meetings/{meeting}', [AdminParentsController::class, 'meetingsUpdate']);
+        Route::delete('/meetings/{meeting}', [AdminParentsController::class, 'meetingsDestroy']);
+        Route::get('/surveys', [AdminParentsController::class, 'surveysIndex']);
+        Route::post('/surveys', [AdminParentsController::class, 'surveysStore']);
+        Route::put('/surveys/{survey}', [AdminParentsController::class, 'surveysUpdate']);
+        Route::delete('/surveys/{survey}', [AdminParentsController::class, 'surveysDestroy']);
+        Route::get('/surveys/{survey}/responses', [AdminParentsController::class, 'surveyResponses']);
     });
 
     Route::prefix('admin/academic')->group(function () {

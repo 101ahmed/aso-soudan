@@ -18,6 +18,7 @@ class CouncilMeeting extends Model
         'title_fr',
         'scheduled_at',
         'location',
+        'map_url',
         'status',
         'agenda_ar',
         'agenda_fr',

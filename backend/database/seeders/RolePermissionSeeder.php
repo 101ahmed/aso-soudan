@@ -127,6 +127,12 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'shura.proposal.manage', 'module' => 'shura', 'name_fr' => 'Gérer propositions', 'name_ar' => 'إدارة المقترحات'],
             ['code' => 'shura.document.view', 'module' => 'shura', 'name_fr' => 'Voir documents Choura', 'name_ar' => 'عرض وثائق الشورى'],
             ['code' => 'shura.document.manage', 'module' => 'shura', 'name_fr' => 'Gérer documents Choura', 'name_ar' => 'إدارة وثائق الشورى'],
+            ['code' => 'parents.registration.view', 'module' => 'parents', 'name_fr' => 'Voir inscriptions parents', 'name_ar' => 'عرض تسجيلات أولياء الأمور'],
+            ['code' => 'parents.registration.manage', 'module' => 'parents', 'name_fr' => 'Gérer inscriptions parents', 'name_ar' => 'إدارة تسجيلات أولياء الأمور'],
+            ['code' => 'parents.meeting.view', 'module' => 'parents', 'name_fr' => 'Voir réunions parents', 'name_ar' => 'عرض اجتماعات مجلس الآباء'],
+            ['code' => 'parents.meeting.manage', 'module' => 'parents', 'name_fr' => 'Gérer réunions parents', 'name_ar' => 'إدارة اجتماعات مجلس الآباء'],
+            ['code' => 'parents.survey.view', 'module' => 'parents', 'name_fr' => 'Voir enquêtes parents', 'name_ar' => 'عرض استبيانات مجلس الآباء'],
+            ['code' => 'parents.survey.manage', 'module' => 'parents', 'name_fr' => 'Publier enquêtes parents', 'name_ar' => 'نشر استبيانات مجلس الآباء'],
         ];
 
         foreach ($permissions as $permission) {
@@ -254,5 +260,14 @@ class RolePermissionSeeder extends Seeder
                 Permission::query()->whereIn('code', $codes)->pluck('id')
             );
         }
+
+        $parentsCodes = [
+            'parents.registration.view', 'parents.registration.manage',
+            'parents.meeting.view', 'parents.meeting.manage',
+            'parents.survey.view', 'parents.survey.manage',
+        ];
+        Role::query()->where('code', 'PARENTS_COUNCIL')->first()?->permissions()->sync(
+            Permission::query()->whereIn('code', $parentsCodes)->pluck('id')
+        );
     }
 }

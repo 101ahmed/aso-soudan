@@ -5,12 +5,27 @@ import { useI18n } from 'vue-i18n'
 import { parentsCouncil } from '@/data/parentsCouncil'
 import { galleryAlbums } from '@/data/publicContent'
 import { fetchPublicAlbums } from '@/services/content'
+import {
+  fetchPublicParentMeetings,
+  fetchPublicParentSurveys,
+  registerParentHousehold,
+  submitParentSurveyResponse,
+} from '@/services/parents'
+import { RENNES_CITY, RENNES_SUBURBS } from '@/data/rennesMetropole'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
 
 const { t, locale } = useI18n()
 const contactSent = ref(false)
 const proposalSent = ref(false)
+const registerSent = ref(false)
+const registerError = ref('')
+const registerSending = ref(false)
 const apiAlbums = ref([])
+const apiMeetings = ref([])
+const apiSurveys = ref([])
+const surveyAnswers = reactive({})
+const surveySent = ref({})
+const surveyError = ref({})
 
 const contactForm = reactive({
   name: '',
@@ -25,6 +40,20 @@ const proposalForm = reactive({
   title: '',
   type: '',
   details: '',
+})
+
+function emptyChild() {
+  return { first_name: '', last_name: '', birth_date: '', gender: '', level: '' }
+}
+
+const registerForm = reactive({
+  first_name: '',
+  last_name: '',
+  email: '',
+  phone: '',
+  city: '',
+  address: '',
+  children: [emptyChild()],
 })
 
 const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
@@ -57,12 +86,101 @@ function submitProposal() {
   proposalSent.value = true
 }
 
+function addChild() {
+  registerForm.children.push(emptyChild())
+}
+
+function removeChild(index) {
+  if (registerForm.children.length === 1) return
+  registerForm.children.splice(index, 1)
+}
+
+async function submitRegister() {
+  registerSending.value = true
+  registerError.value = ''
+  try {
+    await registerParentHousehold({
+      first_name: registerForm.first_name,
+      last_name: registerForm.last_name,
+      email: registerForm.email || null,
+      phone: registerForm.phone,
+      city: registerForm.city || null,
+      address: registerForm.address || null,
+      children: registerForm.children.map((child) => ({
+        first_name: child.first_name,
+        last_name: child.last_name,
+        birth_date: child.birth_date || null,
+        gender: child.gender || null,
+        level: child.level || null,
+      })),
+    })
+    registerSent.value = true
+  } catch (e) {
+    const errors = e.response?.data?.errors
+    registerError.value = errors ? Object.values(errors).flat().join(' ') : e.response?.data?.message || t('parents.registerError')
+  } finally {
+    registerSending.value = false
+  }
+}
+
+function meetingTitle(item) {
+  return locale.value === 'ar' ? item.title_ar : item.title_fr
+}
+
+function surveyTitle(item) {
+  return locale.value === 'ar' ? item.title_ar : item.title_fr
+}
+
+function surveyDetails(item) {
+  return locale.value === 'ar' ? item.details_ar : item.details_fr
+}
+
+function surveyForm(id) {
+  if (!surveyAnswers[id]) {
+    surveyAnswers[id] = { parent_name: '', email: '', phone: '', answers: [] }
+  }
+  return surveyAnswers[id]
+}
+
+async function submitSurvey(survey) {
+  surveyError.value[survey.id] = ''
+  try {
+    const questions = survey.questions || []
+    const form = surveyForm(survey.id)
+    await submitParentSurveyResponse(survey.id, {
+      parent_name: form.parent_name,
+      email: form.email || null,
+      phone: form.phone || null,
+      answers: questions.map((_, index) => form.answers?.[index] || ''),
+    })
+    surveySent.value = { ...surveySent.value, [survey.id]: true }
+  } catch (e) {
+    surveyError.value = {
+      ...surveyError.value,
+      [survey.id]: e.response?.data?.message || t('parents.surveyError'),
+    }
+  }
+}
+
 onMounted(async () => {
   try {
     const data = await fetchPublicAlbums({ per_page: 8 })
     apiAlbums.value = data.data || []
   } catch {
     apiAlbums.value = []
+  }
+  try {
+    apiMeetings.value = await fetchPublicParentMeetings()
+  } catch {
+    apiMeetings.value = []
+  }
+  try {
+    apiSurveys.value = await fetchPublicParentSurveys()
+    apiSurveys.value.forEach((survey) => {
+      surveyAnswers[survey.id] = { parent_name: '', email: '', phone: '', answers: [] }
+    })
+  } catch {
+    apiSurveys.value = []
   }
 })
 </script>
@@ -96,6 +214,57 @@ onMounted(async () => {
         <p class="mt-3 max-w-4xl leading-relaxed text-slate-700">
           {{ localized(parentsCouncil.intro) }}
         </p>
+      </section>
+
+      <section id="register" class="rounded-2xl border border-[var(--rdp-forest)]/15 bg-white p-6">
+        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('parents.registerTitle') }}</h2>
+        <p class="mt-2 text-sm text-slate-600">{{ t('parents.registerHint') }}</p>
+        <p v-if="registerSent" class="mt-4 text-sm text-teal-800">{{ t('parents.registerSuccess') }}</p>
+        <form v-else class="mt-4 space-y-4" @submit.prevent="submitRegister">
+          <p v-if="registerError" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ registerError }}</p>
+          <div class="grid gap-3 md:grid-cols-2">
+            <input v-model="registerForm.first_name" required :placeholder="t('forms.firstName')" class="rounded border border-slate-300 px-3 py-2" />
+            <input v-model="registerForm.last_name" required :placeholder="t('forms.lastName')" class="rounded border border-slate-300 px-3 py-2" />
+            <input v-model="registerForm.phone" required :placeholder="t('forms.phone')" class="rounded border border-slate-300 px-3 py-2" />
+            <input v-model="registerForm.email" type="email" :placeholder="t('forms.email')" class="rounded border border-slate-300 px-3 py-2" />
+            <select v-model="registerForm.city" class="rounded border border-slate-300 px-3 py-2">
+              <option value="">{{ t('forms.city') }}</option>
+              <option :value="RENNES_CITY">{{ t('statisticsMembers.rennes') }}</option>
+              <option v-for="city in RENNES_SUBURBS" :key="city" :value="city">{{ city }}</option>
+            </select>
+            <input v-model="registerForm.address" :placeholder="t('statisticsMembers.address')" class="rounded border border-slate-300 px-3 py-2" />
+          </div>
+          <div>
+            <div class="flex items-center justify-between gap-3">
+              <h3 class="font-semibold text-[var(--rdp-forest)]">{{ t('parents.children') }}</h3>
+              <button type="button" class="text-sm font-semibold text-[var(--rdp-forest)] hover:underline" @click="addChild">
+                {{ t('parents.addChild') }}
+              </button>
+            </div>
+            <div v-for="(child, index) in registerForm.children" :key="index" class="mt-3 grid gap-3 rounded-xl bg-[var(--rdp-cream)] p-4 md:grid-cols-2">
+              <input v-model="child.first_name" required :placeholder="t('forms.firstName')" class="rounded border border-slate-300 bg-white px-3 py-2" />
+              <input v-model="child.last_name" required :placeholder="t('forms.lastName')" class="rounded border border-slate-300 bg-white px-3 py-2" />
+              <input v-model="child.birth_date" type="date" class="rounded border border-slate-300 bg-white px-3 py-2" />
+              <input v-model="child.level" :placeholder="t('forms.level')" class="rounded border border-slate-300 bg-white px-3 py-2" />
+              <select v-model="child.gender" class="rounded border border-slate-300 bg-white px-3 py-2">
+                <option value="">{{ t('statisticsMembers.gender') }}</option>
+                <option value="male">{{ t('statisticsMembers.genders.male') }}</option>
+                <option value="female">{{ t('statisticsMembers.genders.female') }}</option>
+              </select>
+              <button
+                v-if="registerForm.children.length > 1"
+                type="button"
+                class="text-sm text-rose-700 hover:underline md:self-center"
+                @click="removeChild(index)"
+              >
+                {{ t('parents.removeChild') }}
+              </button>
+            </div>
+          </div>
+          <button type="submit" class="rounded bg-[var(--rdp-forest)] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60" :disabled="registerSending">
+            {{ t('parents.sendRegister') }}
+          </button>
+        </form>
       </section>
 
       <section class="grid gap-4 md:grid-cols-2">
@@ -167,9 +336,34 @@ onMounted(async () => {
         </div>
       </section>
 
-      <section>
+      <section id="meetings">
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('parents.meetings') }}</h2>
-        <div class="mt-4 grid gap-4 md:grid-cols-2">
+        <div v-if="apiMeetings.length" class="mt-4 grid gap-4 md:grid-cols-2">
+          <article
+            v-for="meeting in apiMeetings"
+            :key="meeting.id"
+            class="rounded-2xl border border-[var(--rdp-forest)]/10 bg-white p-5"
+          >
+            <h3 class="font-semibold">{{ meetingTitle(meeting) }}</h3>
+            <p class="mt-2 text-sm text-slate-500">
+              {{ (meeting.scheduled_at || '').slice(0, 16).replace('T', ' ') }}
+              <span v-if="meeting.location"> · {{ meeting.location }}</span>
+            </p>
+            <p v-if="locale === 'ar' ? meeting.agenda_ar : meeting.agenda_fr" class="mt-3 text-sm text-slate-700">
+              {{ locale === 'ar' ? meeting.agenda_ar : meeting.agenda_fr }}
+            </p>
+            <a
+              v-if="meeting.map_url"
+              :href="meeting.map_url"
+              target="_blank"
+              rel="noopener"
+              class="mt-3 inline-flex text-sm font-semibold text-[var(--rdp-forest)] hover:underline"
+            >
+              {{ t('parents.mapLink') }}
+            </a>
+          </article>
+        </div>
+        <div v-else class="mt-4 grid gap-4 md:grid-cols-2">
           <article
             v-for="meeting in parentsCouncil.meetings"
             :key="meeting.slug"
@@ -185,14 +379,54 @@ onMounted(async () => {
               {{ meeting.date }} · {{ meeting.time }} · {{ localized(meeting.place) }}
             </p>
             <p class="mt-3 text-sm text-slate-700">{{ localized(meeting.summary) }}</p>
-            <p class="mt-3 text-xs font-semibold uppercase tracking-wide text-slate-500">
-              {{ t('parents.meetingTopics') }}
-            </p>
-            <ul class="mt-2 list-disc space-y-1 pe-5 text-sm text-slate-600">
-              <li v-for="(topic, index) in list(meeting.topics)" :key="index">{{ topic }}</li>
-            </ul>
+            <a
+              v-if="meeting.mapUrl"
+              :href="meeting.mapUrl"
+              target="_blank"
+              rel="noopener"
+              class="mt-3 inline-flex text-sm font-semibold text-[var(--rdp-forest)] hover:underline"
+            >
+              {{ t('parents.mapLink') }}
+            </a>
           </article>
         </div>
+      </section>
+
+      <section id="surveys" class="rounded-2xl border border-[var(--rdp-forest)]/15 bg-white p-6">
+        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('parents.surveys') }}</h2>
+        <p class="mt-2 text-sm text-slate-600">{{ t('parents.surveysHint') }}</p>
+        <p v-if="!apiSurveys.length" class="mt-4 text-sm text-slate-500">{{ t('parents.surveysEmpty') }}</p>
+        <article v-for="survey in apiSurveys" :key="survey.id" class="mt-5 rounded-xl bg-[var(--rdp-cream)] p-4">
+          <h3 class="font-semibold text-[var(--rdp-forest)]">{{ surveyTitle(survey) }}</h3>
+          <p v-if="surveyDetails(survey)" class="mt-2 text-sm text-slate-700">{{ surveyDetails(survey) }}</p>
+          <a
+            v-if="survey.form_url"
+            :href="survey.form_url"
+            target="_blank"
+            rel="noopener"
+            class="mt-3 inline-flex rounded bg-[var(--rdp-forest)] px-4 py-2 text-sm font-semibold text-white"
+          >
+            {{ t('parents.openSurvey') }}
+          </a>
+          <p v-if="surveySent[survey.id]" class="mt-3 text-sm text-teal-800">{{ t('parents.surveySuccess') }}</p>
+          <form
+            v-else-if="survey.questions?.length"
+            class="mt-4 grid gap-3"
+            @submit.prevent="submitSurvey(survey)"
+          >
+            <p v-if="surveyError[survey.id]" class="text-sm text-rose-700">{{ surveyError[survey.id] }}</p>
+            <input v-model="surveyForm(survey.id).parent_name" required :placeholder="t('parents.parentName')" class="rounded border border-slate-300 bg-white px-3 py-2" />
+            <input v-model="surveyForm(survey.id).email" type="email" :placeholder="t('forms.email')" class="rounded border border-slate-300 bg-white px-3 py-2" />
+            <input v-model="surveyForm(survey.id).phone" :placeholder="t('forms.phone')" class="rounded border border-slate-300 bg-white px-3 py-2" />
+            <label v-for="(question, index) in survey.questions" :key="index" class="block text-sm">
+              <span>{{ question }}</span>
+              <textarea v-model="surveyForm(survey.id).answers[index]" required rows="2" class="mt-1 w-full rounded border border-slate-300 bg-white px-3 py-2" />
+            </label>
+            <button type="submit" class="w-fit rounded bg-[var(--rdp-forest)] px-5 py-2.5 text-sm font-semibold text-white">
+              {{ t('parents.sendSurvey') }}
+            </button>
+          </form>
+        </article>
       </section>
 
       <section>

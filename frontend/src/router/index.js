@@ -63,6 +63,11 @@ import ShuraAdminShell from '@/views/admin/shura/ShuraAdminShell.vue'
 import ShuraOverviewView from '@/views/admin/shura/ShuraOverviewView.vue'
 import ShuraMembersView from '@/views/admin/shura/ShuraMembersView.vue'
 import ShuraMeetingsView from '@/views/admin/shura/ShuraMeetingsView.vue'
+import ParentsAdminShell from '@/views/admin/parents/ParentsAdminShell.vue'
+import ParentsHomeView from '@/views/admin/parents/ParentsHomeView.vue'
+import ParentsRegistrationsView from '@/views/admin/parents/ParentsRegistrationsView.vue'
+import ParentsMeetingsView from '@/views/admin/parents/ParentsMeetingsView.vue'
+import ParentsSurveysView from '@/views/admin/parents/ParentsSurveysView.vue'
 import UsersView from '@/views/admin/UsersView.vue'
 import UserFormView from '@/views/admin/UserFormView.vue'
 import RolesView from '@/views/admin/RolesView.vue'
@@ -377,6 +382,16 @@ const router = createRouter({
             { path: '', name: 'admin.shura', component: ShuraOverviewView },
             { path: 'members', name: 'admin.shura.members', component: ShuraMembersView },
             { path: 'meetings', name: 'admin.shura.meetings', component: ShuraMeetingsView },
+          ],
+        },
+        {
+          path: 'parents',
+          component: ParentsAdminShell,
+          children: [
+            { path: '', name: 'admin.parents', component: ParentsHomeView },
+            { path: 'registrations', name: 'admin.parents.registrations', component: ParentsRegistrationsView },
+            { path: 'meetings', name: 'admin.parents.meetings', component: ParentsMeetingsView },
+            { path: 'surveys', name: 'admin.parents.surveys', component: ParentsSurveysView },
           ],
         },
         { path: 'users', name: 'admin.users', component: UsersView, meta: { permission: 'user.view' } },

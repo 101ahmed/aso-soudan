@@ -186,6 +186,7 @@ class AdminShuraController extends Controller
             'title_fr' => [$meeting ? 'sometimes' : 'required', 'string', 'max:255'],
             'scheduled_at' => ['nullable', 'date'],
             'location' => ['nullable', 'string', 'max:255'],
+            'map_url' => ['nullable', 'string', 'max:500'],
             'status' => ['nullable', Rule::in(['planned', 'held', 'cancelled'])],
             'agenda_ar' => ['nullable', 'string'],
             'agenda_fr' => ['nullable', 'string'],

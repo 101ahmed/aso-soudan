@@ -56,6 +56,14 @@ const links = computed(() => [
     show: auth.user?.roles?.some((r) => String(r.code).startsWith('SHURA_'))
       || auth.hasPermission('shura.member.view'),
   },
+  {
+    to: '/admin/parents',
+    label: t('admin.nav.parents'),
+    show: auth.user?.roles?.some((r) => r.code === 'PARENTS_COUNCIL')
+      || auth.hasPermission('parents.registration.view')
+      || auth.hasPermission('parents.meeting.view')
+      || auth.hasPermission('parents.survey.view'),
+  },
   { to: '/admin/users', label: t('admin.nav.users'), show: auth.hasPermission('user.view') },
   { to: '/admin/roles', label: t('admin.nav.roles'), show: auth.hasPermission('role.view') },
 ].filter((link) => link.show))
