@@ -34,7 +34,7 @@ const form = reactive({
   ends_at: '',
   status: 'draft',
   show_on_secretariat: true,
-  show_on_home: false,
+  show_on_home: true,
   image: null,
 })
 
@@ -42,7 +42,7 @@ const canPublish = computed(
   () => auth.hasPermission('event.publish') || auth.hasPermission('event.create'),
 )
 
-const types = ['seminar', 'lecture', 'activity']
+const types = ['seminar', 'lecture', 'activity', 'representation']
 
 function titleOf(item) {
   return pickTitle(item, locale.value)
@@ -73,7 +73,7 @@ function resetForm() {
   form.ends_at = ''
   form.status = canPublish.value ? 'published' : 'draft'
   form.show_on_secretariat = true
-  form.show_on_home = false
+  form.show_on_home = true
   form.image = null
 }
 
@@ -163,6 +163,7 @@ onMounted(() => {
             <p class="mt-1 font-medium">{{ titleOf(item) }}</p>
             <p class="mt-1 text-xs text-slate-500">
               {{ item.status }} · {{ item.starts_at ? toLocalInput(item.starts_at).replace('T', ' ') : '—' }}
+              <span v-if="item.rating_count"> · ★ {{ item.rating_avg }} ({{ item.rating_count }})</span>
             </p>
           </div>
           <div class="flex flex-wrap gap-1">

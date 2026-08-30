@@ -22,6 +22,7 @@ class AdminEventController extends Controller
         return EventResource::collection(
             Event::query()
                 ->with('department')
+                ->withRatingsSummary()
                 ->where('department_id', $department->id)
                 ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
                 ->when($request->filled('type'), fn ($q) => $q->where('type', $request->string('type')))

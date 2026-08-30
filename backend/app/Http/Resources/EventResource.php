@@ -37,6 +37,8 @@ class EventResource extends JsonResource
                 'name_ar' => $this->department->name_ar,
                 'name_fr' => $this->department->name_fr,
             ]),
+            'rating_avg' => round((float) ($this->ratings_avg_stars ?? 0), 1),
+            'rating_count' => (int) ($this->ratings_count ?? 0),
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

@@ -299,7 +299,8 @@
     "eventTypes": {
       "seminar": "ندوة",
       "lecture": "محاضرة",
-      "activity": "فعالية"
+      "activity": "فعالية",
+      "representation": "تمثيل خارجي"
     },
     "rateHint": "قيّموا هذه الفعالية",
     "rateStars": "{n} من 5 نجوم",
@@ -536,6 +537,14 @@
     "membersHint": "بحث وتصنيف الأعضاء وإرسال رسائل إليهم.",
     "helpRequests": "طلبات المساعدة",
     "helpRequestsHint": "استلام طلبات المساعدة ومتابعة نوعها وحالتها.",
+    "partners": "قاعدة الشركاء",
+    "partnersHint": "الجمعيات والمؤسسات الشريكة وحالة الشراكة.",
+    "externalFiles": "الملفات",
+    "externalFilesHint": "رفع الاتفاقيات والوثائق وتحميلها.",
+    "contactRequests": "طلبات التواصل",
+    "contactRequestsHint": "طلبات التواصل مع الجمعيات: مقدم الطلب والسبب.",
+    "messages": "قاعدة الرسائل",
+    "messagesHint": "الرسائل الواردة إلى هذه الأمانة من الصفحة العامة.",
     "officer": "بطاقة الأمين",
     "officerHint": "صورة وبطاقة عامة لمسؤول الأمانة.",
     "officerSaved": "تم حفظ بطاقة الأمين.",
@@ -559,7 +568,8 @@
     "eventTypes": {
       "seminar": "ندوة",
       "lecture": "محاضرة",
-      "activity": "فعالية"
+      "activity": "فعالية",
+      "representation": "تمثيل خارجي"
     },
     "locationFr": "المكان (FR)",
     "locationAr": "المكان (AR)",
@@ -819,6 +829,99 @@
       "in_progress": "قيد التنفيذ",
       "completed": "مكتمل",
       "rejected": "مرفوض"
+    }
+  },
+  "externalRel": {
+    "publicTitle": "طلب تواصل مع جمعية",
+    "publicSubtitle": "استمارة موجّهة إلى الأمانة الخارجية — دون الحاجة إلى تسجيل الدخول",
+    "privacyHint": "تُعالج الطلبات داخل الأمانة الخارجية. لا تُنشر بيانات مقدّم الطلب على الموقع.",
+    "applicant": "مقدم الطلب",
+    "applicantOrg": "جمعيتكم أو جهتكم (اختياري)",
+    "choosePartner": "الجمعية أو الجهة المطلوب التواصل معها",
+    "partnerNameFree": "اسم جمعية غير مدرجة (اختياري)",
+    "reason": "السبب",
+    "consent": "أوافق على معالجة بياناتي من قبل الأمانة الخارجية لمتابعة طلب التواصل.",
+    "submit": "إرسال الطلب",
+    "successTitle": "تم استلام طلبكم",
+    "successText": "ستدرس الأمانة الخارجية الطلب وتتواصل عند الحاجة.",
+    "error": "تعذر إرسال الطلب حالياً.",
+    "partnersTitle": "قاعدة الشركاء والجمعيات",
+    "partnersHint": "إدارة الجمعيات والمؤسسات الشريكة وحالة الشراكة.",
+    "searchPartners": "بحث بالاسم أو المدينة",
+    "allTypes": "كل الأنواع",
+    "allStatuses": "كل الحالات الشراكة",
+    "newPartner": "شريك جديد",
+    "editPartner": "تعديل الشريك",
+    "nameAr": "الاسم (عربي)",
+    "nameFr": "الاسم (فرنسي)",
+    "website": "الموقع الإلكتروني",
+    "descAr": "نبذة (عربي)",
+    "descFr": "نبذة (فرنسي)",
+    "internalNotes": "ملاحظات داخلية",
+    "showPublic": "إظهار في الصفحة العامة",
+    "public": "ظاهر للعامة",
+    "files": "ملفات",
+    "filesTitle": "الملفات والوثائق",
+    "filesHint": "رفع الاتفاقيات والمراسلات وتقارير التمثيل الخارجي.",
+    "searchFiles": "بحث في الملفات",
+    "allCategories": "كل التصنيفات",
+    "allPartners": "كل الشركاء",
+    "download": "تحميل الملف",
+    "newFile": "رفع ملف",
+    "editFile": "تعديل الملف",
+    "titleAr": "العنوان (عربي)",
+    "titleFr": "العنوان (فرنسي)",
+    "noPartner": "بدون ربط بشريك",
+    "fileRequired": "يجب اختيار ملف للرفع.",
+    "requestsTitle": "طلبات التواصل",
+    "requestsHint": "متابعة مقدم الطلب والسبب المطلوب للتواصل مع الجمعيات.",
+    "searchRequests": "بحث بالاسم أو السبب أو الرقم",
+    "targetPartner": "الجهة المطلوبة",
+    "newRequest": "طلب جديد",
+    "editRequest": "تعديل الطلب",
+    "eventsTitle": "الفعاليات والتمثيل الخارجي",
+    "types": {
+      "association": "جمعية",
+      "institution": "مؤسسة",
+      "municipality": "بلدية",
+      "cultural": "جهة ثقافية",
+      "other": "أخرى"
+    },
+    "partnership": {
+      "prospect": "قيد الدراسة",
+      "active": "شراكة قائمة",
+      "paused": "متوقفة",
+      "ended": "منتهية"
+    },
+    "categories": {
+      "agreement": "اتفاقية",
+      "letter": "مراسلة",
+      "report": "تقرير",
+      "representation": "تمثيل خارجي",
+      "other": "أخرى"
+    },
+    "requestStatus": {
+      "pending": "جديد",
+      "reviewing": "قيد الدراسة",
+      "contacted": "تم التواصل",
+      "closed": "مغلق",
+      "rejected": "مرفوض"
+    }
+  },
+  "secretariatInbox": {
+    "title": "قاعدة رسائل الأمانة",
+    "hint": "الرسائل الواردة من نموذج التواصل في الصفحة العامة لهذه الأمانة.",
+    "search": "بحث بالاسم أو البريد أو الموضوع",
+    "allStatuses": "كل الحالات",
+    "empty": "لا توجد رسائل بعد.",
+    "new": "تسجيل رسالة",
+    "edit": "تعديل الرسالة",
+    "adminNotes": "ملاحظات داخلية",
+    "statuses": {
+      "new": "جديدة",
+      "read": "مقروءة",
+      "replied": "تم الرد",
+      "archived": "مؤرشفة"
     }
   }
 }

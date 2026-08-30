@@ -5,16 +5,22 @@ import { useI18n } from 'vue-i18n'
 import { getSecretariat } from '@/data/secretariats'
 import {
   albumsBySecretariat,
-  eventsBySecretariat,
   newsBySecretariat,
 } from '@/data/publicContent'
 import { fetchSecretariatFeed } from '@/services/content'
+import { fetchPublicDocuments, fetchPublicPartners } from '@/services/external'
+import { submitSecretariatMessage } from '@/services/secretariatMessages'
+import EventStarRating from '@/components/public/EventStarRating.vue'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
 
 const route = useRoute()
 const { t, locale } = useI18n()
 const sent = ref(false)
+const sending = ref(false)
+const contactError = ref('')
 const feed = ref({ news: [], announcements: [], albums: [], events: [], department: null })
+const publicPartners = ref([])
+const publicDocuments = ref([])
 
 const form = reactive({
   name: '',
@@ -84,23 +90,22 @@ const news = computed(() => {
 
 const announcements = computed(() => feed.value.announcements || [])
 
-const events = computed(() => {
-  if (feed.value.department) {
-    return (feed.value.events || []).map((item) => ({
-      id: item.id,
-      slug: item.slug,
-      type: item.type,
-      image: item.image_url || '/logo.png',
-      date: (item.starts_at || item.published_at || '').slice(0, 10),
-      time: item.starts_at ? item.starts_at.slice(11, 16) : '',
-      title: { ar: item.title_ar, fr: item.title_fr },
-      summary: { ar: item.description_ar, fr: item.description_fr },
-      place: { ar: item.location_ar || item.location, fr: item.location_fr || item.location },
-      registrationOpen: false,
-    }))
-  }
-  return eventsBySecretariat(route.params.slug)
-})
+const events = computed(() =>
+  (feed.value.events || []).map((item) => ({
+    id: item.id,
+    slug: item.slug,
+    type: item.type,
+    image: item.image_url || '/logo.png',
+    date: (item.starts_at || item.published_at || '').slice(0, 10),
+    time: item.starts_at ? item.starts_at.slice(11, 16) : '',
+    title: { ar: item.title_ar, fr: item.title_fr },
+    summary: { ar: item.description_ar, fr: item.description_fr },
+    place: { ar: item.location_ar || item.location, fr: item.location_fr || item.location },
+    rating_avg: Number(item.rating_avg) || 0,
+    rating_count: Number(item.rating_count) || 0,
+    registrationOpen: false,
+  })),
+)
 
 const albums = computed(() => {
   if (feed.value.albums?.length) {
@@ -123,8 +128,50 @@ const list = (value) => {
   return Array.isArray(items) ? items : []
 }
 
-function submitContact() {
-  sent.value = true
+const canRateEvents = computed(() => route.params.slug === 'women-children')
+const isExternal = computed(() => route.params.slug === 'external-relations')
+
+const displayedPartners = computed(() => {
+  if (isExternal.value && publicPartners.value.length) {
+    return publicPartners.value.map((item) => ({
+      name: locale.value === 'fr' ? (item.name_fr || item.name_ar) : (item.name_ar || item.name_fr),
+      desc: locale.value === 'fr' ? (item.description_fr || item.description_ar || '') : (item.description_ar || item.description_fr || ''),
+      website: item.website,
+      type: item.type,
+    }))
+  }
+  return list(secretariat.value?.partners)
+})
+
+const displayedDocuments = computed(() => {
+  if (isExternal.value && publicDocuments.value.length) {
+    return publicDocuments.value.map((item) => ({
+      title: locale.value === 'fr' ? (item.title_fr || item.title_ar) : (item.title_ar || item.title_fr),
+      type: item.category ? t(`externalRel.categories.${item.category}`) : '',
+      url: item.file_url,
+    }))
+  }
+  return list(secretariat.value?.documents)
+})
+
+async function submitContact() {
+  if (sending.value) return
+  sending.value = true
+  contactError.value = ''
+  try {
+    await submitSecretariatMessage(route.params.slug, {
+      sender_name: form.name,
+      sender_email: form.email,
+      subject: form.subject,
+      body: form.message,
+    })
+    sent.value = true
+  } catch (e) {
+    const errors = e.response?.data?.errors
+    contactError.value = errors ? Object.values(errors).flat().join(' ') : e.response?.data?.message || t('pages.contact.error')
+  } finally {
+    sending.value = false
+  }
 }
 
 async function loadFeed(slug) {
@@ -132,6 +179,21 @@ async function loadFeed(slug) {
     feed.value = await fetchSecretariatFeed(slug)
   } catch {
     feed.value = { news: [], announcements: [], albums: [], events: [], department: null }
+  }
+  if (slug === 'external-relations') {
+    try {
+      publicPartners.value = await fetchPublicPartners()
+    } catch {
+      publicPartners.value = []
+    }
+    try {
+      publicDocuments.value = await fetchPublicDocuments()
+    } catch {
+      publicDocuments.value = []
+    }
+  } else {
+    publicPartners.value = []
+    publicDocuments.value = []
   }
 }
 
@@ -320,25 +382,53 @@ watch(
           </article>
         </div>
         <RouterLink
+          v-if="route.params.slug === 'social'"
+          to="/help-request"
+          class="mt-4 inline-flex rounded bg-[var(--rdp-forest)] px-5 py-3 text-sm font-semibold text-white"
+        >
+          {{ t('socialHelp.publicTitle') }}
+        </RouterLink>
+        <RouterLink
           v-if="secretariat.showVolunteer"
           to="/contact"
-          class="mt-4 inline-flex rounded border border-[var(--rdp-forest)] px-5 py-3 text-sm font-semibold text-[var(--rdp-forest)]"
+          class="mt-4 ms-3 inline-flex rounded border border-[var(--rdp-forest)] px-5 py-3 text-sm font-semibold text-[var(--rdp-forest)]"
         >
           {{ t('secretariat.volunteer') }}
         </RouterLink>
       </section>
 
+      <section v-if="isExternal" class="rounded-xl border border-[var(--rdp-forest)]/15 bg-white p-6">
+        <h2 class="text-xl font-semibold text-[var(--rdp-forest)]">{{ t('externalRel.publicTitle') }}</h2>
+        <p class="mt-2 text-sm text-slate-600">{{ t('externalRel.publicSubtitle') }}</p>
+        <RouterLink
+          to="/external-contact"
+          class="mt-4 inline-flex rounded bg-[var(--rdp-forest)] px-5 py-3 text-sm font-semibold text-white"
+        >
+          {{ t('externalRel.submit') }}
+        </RouterLink>
+      </section>
+
       <!-- Partners -->
-      <section v-if="secretariat.partners">
+      <section v-if="displayedPartners.length">
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('secretariat.partners') }}</h2>
         <div class="mt-4 grid gap-3 sm:grid-cols-2">
           <div
-            v-for="(partner, index) in list(secretariat.partners)"
+            v-for="(partner, index) in displayedPartners"
             :key="index"
             class="rounded-xl border border-[var(--rdp-forest)]/10 bg-white p-4"
           >
             <p class="font-semibold">{{ partner.name }}</p>
-            <p class="mt-1 text-sm text-slate-600">{{ partner.desc }}</p>
+            <p v-if="partner.type" class="mt-1 text-xs text-[var(--rdp-gold)]">{{ t(`externalRel.types.${partner.type}`) }}</p>
+            <p v-if="partner.desc" class="mt-1 text-sm text-slate-600">{{ partner.desc }}</p>
+            <a
+              v-if="partner.website"
+              :href="partner.website"
+              target="_blank"
+              rel="noreferrer"
+              class="mt-2 inline-flex text-sm font-semibold text-[var(--rdp-forest)] hover:underline"
+            >
+              {{ partner.website }}
+            </a>
           </div>
         </div>
       </section>
@@ -362,16 +452,19 @@ watch(
       </section>
 
       <!-- Documents -->
-      <section v-if="secretariat.documents">
+      <section v-if="displayedDocuments.length">
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('secretariat.documents') }}</h2>
         <ul class="mt-4 space-y-2">
           <li
-            v-for="(doc, index) in list(secretariat.documents)"
+            v-for="(doc, index) in displayedDocuments"
             :key="index"
             class="rounded-lg bg-white px-4 py-3 text-sm shadow-sm"
           >
-            <span class="font-medium">{{ doc.title }}</span>
-            <span class="text-slate-500"> — {{ doc.type }}</span>
+            <a v-if="doc.url" :href="doc.url" target="_blank" rel="noreferrer" class="font-medium text-[var(--rdp-forest)] hover:underline">
+              {{ doc.title }}
+            </a>
+            <span v-else class="font-medium">{{ doc.title }}</span>
+            <span v-if="doc.type" class="text-slate-500"> — {{ doc.type }}</span>
           </li>
         </ul>
       </section>
@@ -437,7 +530,9 @@ watch(
 
       <!-- Events -->
       <section v-if="events.length">
-        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('secretariat.events') }}</h2>
+        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">
+          {{ isExternal ? t('externalRel.eventsTitle') : t('secretariat.events') }}
+        </h2>
         <div class="mt-4 grid gap-4 md:grid-cols-3">
           <article v-for="event in events" :key="event.id" class="overflow-hidden rounded-xl bg-white shadow-sm">
             <img :src="event.image || '/logo.png'" alt="" class="h-36 w-full object-cover" />
@@ -450,6 +545,14 @@ watch(
               </p>
               <h3 class="font-semibold">{{ localized(event.title) }}</h3>
               <p v-if="localized(event.summary)" class="line-clamp-2 text-sm text-slate-700">{{ localized(event.summary) }}</p>
+              <EventStarRating
+                v-if="canRateEvents && event.slug && event.id"
+                class="pt-2"
+                :slug="event.slug"
+                :event-id="event.id"
+                :average="event.rating_avg"
+                :count="event.rating_count"
+              />
               <RouterLink :to="`/events/${event.slug}`" class="text-sm font-semibold text-[var(--rdp-forest)] hover:underline">
                 {{ t('home.eventDetails') }}
               </RouterLink>
@@ -475,12 +578,13 @@ watch(
 
         <p v-if="sent" class="mt-4 text-sm text-teal-800">{{ t('pages.contact.success') }}</p>
         <form v-else class="mt-4 grid gap-3 md:grid-cols-2" @submit.prevent="submitContact">
+          <p v-if="contactError" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 md:col-span-2">{{ contactError }}</p>
           <input v-model="form.name" required :placeholder="t('forms.name')" class="rounded border border-slate-300 px-3 py-2" />
           <input v-model="form.email" required type="email" :placeholder="t('forms.email')" class="rounded border border-slate-300 px-3 py-2" />
           <input v-model="form.subject" required :placeholder="t('forms.subject')" class="rounded border border-slate-300 px-3 py-2 md:col-span-2" />
           <textarea v-model="form.message" required rows="4" :placeholder="t('forms.message')" class="rounded border border-slate-300 px-3 py-2 md:col-span-2" />
-          <button type="submit" class="rounded bg-[var(--rdp-forest)] px-5 py-2.5 text-sm font-semibold text-white md:col-span-2 md:w-fit">
-            {{ t('forms.send') }}
+          <button type="submit" class="rounded bg-[var(--rdp-forest)] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 md:col-span-2 md:w-fit" :disabled="sending">
+            {{ sending ? t('pages.contact.sending') : t('forms.send') }}
           </button>
         </form>
       </section>

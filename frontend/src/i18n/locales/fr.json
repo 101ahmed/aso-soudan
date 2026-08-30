@@ -299,7 +299,8 @@
     "eventTypes": {
       "seminar": "Séminaire",
       "lecture": "Conférence",
-      "activity": "Événement"
+      "activity": "Événement",
+      "representation": "Représentation externe"
     },
     "rateHint": "Notez cet événement",
     "rateStars": "{n} sur 5 étoiles",
@@ -536,6 +537,14 @@
     "membersHint": "Rechercher, filtrer les adhérents et leur envoyer un message.",
     "helpRequests": "Demandes d’aide",
     "helpRequestsHint": "Recevoir les demandes d’aide et suivre leur type et leur statut.",
+    "partners": "Base des partenaires",
+    "partnersHint": "Associations et institutions partenaires, et statut du partenariat.",
+    "externalFiles": "Fichiers",
+    "externalFilesHint": "Déposer et télécharger conventions et documents.",
+    "contactRequests": "Demandes de contact",
+    "contactRequestsHint": "Demandes de contact avec d’autres associations : demandeur et motif.",
+    "messages": "Base des messages",
+    "messagesHint": "Messages reçus par cette amanah depuis la page publique.",
     "officer": "Fiche de l’amin",
     "officerHint": "Photo et carte publique du responsable de l’amanah.",
     "officerSaved": "Fiche de l’amin enregistrée.",
@@ -559,7 +568,8 @@
     "eventTypes": {
       "seminar": "Séminaire",
       "lecture": "Conférence",
-      "activity": "Événement"
+      "activity": "Événement",
+      "representation": "Représentation externe"
     },
     "locationFr": "Lieu (FR)",
     "locationAr": "Lieu (AR)",
@@ -819,6 +829,99 @@
       "in_progress": "En cours",
       "completed": "Clôturée",
       "rejected": "Refusée"
+    }
+  },
+  "externalRel": {
+    "publicTitle": "Demande de contact associatif",
+    "publicSubtitle": "Formulaire adressé au secrétariat des relations extérieures — sans compte",
+    "privacyHint": "Les demandes sont traitées par le secrétariat. Aucune donnée personnelle n’est publiée sur le site.",
+    "applicant": "Demandeur",
+    "applicantOrg": "Votre association ou organisme (optionnel)",
+    "choosePartner": "Association ou organisme à contacter",
+    "partnerNameFree": "Nom d’une association non listée (optionnel)",
+    "reason": "Motif",
+    "consent": "J’accepte que le secrétariat des relations extérieures traite mes données pour cette demande.",
+    "submit": "Envoyer la demande",
+    "successTitle": "Demande bien reçue",
+    "successText": "Le secrétariat étudiera la demande et reprendra contact si nécessaire.",
+    "error": "Impossible d’envoyer la demande pour le moment.",
+    "partnersTitle": "Base des partenaires et associations",
+    "partnersHint": "Gérer les associations et institutions partenaires, et le statut du partenariat.",
+    "searchPartners": "Rechercher par nom ou ville",
+    "allTypes": "Tous les types",
+    "allStatuses": "Tous les statuts",
+    "newPartner": "Nouveau partenaire",
+    "editPartner": "Modifier le partenaire",
+    "nameAr": "Nom (AR)",
+    "nameFr": "Nom (FR)",
+    "website": "Site web",
+    "descAr": "Présentation (AR)",
+    "descFr": "Présentation (FR)",
+    "internalNotes": "Notes internes",
+    "showPublic": "Afficher sur la page publique",
+    "public": "Public",
+    "files": "fichiers",
+    "filesTitle": "Fichiers et documents",
+    "filesHint": "Conventions, courriers et rapports de représentation externe.",
+    "searchFiles": "Rechercher un fichier",
+    "allCategories": "Toutes les catégories",
+    "allPartners": "Tous les partenaires",
+    "download": "Télécharger",
+    "newFile": "Déposer un fichier",
+    "editFile": "Modifier le fichier",
+    "titleAr": "Titre (AR)",
+    "titleFr": "Titre (FR)",
+    "noPartner": "Sans partenaire lié",
+    "fileRequired": "Veuillez choisir un fichier.",
+    "requestsTitle": "Demandes de contact",
+    "requestsHint": "Suivre le demandeur et le motif de contact avec d’autres associations.",
+    "searchRequests": "Rechercher par nom, motif ou numéro",
+    "targetPartner": "Organisme visé",
+    "newRequest": "Nouvelle demande",
+    "editRequest": "Modifier la demande",
+    "eventsTitle": "Événements et représentation externe",
+    "types": {
+      "association": "Association",
+      "institution": "Institution",
+      "municipality": "Municipalité",
+      "cultural": "Organisme culturel",
+      "other": "Autre"
+    },
+    "partnership": {
+      "prospect": "À l’étude",
+      "active": "Partenariat actif",
+      "paused": "En pause",
+      "ended": "Terminé"
+    },
+    "categories": {
+      "agreement": "Convention",
+      "letter": "Courrier",
+      "report": "Rapport",
+      "representation": "Représentation externe",
+      "other": "Autre"
+    },
+    "requestStatus": {
+      "pending": "Nouvelle",
+      "reviewing": "En étude",
+      "contacted": "Contactée",
+      "closed": "Clôturée",
+      "rejected": "Refusée"
+    }
+  },
+  "secretariatInbox": {
+    "title": "Base des messages de l’amanah",
+    "hint": "Messages reçus via le formulaire de contact de la page publique de cette amanah.",
+    "search": "Rechercher par nom, e-mail ou objet",
+    "allStatuses": "Tous les statuts",
+    "empty": "Aucun message pour le moment.",
+    "new": "Enregistrer un message",
+    "edit": "Modifier le message",
+    "adminNotes": "Notes internes",
+    "statuses": {
+      "new": "Nouveau",
+      "read": "Lu",
+      "replied": "Répondu",
+      "archived": "Archivé"
     }
   }
 }

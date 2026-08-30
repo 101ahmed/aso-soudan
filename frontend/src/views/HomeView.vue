@@ -10,14 +10,15 @@ import {
   orgUnits,
   publicStats,
   recentActivities,
-  upcomingEvents,
 } from '@/data/publicContent'
-import { fetchPublicAlbums, fetchPublicNews } from '@/services/content'
+import { fetchPublicAlbums, fetchPublicEvents, fetchPublicNews, mapPublicEvent } from '@/services/content'
 import { albumsToSlides } from '@/utils/gallerySlides'
 
 const { t, locale } = useI18n()
 const apiNews = ref([])
 const apiAlbums = ref([])
+const apiEvents = ref([])
+const eventsLoaded = ref(false)
 
 function localized(item) {
   return item?.[locale.value] || item?.en || item?.fr || item?.ar || ''
@@ -46,6 +47,8 @@ const homeSlides = computed(() => {
   return slides.length ? slides : albumsToSlides(galleryAlbums, locale.value)
 })
 
+const homeEvents = computed(() => apiEvents.value.map(mapPublicEvent).filter(Boolean))
+
 onMounted(async () => {
   try {
     const data = await fetchPublicNews({ home: 1, per_page: 6 })
@@ -67,6 +70,21 @@ onMounted(async () => {
       : (await fetchPublicAlbums({ per_page: 8 })).data || []
   } catch {
     apiAlbums.value = []
+  }
+
+  try {
+    const upcoming = await fetchPublicEvents({ upcoming: 1, per_page: 6 })
+    const upcomingItems = upcoming.data || []
+    if (upcomingItems.length) {
+      apiEvents.value = upcomingItems
+    } else {
+      const latest = await fetchPublicEvents({ per_page: 6 })
+      apiEvents.value = latest.data || []
+    }
+  } catch {
+    apiEvents.value = []
+  } finally {
+    eventsLoaded.value = true
   }
 })
 </script>
@@ -177,25 +195,26 @@ onMounted(async () => {
           </RouterLink>
         </div>
         <div class="grid gap-6 md:grid-cols-2">
-          <article v-for="event in upcomingEvents" :key="event.id" class="overflow-hidden rounded-xl bg-white/10">
+          <p v-if="eventsLoaded && !homeEvents.length" class="text-sm text-white/80 md:col-span-2">
+            {{ t('home.eventsEmpty') }}
+          </p>
+          <article v-for="event in homeEvents" :key="event.id" class="overflow-hidden rounded-xl bg-white/10">
             <img :src="event.image" alt="" class="h-48 w-full object-cover" />
             <div class="space-y-2 p-5">
+              <p v-if="event.type" class="text-xs font-semibold text-[var(--rdp-gold)]">
+                {{ t(`secretariat.eventTypes.${event.type}`) }}
+              </p>
               <h3 class="text-xl font-semibold">{{ localized(event.title) }}</h3>
               <p class="text-sm text-white/80">
-                {{ event.date }} · {{ event.time }} · {{ localized(event.place) }}
+                {{ event.date }}
+                <span v-if="event.time"> · {{ event.time }}</span>
+                <span v-if="localized(event.place)"> · {{ localized(event.place) }}</span>
               </p>
               <p class="text-sm text-white/70">{{ localized(event.organizer) }}</p>
               <p class="text-sm text-white/85">{{ localized(event.summary) }}</p>
               <div class="flex flex-wrap gap-3 pt-2">
                 <RouterLink :to="`/events/${event.slug}`" class="text-sm font-semibold text-[var(--rdp-gold)] hover:underline">
                   {{ t('home.eventDetails') }}
-                </RouterLink>
-                <RouterLink
-                  v-if="event.registrationOpen"
-                  :to="`/events/${event.slug}#register`"
-                  class="text-sm font-semibold text-white hover:underline"
-                >
-                  {{ t('home.eventRegister') }}
                 </RouterLink>
               </div>
             </div>

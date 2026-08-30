@@ -3,8 +3,8 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import PageHero from '@/components/public/PageHero.vue'
-import { upcomingEvents } from '@/data/publicContent'
 import { fetchPublicEvent } from '@/services/content'
+import EventStarRating from '@/components/public/EventStarRating.vue'
 
 const route = useRoute()
 const { t, locale } = useI18n()
@@ -12,8 +12,6 @@ const sent = ref(false)
 const loading = ref(true)
 const apiEvent = ref(null)
 const form = reactive({ full_name: '', email: '', phone: '' })
-
-const staticEvent = computed(() => upcomingEvents.find((item) => item.slug === route.params.slug))
 
 const event = computed(() => {
   if (apiEvent.value) {
@@ -30,10 +28,15 @@ const event = computed(() => {
       date: (item.starts_at || item.published_at || '').slice(0, 10),
       time: item.starts_at ? item.starts_at.slice(11, 16) : '',
       type: item.type,
+      departmentCode: item.department?.code,
+      rating_avg: Number(item.rating_avg) || 0,
+      rating_count: Number(item.rating_count) || 0,
+      slug: item.slug,
+      id: item.id,
       registrationOpen: false,
     }
   }
-  return staticEvent.value
+  return null
 })
 
 const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
@@ -72,6 +75,13 @@ watch(() => route.params.slug, load)
         <span v-if="localized(event.organizer)"> — {{ localized(event.organizer) }}</span>
       </p>
       <p class="leading-relaxed whitespace-pre-line text-slate-700">{{ localized(event.summary) }}</p>
+      <EventStarRating
+        v-if="event.departmentCode === 'women-children' && event.slug && event.id"
+        :slug="event.slug"
+        :event-id="event.id"
+        :average="event.rating_avg"
+        :count="event.rating_count"
+      />
 
       <div v-if="event.registrationOpen" id="register" class="mt-8 rounded-xl border border-[var(--rdp-forest)]/15 bg-white p-6">
         <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('home.eventRegister') }}</h2>

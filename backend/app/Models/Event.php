@@ -3,8 +3,10 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasContentStatus;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
@@ -12,7 +14,14 @@ class Event extends Model
 {
     use HasContentStatus, SoftDeletes;
 
-    public const TYPES = ['seminar', 'lecture', 'activity'];
+    public const TYPES = ['seminar', 'lecture', 'activity', 'representation'];
+
+    protected $attributes = [
+        'show_on_secretariat' => true,
+        'show_on_home' => true,
+        'type' => 'activity',
+        'status' => 'draft',
+    ];
 
     protected $fillable = [
         'type',
@@ -67,5 +76,15 @@ class Event extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function ratings(): HasMany
+    {
+        return $this->hasMany(EventRating::class);
+    }
+
+    public function scopeWithRatingsSummary(Builder $query): Builder
+    {
+        return $query->withAvg('ratings', 'stars')->withCount('ratings');
     }
 }

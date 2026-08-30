@@ -74,60 +74,6 @@ export const newsItems = [
   },
 ]
 
-export const upcomingEvents = [
-  {
-    id: 1,
-    slug: 'assemblee-generale-2026',
-    secretariat: 'general',
-    image: 'https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80',
-    title: { ar: 'الجمعية العمومية السنوية', fr: 'Assemblée générale annuelle', en: 'Annual general meeting' },
-    date: '2026-09-14',
-    time: '15:00',
-    place: { ar: 'رين — قاعة الاجتماعات', fr: 'Rennes — salle de réunion', en: 'Rennes — meeting room' },
-    organizer: { ar: 'الأمانة العامة', fr: 'Secrétariat général', en: 'General Secretariat' },
-    summary: {
-      ar: 'عرض حصيلة السنة وخطة العمل للمرحلة القادمة.',
-      fr: 'Bilan de l’année et présentation du plan d’action à venir.',
-      en: 'Review of the year and presentation of the upcoming action plan.',
-    },
-    registrationOpen: true,
-  },
-  {
-    id: 2,
-    slug: 'atelier-arabe',
-    secretariat: 'academic',
-    image: 'https://images.unsplash.com/photo-1588072432836-e10032774350?auto=format&fit=crop&w=1200&q=80',
-    title: { ar: 'ورشة دعم اللغة العربية', fr: 'Atelier de soutien en langue arabe', en: 'Arabic language support workshop' },
-    date: '2026-09-21',
-    time: '10:00',
-    place: { ar: 'المقر الأكاديمي', fr: 'Siège académique', en: 'Academic premises' },
-    organizer: { ar: 'الأمانة الأكاديمية', fr: 'Secrétariat académique', en: 'Academic Secretariat' },
-    summary: {
-      ar: 'جلسة تعليمية مفتوحة للطلاب وأولياء الأمور.',
-      fr: 'Session pédagogique ouverte aux élèves et aux parents.',
-      en: 'An educational session open to students and parents.',
-    },
-    registrationOpen: true,
-  },
-  {
-    id: 3,
-    slug: 'rencontre-partenaires',
-    secretariat: 'external-relations',
-    image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1200&q=80',
-    title: { ar: 'لقاء مع شركاء محليين', fr: 'Rencontre avec des partenaires locaux', en: 'Meeting with local partners' },
-    date: '2026-10-03',
-    time: '17:00',
-    place: { ar: 'رين', fr: 'Rennes', en: 'Rennes' },
-    organizer: { ar: 'الأمانة الخارجية', fr: 'Relations extérieures', en: 'External Relations' },
-    summary: {
-      ar: 'تنسيق التعاون مع الجمعيات والمؤسسات المحلية.',
-      fr: 'Coordination de la coopération avec associations et institutions locales.',
-      en: 'Coordinating cooperation with local associations and institutions.',
-    },
-    registrationOpen: false,
-  },
-]
-
 export const recentActivities = [
   { key: 'academic', image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=80' },
   { key: 'social', image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=900&q=80' },
@@ -170,10 +116,6 @@ export const galleryAlbums = [
 
 export function newsBySecretariat(slug) {
   return newsItems.filter((item) => item.secretariat === slug)
-}
-
-export function eventsBySecretariat(slug) {
-  return upcomingEvents.filter((item) => item.secretariat === slug)
 }
 
 export function albumsBySecretariat(slug) {

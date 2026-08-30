@@ -7,15 +7,23 @@ use App\Http\Controllers\Api\Admin\AdminAlbumController;
 use App\Http\Controllers\Api\Admin\AdminAnnouncementController;
 use App\Http\Controllers\Api\Admin\AdminDepartmentController;
 use App\Http\Controllers\Api\Admin\AdminEventController;
+use App\Http\Controllers\Api\Admin\AdminExternalContactRequestController;
+use App\Http\Controllers\Api\Admin\AdminExternalDocumentController;
+use App\Http\Controllers\Api\Admin\AdminExternalPartnerController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
+use App\Http\Controllers\Api\Admin\AdminSecretariatMessageController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
+use App\Http\Controllers\Api\Admin\AdminSocialHelpRequestController;
 use App\Http\Controllers\Api\Admin\AdminStatisticsMemberController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\HealthController;
 use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\Public\PublicContactController;
 use App\Http\Controllers\Api\Public\PublicContentController;
+use App\Http\Controllers\Api\Public\PublicExternalController;
+use App\Http\Controllers\Api\Public\PublicHelpRequestController;
 use App\Http\Controllers\Api\Public\PublicMemberController;
+use App\Http\Controllers\Api\Public\PublicSecretariatMessageController;
 use App\Http\Controllers\Api\Public\PublicShuraController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
@@ -26,6 +34,7 @@ Route::get('/health', HealthController::class);
 Route::prefix('public')->group(function () {
     Route::get('/departments', [PublicContentController::class, 'departments']);
     Route::get('/secretariats/{code}/feed', [PublicContentController::class, 'secretariatFeed']);
+    Route::post('/secretariats/{code}/messages', [PublicSecretariatMessageController::class, 'store']);
     Route::get('/news', [PublicContentController::class, 'news']);
     Route::get('/news/{slug}', [PublicContentController::class, 'newsShow']);
     Route::get('/announcements', [PublicContentController::class, 'announcements']);
@@ -33,11 +42,16 @@ Route::prefix('public')->group(function () {
     Route::get('/albums/{album}', [PublicContentController::class, 'albumShow']);
     Route::get('/events', [PublicContentController::class, 'events']);
     Route::get('/events/{slug}', [PublicContentController::class, 'eventShow']);
+    Route::post('/events/{slug}/rate', [PublicContentController::class, 'rateEvent']);
     Route::get('/shura/members', [PublicShuraController::class, 'members']);
     Route::get('/shura/meetings', [PublicShuraController::class, 'meetings']);
     Route::get('/contact', [PublicContactController::class, 'info']);
     Route::post('/contact', [PublicContactController::class, 'store']);
     Route::post('/members', [PublicMemberController::class, 'store']);
+    Route::post('/help-requests', [PublicHelpRequestController::class, 'store']);
+    Route::get('/external/partners', [PublicExternalController::class, 'partners']);
+    Route::get('/external/documents', [PublicExternalController::class, 'documents']);
+    Route::post('/external/contact-requests', [PublicExternalController::class, 'storeContact']);
     Route::get('/member-cities', [PublicMemberController::class, 'cities']);
 });
 
@@ -164,5 +178,33 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::delete('/events/{event}', [AdminEventController::class, 'destroy'])->middleware(['department:write']);
             Route::post('/events/{event}/publish', [AdminEventController::class, 'publish'])->middleware(['department:write']);
             Route::post('/events/{event}/archive', [AdminEventController::class, 'archive'])->middleware(['department:write']);
+
+            Route::get('/help-requests', [AdminSocialHelpRequestController::class, 'index']);
+            Route::post('/help-requests', [AdminSocialHelpRequestController::class, 'store'])->middleware(['department:write']);
+            Route::get('/help-requests/{helpRequest}', [AdminSocialHelpRequestController::class, 'show']);
+            Route::put('/help-requests/{helpRequest}', [AdminSocialHelpRequestController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/help-requests/{helpRequest}', [AdminSocialHelpRequestController::class, 'destroy'])->middleware(['department:write']);
+
+            Route::get('/partners', [AdminExternalPartnerController::class, 'index']);
+            Route::post('/partners', [AdminExternalPartnerController::class, 'store'])->middleware(['department:write']);
+            Route::get('/partners/{externalPartner}', [AdminExternalPartnerController::class, 'show']);
+            Route::put('/partners/{externalPartner}', [AdminExternalPartnerController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/partners/{externalPartner}', [AdminExternalPartnerController::class, 'destroy'])->middleware(['department:write']);
+
+            Route::get('/external-documents', [AdminExternalDocumentController::class, 'index']);
+            Route::post('/external-documents', [AdminExternalDocumentController::class, 'store'])->middleware(['department:write']);
+            Route::post('/external-documents/{externalDocument}', [AdminExternalDocumentController::class, 'update'])->middleware(['department:write']);
+            Route::put('/external-documents/{externalDocument}', [AdminExternalDocumentController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/external-documents/{externalDocument}', [AdminExternalDocumentController::class, 'destroy'])->middleware(['department:write']);
+
+            Route::get('/contact-requests', [AdminExternalContactRequestController::class, 'index']);
+            Route::post('/contact-requests', [AdminExternalContactRequestController::class, 'store'])->middleware(['department:write']);
+            Route::put('/contact-requests/{externalContactRequest}', [AdminExternalContactRequestController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/contact-requests/{externalContactRequest}', [AdminExternalContactRequestController::class, 'destroy'])->middleware(['department:write']);
+
+            Route::get('/messages', [AdminSecretariatMessageController::class, 'index']);
+            Route::post('/messages', [AdminSecretariatMessageController::class, 'store'])->middleware(['department:write']);
+            Route::put('/messages/{secretariatMessage}', [AdminSecretariatMessageController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/messages/{secretariatMessage}', [AdminSecretariatMessageController::class, 'destroy'])->middleware(['department:write']);
         });
 });

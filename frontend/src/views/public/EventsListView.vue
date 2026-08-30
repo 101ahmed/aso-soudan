@@ -4,8 +4,7 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import PageHero from '@/components/public/PageHero.vue'
 import PhotoCarousel from '@/components/public/PhotoCarousel.vue'
-import { upcomingEvents } from '@/data/publicContent'
-import { fetchPublicEvents } from '@/services/content'
+import { fetchPublicEvents, mapPublicEvent } from '@/services/content'
 import { imagesToSlides } from '@/utils/gallerySlides'
 
 const { t, locale } = useI18n()
@@ -13,23 +12,7 @@ const localized = (item) => item?.[locale.value] || item?.en || item?.fr || item
 const apiEvents = ref([])
 const loaded = ref(false)
 
-const events = computed(() => {
-  if (loaded.value && apiEvents.value.length) {
-    return apiEvents.value.map((item) => ({
-      id: item.id,
-      slug: item.slug,
-      type: item.type,
-      image: item.image_url || '/logo.png',
-      date: (item.starts_at || item.published_at || '').slice(0, 10),
-      time: item.starts_at ? item.starts_at.slice(11, 16) : '',
-      title: { ar: item.title_ar, fr: item.title_fr },
-      summary: { ar: item.description_ar, fr: item.description_fr },
-      place: { ar: item.location_ar || item.location, fr: item.location_fr || item.location },
-      organizer: { ar: item.department?.name_ar, fr: item.department?.name_fr },
-    }))
-  }
-  return upcomingEvents
-})
+const events = computed(() => apiEvents.value.map(mapPublicEvent).filter(Boolean))
 
 const eventSlides = computed(() =>
   imagesToSlides(
@@ -58,12 +41,16 @@ onMounted(async () => {
   <div>
     <PageHero :title="t('nav.events')" :subtitle="t('pages.events.subtitle')" />
 
-    <section class="mx-auto max-w-6xl px-5 py-10 md:px-8">
+    <section v-if="eventSlides.length" class="mx-auto max-w-6xl px-5 py-10 md:px-8">
       <h2 class="mb-5 text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('nav.gallery') }}</h2>
       <PhotoCarousel :slides="eventSlides" :interval="4500" />
     </section>
 
-    <section class="mx-auto grid max-w-6xl gap-6 px-5 pb-12 md:grid-cols-3 md:px-8">
+    <p v-if="loaded && !events.length" class="mx-auto max-w-6xl px-5 py-12 text-sm text-slate-600 md:px-8">
+      {{ t('pages.events.empty') }}
+    </p>
+
+    <section v-else class="mx-auto grid max-w-6xl gap-6 px-5 pb-12 md:grid-cols-3 md:px-8">
       <article v-for="event in events" :key="event.id" class="overflow-hidden rounded-xl bg-white shadow-sm">
         <img :src="event.image" alt="" class="h-48 w-full object-cover" loading="lazy" />
         <div class="space-y-2 p-5">

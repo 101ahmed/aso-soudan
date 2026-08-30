@@ -12,10 +12,12 @@ use App\Models\Album;
 use App\Models\Announcement;
 use App\Models\Department;
 use App\Models\Event;
+use App\Models\EventRating;
 use App\Models\News;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Support\Facades\RateLimiter;
 
 class PublicContentController extends Controller
 {
@@ -60,6 +62,7 @@ class PublicContentController extends Controller
 
         $events = Event::query()
             ->with('department')
+            ->withRatingsSummary()
             ->where('department_id', $department->id)
             ->published()
             ->where('show_on_secretariat', true)
@@ -162,7 +165,7 @@ class PublicContentController extends Controller
 
     public function events(Request $request): AnonymousResourceCollection
     {
-        $query = Event::query()->with('department')->published();
+        $query = Event::query()->with('department')->withRatingsSummary()->published();
 
         if ($request->filled('department')) {
             $query->whereHas('department', fn ($q) => $q->where('code', $request->string('department')));
@@ -173,16 +176,56 @@ class PublicContentController extends Controller
         if ($request->boolean('home')) {
             $query->where('show_on_home', true);
         }
+        if ($request->boolean('upcoming')) {
+            $query->where(function ($q) {
+                $q->whereNull('starts_at')->orWhere('starts_at', '>=', now()->startOfDay());
+            });
+        }
+
+        $ordered = $request->boolean('upcoming')
+            ? $query->orderBy('starts_at')->orderByDesc('id')
+            : $query->orderByDesc('starts_at')->orderByDesc('id');
 
         return EventResource::collection(
-            $query->orderByDesc('starts_at')->orderByDesc('id')->paginate($request->integer('per_page', 12))
+            $ordered->paginate($request->integer('per_page', 12))
         );
     }
 
     public function eventShow(string $slug): EventResource
     {
-        $event = Event::query()->with('department')->published()->where('slug', $slug)->firstOrFail();
+        $event = Event::query()->with('department')->withRatingsSummary()->published()->where('slug', $slug)->firstOrFail();
 
         return new EventResource($event);
+    }
+
+    public function rateEvent(Request $request, string $slug): JsonResponse
+    {
+        $key = 'event-rate:'.$request->ip();
+        if (RateLimiter::tooManyAttempts($key, 30)) {
+            return response()->json([
+                'message' => 'Too many requests. Please try again later.',
+            ], 429);
+        }
+
+        $data = $request->validate([
+            'stars' => ['required', 'integer', 'min:1', 'max:5'],
+            'visitor_key' => ['required', 'uuid'],
+        ]);
+
+        $event = Event::query()->published()->where('slug', $slug)->firstOrFail();
+
+        RateLimiter::hit($key, 3600);
+
+        EventRating::query()->updateOrCreate(
+            [
+                'event_id' => $event->id,
+                'visitor_hash' => hash('sha256', strtolower($data['visitor_key'])),
+            ],
+            ['stars' => $data['stars']],
+        );
+
+        $event = Event::query()->with('department')->withRatingsSummary()->findOrFail($event->id);
+
+        return (new EventResource($event))->response();
     }
 }

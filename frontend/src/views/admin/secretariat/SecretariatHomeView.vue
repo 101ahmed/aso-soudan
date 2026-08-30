@@ -27,6 +27,11 @@ const cards = computed(() => {
     },
     { to: `/admin/secretariats/${code.value}/announcements`, label: t('secretariatAdmin.announcements'), hint: t('secretariatAdmin.announcementsHint') },
     { to: `/admin/secretariats/${code.value}/albums`, label: t('secretariatAdmin.albums'), hint: t('secretariatAdmin.albumsHint') },
+    {
+      to: `/admin/secretariats/${code.value}/messages`,
+      label: t('secretariatAdmin.messages'),
+      hint: t('secretariatAdmin.messagesHint'),
+    },
   ]
   if (code.value === 'academic') {
     items.unshift(
@@ -53,6 +58,32 @@ const cards = computed(() => {
       label: t('secretariatAdmin.members'),
       hint: t('secretariatAdmin.membersHint'),
     })
+  }
+  if (code.value === 'social') {
+    items.unshift({
+      to: `/admin/secretariats/social/help-requests`,
+      label: t('secretariatAdmin.helpRequests'),
+      hint: t('secretariatAdmin.helpRequestsHint'),
+    })
+  }
+  if (code.value === 'external-relations') {
+    items.unshift(
+      {
+        to: `/admin/secretariats/external-relations/partners`,
+        label: t('secretariatAdmin.partners'),
+        hint: t('secretariatAdmin.partnersHint'),
+      },
+      {
+        to: `/admin/secretariats/external-relations/files`,
+        label: t('secretariatAdmin.externalFiles'),
+        hint: t('secretariatAdmin.externalFilesHint'),
+      },
+      {
+        to: `/admin/secretariats/external-relations/contact-requests`,
+        label: t('secretariatAdmin.contactRequests'),
+        hint: t('secretariatAdmin.contactRequestsHint'),
+      },
+    )
   }
   return items
 })

@@ -94,6 +94,18 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'help.create', 'module' => 'social', 'name_fr' => 'Créer demande d’aide', 'name_ar' => 'إنشاء طلب مساعدة'],
             ['code' => 'help.update', 'module' => 'social', 'name_fr' => 'Modifier demande d’aide', 'name_ar' => 'تعديل طلب مساعدة'],
             ['code' => 'help.delete', 'module' => 'social', 'name_fr' => 'Supprimer demande d’aide', 'name_ar' => 'حذف طلب مساعدة'],
+            ['code' => 'partner.view', 'module' => 'external', 'name_fr' => 'Voir partenaires', 'name_ar' => 'عرض الشركاء'],
+            ['code' => 'partner.create', 'module' => 'external', 'name_fr' => 'Créer partenaire', 'name_ar' => 'إضافة شريك'],
+            ['code' => 'partner.update', 'module' => 'external', 'name_fr' => 'Modifier partenaire', 'name_ar' => 'تعديل شريك'],
+            ['code' => 'partner.delete', 'module' => 'external', 'name_fr' => 'Supprimer partenaire', 'name_ar' => 'حذف شريك'],
+            ['code' => 'extcontact.view', 'module' => 'external', 'name_fr' => 'Voir demandes de contact', 'name_ar' => 'عرض طلبات التواصل'],
+            ['code' => 'extcontact.create', 'module' => 'external', 'name_fr' => 'Créer demande de contact', 'name_ar' => 'إنشاء طلب تواصل'],
+            ['code' => 'extcontact.update', 'module' => 'external', 'name_fr' => 'Modifier demande de contact', 'name_ar' => 'تعديل طلب تواصل'],
+            ['code' => 'extcontact.delete', 'module' => 'external', 'name_fr' => 'Supprimer demande de contact', 'name_ar' => 'حذف طلب تواصل'],
+            ['code' => 'inbox.view', 'module' => 'inbox', 'name_fr' => 'Voir messages de l’amanah', 'name_ar' => 'عرض رسائل الأمانة'],
+            ['code' => 'inbox.create', 'module' => 'inbox', 'name_fr' => 'Créer message amanah', 'name_ar' => 'إنشاء رسالة أمانة'],
+            ['code' => 'inbox.update', 'module' => 'inbox', 'name_fr' => 'Modifier message amanah', 'name_ar' => 'تعديل رسالة أمانة'],
+            ['code' => 'inbox.delete', 'module' => 'inbox', 'name_fr' => 'Supprimer message amanah', 'name_ar' => 'حذف رسالة أمانة'],
             ['code' => 'shura.member.view', 'module' => 'shura', 'name_fr' => 'Voir membres Choura', 'name_ar' => 'عرض أعضاء الشورى'],
             ['code' => 'shura.member.manage', 'module' => 'shura', 'name_fr' => 'Gérer membres Choura', 'name_ar' => 'إدارة أعضاء الشورى'],
             ['code' => 'shura.meeting.view', 'module' => 'shura', 'name_fr' => 'Voir réunions Choura', 'name_ar' => 'عرض اجتماعات الشورى'],
@@ -133,13 +145,14 @@ class RolePermissionSeeder extends Seeder
 
         Role::query()->where('code', 'PRESIDENT')->first()?->permissions()->sync(
             Permission::query()->whereIn('code', [
-                'news.view', 'announcement.view', 'gallery.view', 'report.view', 'statistics.view', 'member.view', 'help.view',
+                'news.view', 'announcement.view', 'gallery.view', 'report.view', 'statistics.view', 'member.view', 'help.view', 'partner.view', 'extcontact.view', 'inbox.view',
             ])->pluck('id')
         );
 
         $secretariatManagerCodes = array_merge($contentCodes, [
             'user.view',
             'report.view',
+            'inbox.view', 'inbox.create', 'inbox.update', 'inbox.delete',
         ]);
 
         $managerRoleMap = [
@@ -159,8 +172,12 @@ class RolePermissionSeeder extends Seeder
                 'statistics.view', 'report.view', 'report.export',
                 'member.view', 'member.create', 'member.update', 'member.delete', 'member.message',
                 'student.view', 'teacher.view', 'attendance.view',
+                'inbox.view', 'inbox.create', 'inbox.update', 'inbox.delete',
             ]),
-            'EXTERNAL_RELATIONS' => $secretariatManagerCodes,
+            'EXTERNAL_RELATIONS' => array_merge($secretariatManagerCodes, [
+                'partner.view', 'partner.create', 'partner.update', 'partner.delete',
+                'extcontact.view', 'extcontact.create', 'extcontact.update', 'extcontact.delete',
+            ]),
             'SPORTS_SECRETARIAT' => $secretariatManagerCodes,
         ];
 

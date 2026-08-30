@@ -20,6 +20,8 @@ import GalleryAlbumView from '@/views/public/GalleryAlbumView.vue'
 import ContactView from '@/views/public/ContactView.vue'
 import StudentRegisterView from '@/views/public/StudentRegisterView.vue'
 import MemberRegisterView from '@/views/public/MemberRegisterView.vue'
+import HelpRequestView from '@/views/public/HelpRequestView.vue'
+import ExternalContactView from '@/views/public/ExternalContactView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue'
 import ResetPasswordView from '@/views/auth/ResetPasswordView.vue'
@@ -39,6 +41,11 @@ import AcademicAttendanceSheetView from '@/views/admin/academic/AcademicAttendan
 import AcademicTeachersView from '@/views/admin/academic/AcademicTeachersView.vue'
 import AcademicStudentsView from '@/views/admin/academic/AcademicStudentsView.vue'
 import StatisticsMembersView from '@/views/admin/statistics/StatisticsMembersView.vue'
+import SocialHelpRequestsView from '@/views/admin/secretariat/SocialHelpRequestsView.vue'
+import ExternalPartnersView from '@/views/admin/secretariat/ExternalPartnersView.vue'
+import ExternalDocumentsView from '@/views/admin/secretariat/ExternalDocumentsView.vue'
+import ExternalContactRequestsView from '@/views/admin/secretariat/ExternalContactRequestsView.vue'
+import SecretariatMessagesView from '@/views/admin/secretariat/SecretariatMessagesView.vue'
 import TeacherAdminShell from '@/views/admin/teacher/TeacherAdminShell.vue'
 import TeacherHomeView from '@/views/admin/teacher/TeacherHomeView.vue'
 import ShuraAdminShell from '@/views/admin/shura/ShuraAdminShell.vue'
@@ -114,6 +121,8 @@ const router = createRouter({
         { path: 'contact', name: 'contact', component: ContactView },
         { path: 'register/student', name: 'register.student', component: StudentRegisterView },
         { path: 'register/member', name: 'register.member', component: MemberRegisterView },
+        { path: 'help-request', name: 'help.request', component: HelpRequestView },
+        { path: 'external-contact', name: 'external.contact', component: ExternalContactView },
       ],
     },
     {
@@ -193,6 +202,36 @@ const router = createRouter({
               name: 'admin.secretariat.members',
               component: StatisticsMembersView,
               meta: { permission: 'member.view' },
+            },
+            {
+              path: 'help-requests',
+              name: 'admin.secretariat.help',
+              component: SocialHelpRequestsView,
+              meta: { permission: 'help.view' },
+            },
+            {
+              path: 'partners',
+              name: 'admin.secretariat.partners',
+              component: ExternalPartnersView,
+              meta: { permission: 'partner.view' },
+            },
+            {
+              path: 'files',
+              name: 'admin.secretariat.files',
+              component: ExternalDocumentsView,
+              meta: { permission: 'partner.view' },
+            },
+            {
+              path: 'contact-requests',
+              name: 'admin.secretariat.contactRequests',
+              component: ExternalContactRequestsView,
+              meta: { permission: 'extcontact.view' },
+            },
+            {
+              path: 'messages',
+              name: 'admin.secretariat.messages',
+              component: SecretariatMessagesView,
+              meta: { permission: 'inbox.view' },
             },
           ],
         },

@@ -203,6 +203,68 @@ export async function fetchPublicEvent(slug) {
   return data.data || data
 }
 
+export function mapPublicEvent(item) {
+  if (!item) return null
+  return {
+    id: item.id,
+    slug: item.slug,
+    type: item.type,
+    image: item.image_url || '/logo.png',
+    date: (item.starts_at || item.published_at || '').slice(0, 10),
+    time: item.starts_at ? item.starts_at.slice(11, 16) : '',
+    title: { ar: item.title_ar, fr: item.title_fr },
+    summary: { ar: item.description_ar, fr: item.description_fr },
+    place: { ar: item.location_ar || item.location, fr: item.location_fr || item.location },
+    organizer: { ar: item.department?.name_ar, fr: item.department?.name_fr },
+    departmentCode: item.department?.code,
+    rating_avg: Number(item.rating_avg) || 0,
+    rating_count: Number(item.rating_count) || 0,
+  }
+}
+
+const VISITOR_KEY = 'rdp-event-rater'
+const RATINGS_KEY = 'rdp-event-ratings'
+
+export function eventVisitorKey() {
+  try {
+    let key = localStorage.getItem(VISITOR_KEY)
+    if (!key) {
+      key = crypto.randomUUID()
+      localStorage.setItem(VISITOR_KEY, key)
+    }
+    return key
+  } catch {
+    return crypto.randomUUID()
+  }
+}
+
+export function storedEventRating(eventId) {
+  try {
+    const map = JSON.parse(localStorage.getItem(RATINGS_KEY) || '{}')
+    return Number(map[String(eventId)]) || 0
+  } catch {
+    return 0
+  }
+}
+
+export function rememberEventRating(eventId, stars) {
+  try {
+    const map = JSON.parse(localStorage.getItem(RATINGS_KEY) || '{}')
+    map[String(eventId)] = stars
+    localStorage.setItem(RATINGS_KEY, JSON.stringify(map))
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
+
+export async function ratePublicEvent(slug, stars) {
+  const { data } = await api.post(`/public/events/${slug}/rate`, {
+    stars,
+    visitor_key: eventVisitorKey(),
+  })
+  return data.data || data
+}
+
 function toFormData(payload) {
   const body = new FormData()
   Object.entries(payload || {}).forEach(([key, value]) => {

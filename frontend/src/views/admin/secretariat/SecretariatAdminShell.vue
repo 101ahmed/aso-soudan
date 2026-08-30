@@ -27,6 +27,9 @@ const links = computed(() => {
     { to: `${base.value}/announcements`, label: t('secretariatAdmin.announcements') },
     { to: `${base.value}/albums`, label: t('secretariatAdmin.albums') },
   ]
+  if (auth.hasPermission('inbox.view')) {
+    items.push({ to: `${base.value}/messages`, label: t('secretariatAdmin.messages') })
+  }
   if (props.code === 'academic' && (auth.hasPermission('attendance.view') || auth.hasPermission('student.view'))) {
     items.push({ to: `${base.value}/attendance`, label: t('secretariatAdmin.attendance') })
   }
@@ -38,6 +41,16 @@ const links = computed(() => {
   }
   if (props.code === 'statistics' && auth.hasPermission('member.view')) {
     items.push({ to: `${base.value}/members`, label: t('secretariatAdmin.members') })
+  }
+  if (props.code === 'social' && auth.hasPermission('help.view')) {
+    items.push({ to: `${base.value}/help-requests`, label: t('secretariatAdmin.helpRequests') })
+  }
+  if (props.code === 'external-relations' && auth.hasPermission('partner.view')) {
+    items.push({ to: `${base.value}/partners`, label: t('secretariatAdmin.partners') })
+    items.push({ to: `${base.value}/files`, label: t('secretariatAdmin.externalFiles') })
+  }
+  if (props.code === 'external-relations' && auth.hasPermission('extcontact.view')) {
+    items.push({ to: `${base.value}/contact-requests`, label: t('secretariatAdmin.contactRequests') })
   }
   return items
 })

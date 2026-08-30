@@ -299,7 +299,8 @@
     "eventTypes": {
       "seminar": "Seminar",
       "lecture": "Lecture",
-      "activity": "Event"
+      "activity": "Event",
+      "representation": "External representation"
     },
     "rateHint": "Rate this event",
     "rateStars": "{n} out of 5 stars",
@@ -536,6 +537,14 @@
     "membersHint": "Search, filter members and send them a message.",
     "helpRequests": "Help requests",
     "helpRequestsHint": "Receive help requests and track their type and status.",
+    "partners": "Partners database",
+    "partnersHint": "Partner associations and institutions, and partnership status.",
+    "externalFiles": "Files",
+    "externalFilesHint": "Upload and download agreements and documents.",
+    "contactRequests": "Contact requests",
+    "contactRequestsHint": "Requests to contact other associations: applicant and reason.",
+    "messages": "Messages database",
+    "messagesHint": "Messages received by this secretariat from the public page.",
     "officer": "Officer profile",
     "officerHint": "Public photo and card of the secretariat lead.",
     "officerSaved": "Officer profile saved.",
@@ -559,7 +568,8 @@
     "eventTypes": {
       "seminar": "Seminar",
       "lecture": "Lecture",
-      "activity": "Event"
+      "activity": "Event",
+      "representation": "External representation"
     },
     "locationFr": "Place (FR)",
     "locationAr": "Place (AR)",
@@ -819,6 +829,99 @@
       "in_progress": "In progress",
       "completed": "Completed",
       "rejected": "Rejected"
+    }
+  },
+  "externalRel": {
+    "publicTitle": "Request to contact an association",
+    "publicSubtitle": "Form sent to the External Relations secretariat — no account required",
+    "privacyHint": "Requests are handled internally. Applicant details are not published on the site.",
+    "applicant": "Applicant",
+    "applicantOrg": "Your association or organisation (optional)",
+    "choosePartner": "Association or body to contact",
+    "partnerNameFree": "Name of an unlisted association (optional)",
+    "reason": "Reason",
+    "consent": "I agree that External Relations may process my data to follow up this request.",
+    "submit": "Send the request",
+    "successTitle": "Request received",
+    "successText": "The secretariat will review the request and contact you if needed.",
+    "error": "The request could not be sent right now.",
+    "partnersTitle": "Partners and associations database",
+    "partnersHint": "Manage partner associations and institutions, and partnership status.",
+    "searchPartners": "Search by name or city",
+    "allTypes": "All types",
+    "allStatuses": "All statuses",
+    "newPartner": "New partner",
+    "editPartner": "Edit partner",
+    "nameAr": "Name (AR)",
+    "nameFr": "Name (FR)",
+    "website": "Website",
+    "descAr": "About (AR)",
+    "descFr": "About (FR)",
+    "internalNotes": "Internal notes",
+    "showPublic": "Show on the public page",
+    "public": "Public",
+    "files": "files",
+    "filesTitle": "Files and documents",
+    "filesHint": "Agreements, correspondence and external representation reports.",
+    "searchFiles": "Search files",
+    "allCategories": "All categories",
+    "allPartners": "All partners",
+    "download": "Download",
+    "newFile": "Upload a file",
+    "editFile": "Edit file",
+    "titleAr": "Title (AR)",
+    "titleFr": "Title (FR)",
+    "noPartner": "Not linked to a partner",
+    "fileRequired": "Please choose a file to upload.",
+    "requestsTitle": "Contact requests",
+    "requestsHint": "Follow the applicant and the reason for contacting other associations.",
+    "searchRequests": "Search by name, reason or number",
+    "targetPartner": "Requested organisation",
+    "newRequest": "New request",
+    "editRequest": "Edit request",
+    "eventsTitle": "Events and external representation",
+    "types": {
+      "association": "Association",
+      "institution": "Institution",
+      "municipality": "Municipality",
+      "cultural": "Cultural body",
+      "other": "Other"
+    },
+    "partnership": {
+      "prospect": "Under review",
+      "active": "Active partnership",
+      "paused": "Paused",
+      "ended": "Ended"
+    },
+    "categories": {
+      "agreement": "Agreement",
+      "letter": "Letter",
+      "report": "Report",
+      "representation": "External representation",
+      "other": "Other"
+    },
+    "requestStatus": {
+      "pending": "New",
+      "reviewing": "Under review",
+      "contacted": "Contacted",
+      "closed": "Closed",
+      "rejected": "Rejected"
+    }
+  },
+  "secretariatInbox": {
+    "title": "Secretariat message database",
+    "hint": "Messages received from the public contact form of this secretariat.",
+    "search": "Search by name, email or subject",
+    "allStatuses": "All statuses",
+    "empty": "No messages yet.",
+    "new": "Log a message",
+    "edit": "Edit message",
+    "adminNotes": "Internal notes",
+    "statuses": {
+      "new": "New",
+      "read": "Read",
+      "replied": "Replied",
+      "archived": "Archived"
     }
   }
 }
