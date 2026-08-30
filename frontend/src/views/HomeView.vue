@@ -273,6 +273,9 @@ onMounted(async () => {
         </div>
         <div class="text-sm text-white/70">
           <p>{{ t('home.footerNote') }}</p>
+          <RouterLink to="/login" class="mt-3 inline-flex text-[var(--rdp-gold)] hover:underline">
+            {{ t('nav.login') }}
+          </RouterLink>
         </div>
       </div>
     </footer>
