@@ -15,6 +15,7 @@ use App\Models\StudentAttendance;
 use App\Models\Subject;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class AcademicAttendanceSeeder extends Seeder
@@ -46,15 +47,7 @@ class AcademicAttendanceSeeder extends Seeder
             ]
         );
 
-        $level = Level::query()->updateOrCreate(
-            ['education_stage_id' => $stage->id, 'code' => 'CE2'],
-            [
-                'name_ar' => 'المستوى CE2',
-                'name_fr' => 'Niveau CE2',
-                'sort_order' => 20,
-                'is_active' => true,
-            ]
-        );
+        $levels = $this->officialLevels($stage);
 
         $subjects = [
             ['code' => 'AR', 'name_ar' => 'اللغة العربية', 'name_fr' => 'Langue arabe'],
@@ -72,7 +65,9 @@ class AcademicAttendanceSeeder extends Seeder
                     'is_active' => true,
                 ]
             );
-            $level->subjects()->syncWithoutDetaching([$subjectModels[$item['code']]->id]);
+            foreach ($levels as $level) {
+                $level->subjects()->syncWithoutDetaching([$subjectModels[$item['code']]->id]);
+            }
         }
 
         $studentsData = [
@@ -127,6 +122,9 @@ class AcademicAttendanceSeeder extends Seeder
                 ->filter()
                 ->all();
             $teacher->subjects()->sync($subjectIds);
+            if (Schema::hasTable('teacher_level')) {
+                $teacher->levels()->sync(collect($levels)->pluck('id')->all());
+            }
 
             foreach ($item['subjects'] as $code) {
                 $teachersBySubject[$code] = $teacher;
@@ -143,44 +141,88 @@ class AcademicAttendanceSeeder extends Seeder
                 ],
                 [
                     'education_stage_id' => $stage->id,
-                    'level_id' => $level->id,
+                    'level_id' => $levels['L2']->id,
                     'status' => 'active',
                     'registered_at' => now(),
                 ]
             );
         }
 
-        foreach ($subjectModels as $code => $subject) {
-            $class = ClassGroup::query()->updateOrCreate(
-                [
-                    'academic_year_id' => $year->id,
-                    'subject_id' => $subject->id,
-                    'name' => $subject->name_fr.' — CE2',
-                ],
-                [
-                    'level_id' => $level->id,
-                    'teacher_id' => $teachersBySubject[$code]?->id,
-                    'code' => $code.'-CE2',
-                    'capacity' => 20,
-                    'status' => 'active',
-                ]
-            );
-
-            foreach ($students as $student) {
-                DB::table('class_students')->updateOrInsert(
+        foreach ($levels as $level) {
+            foreach ($subjectModels as $code => $subject) {
+                $class = ClassGroup::query()->updateOrCreate(
                     [
-                        'class_group_id' => $class->id,
-                        'student_id' => $student->id,
+                        'academic_year_id' => $year->id,
+                        'subject_id' => $subject->id,
+                        'level_id' => $level->id,
                     ],
                     [
+                        'name' => $subject->name_ar.' — '.$level->name_ar,
+                        'teacher_id' => $teachersBySubject[$code]?->id,
+                        'code' => $code.'-'.$level->code,
+                        'capacity' => 20,
                         'status' => 'active',
-                        'enrolled_on' => now()->toDateString(),
-                        'updated_at' => now(),
-                        'created_at' => now(),
                     ]
                 );
+
+                if ($level->code !== 'L2') {
+                    continue;
+                }
+
+                foreach ($students as $student) {
+                    DB::table('class_students')->updateOrInsert(
+                        [
+                            'class_group_id' => $class->id,
+                            'student_id' => $student->id,
+                        ],
+                        [
+                            'status' => 'active',
+                            'enrolled_on' => now()->toDateString(),
+                            'updated_at' => now(),
+                            'created_at' => now(),
+                        ]
+                    );
+                }
             }
         }
+    }
+
+    /**
+     * @return array<string, Level>
+     */
+    private function officialLevels(EducationStage $stage): array
+    {
+        $definitions = [
+            ['code' => 'L1', 'name_ar' => 'الأول', 'name_fr' => '1re année', 'sort_order' => 10],
+            ['code' => 'L2', 'name_ar' => 'الثاني', 'name_fr' => '2e année', 'sort_order' => 20],
+            ['code' => 'L3', 'name_ar' => 'الثالث', 'name_fr' => '3e année', 'sort_order' => 30],
+            ['code' => 'SPECIAL', 'name_ar' => 'حالة خاصة', 'name_fr' => 'Cas particulier', 'sort_order' => 40],
+        ];
+
+        $levels = [];
+        foreach ($definitions as $item) {
+            $levels[$item['code']] = Level::query()->updateOrCreate(
+                ['education_stage_id' => $stage->id, 'code' => $item['code']],
+                [
+                    'name_ar' => $item['name_ar'],
+                    'name_fr' => $item['name_fr'],
+                    'sort_order' => $item['sort_order'],
+                    'is_active' => true,
+                ]
+            );
+        }
+
+        $legacy = Level::query()
+            ->where('education_stage_id', $stage->id)
+            ->where('code', 'CE2')
+            ->first();
+        if ($legacy) {
+            Student::query()->where('level_id', $legacy->id)->update(['level_id' => $levels['L2']->id]);
+            ClassGroup::query()->where('level_id', $legacy->id)->update(['level_id' => $levels['L2']->id]);
+            $legacy->update(['is_active' => false]);
+        }
+
+        return $levels;
     }
 
     private function removeFrenchLanguageSubject(): void

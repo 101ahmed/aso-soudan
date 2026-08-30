@@ -6,7 +6,7 @@ import { useAuthStore } from '@/stores/auth'
 import {
   createClassSession,
   fetchClassSessions,
-  fetchClassesBySubject,
+  fetchClassesByLevel,
 } from '@/services/academic'
 import { attendanceBaseFromPath } from '@/utils/academicPaths'
 import { pickName } from '@/utils/localized'
@@ -17,8 +17,8 @@ const { t, locale } = useI18n()
 const auth = useAuthStore()
 const attendanceBase = computed(() => attendanceBaseFromPath(route.path))
 
-const subjectId = computed(() => route.params.subjectId)
-const subject = ref(null)
+const levelId = computed(() => route.params.levelId)
+const level = ref(null)
 const classes = ref([])
 const selectedClassId = ref(null)
 const sessions = ref([])
@@ -37,14 +37,18 @@ function label(item) {
   return pickName(item, locale.value)
 }
 
+function classLabel(item) {
+  return label(item.subject) || item.name
+}
+
 async function loadClasses() {
   error.value = ''
   try {
-    const data = await fetchClassesBySubject(subjectId.value)
-    subject.value = data.subject
+    const data = await fetchClassesByLevel(levelId.value)
+    level.value = data.level
     classes.value = data.data || []
-    if (!selectedClassId.value && classes.value[0]) {
-      selectedClassId.value = classes.value[0].id
+    if (!classes.value.some((item) => item.id === selectedClassId.value)) {
+      selectedClassId.value = classes.value[0]?.id || null
     }
   } catch (e) {
     error.value = e.response?.data?.message || e.message
@@ -75,6 +79,11 @@ async function createSession() {
 }
 
 watch(selectedClassId, loadSessions)
+watch(levelId, async () => {
+  selectedClassId.value = null
+  await loadClasses()
+  await loadSessions()
+})
 onMounted(async () => {
   await loadClasses()
   await loadSessions()
@@ -92,8 +101,8 @@ onActivated(async () => {
         <RouterLink :to="attendanceBase" class="text-xs text-[var(--rdp-forest)] hover:underline">
           ← {{ t('academicAttendance.back') }}
         </RouterLink>
-        <h2 class="mt-1 text-lg font-semibold text-[var(--rdp-forest)]">{{ label(subject) }}</h2>
-        <p class="text-sm text-slate-600">{{ t('academicAttendance.bySubjectHint') }}</p>
+        <h2 class="mt-1 text-lg font-semibold text-[var(--rdp-forest)]">{{ label(level) }}</h2>
+        <p class="text-sm text-slate-600">{{ t('academicAttendance.byLevelHint') }}</p>
       </div>
     </div>
 
@@ -101,7 +110,7 @@ onActivated(async () => {
 
     <div class="grid gap-4 lg:grid-cols-[240px_1fr]">
       <aside class="space-y-2 rounded-xl border bg-white p-3">
-        <p class="px-1 text-xs font-semibold tracking-wide text-slate-500 uppercase">{{ t('academicAttendance.classes') }}</p>
+        <p class="px-1 text-xs font-semibold tracking-wide text-slate-500 uppercase">{{ t('academicAttendance.subjects') }}</p>
         <button
           v-for="c in classes"
           :key="c.id"
@@ -110,11 +119,10 @@ onActivated(async () => {
           :class="selectedClassId === c.id ? 'bg-teal-800 text-white' : 'hover:bg-slate-50'"
           @click="selectedClassId = c.id"
         >
-          <span class="font-medium">{{ c.name }}</span>
-          <span class="mt-0.5 block text-xs opacity-80">
-            {{ label(c.level) }} · {{ c.students_count }} {{ t('academicAttendance.students') }}
-          </span>
+          <span class="font-medium">{{ classLabel(c) }}</span>
+          <span class="mt-0.5 block text-xs opacity-80">{{ c.students_count }} {{ t('academicAttendance.students') }}</span>
         </button>
+        <p v-if="!classes.length" class="px-1 text-xs text-slate-500">{{ t('academicAttendance.noClasses') }}</p>
       </aside>
 
       <div class="space-y-4">

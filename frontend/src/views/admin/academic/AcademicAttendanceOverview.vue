@@ -14,6 +14,7 @@ const loading = ref(true)
 const error = ref('')
 const overview = ref(null)
 const openSubjectId = ref(null)
+const openLevelId = ref(null)
 const attendanceBase = computed(() => attendanceBaseFromPath(route.path))
 const canView = computed(() => auth.hasPermission('attendance.view'))
 
@@ -129,7 +130,93 @@ onBeforeUnmount(() => {
         {{ t('academicAttendance.noRecords') }}
       </p>
 
+      <section class="space-y-3">
+        <h3 class="text-base font-semibold text-[var(--rdp-forest)]">{{ t('academicAttendance.byLevel') }}</h3>
+        <article
+          v-for="level in overview.levels"
+          :key="`level-${level.id}`"
+          class="overflow-hidden rounded-xl border bg-white"
+        >
+          <div class="flex flex-wrap items-center gap-3 px-4 py-3">
+            <div class="min-w-0 flex-1">
+              <p class="font-semibold">{{ subjectName(level) }}</p>
+              <p class="text-xs text-slate-500">
+                {{ level.students_count }} {{ t('academicAttendance.students') }}
+                · {{ level.classes_count }} {{ t('academicAttendance.classes') }}
+                · {{ level.sessions_count }} {{ t('academicAttendance.sessions') }}
+                <span v-if="level.last_session_date">
+                  · {{ t('academicAttendance.lastSession') }} {{ level.last_session_date }}
+                </span>
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-3 text-sm">
+              <span class="text-emerald-700">{{ level.present_count }} {{ t('academicAttendance.present') }}</span>
+              <span class="text-rose-700">{{ level.absent_count }} {{ t('academicAttendance.absent') }}</span>
+              <span class="font-semibold">
+                {{ level.attendance_rate != null ? `${level.attendance_rate}%` : '—' }}
+              </span>
+              <button
+                type="button"
+                class="rounded border px-2 py-1 text-xs"
+                @click="openLevelId = openLevelId === level.id ? null : level.id"
+              >
+                {{ t('academicAttendance.details') }}
+              </button>
+              <RouterLink
+                :to="`${attendanceBase}/levels/${level.id}`"
+                class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
+              >
+                {{ t('academicAttendance.open') }}
+              </RouterLink>
+            </div>
+          </div>
+          <div class="h-2 bg-slate-100">
+            <div class="flex h-full overflow-hidden">
+              <div class="bg-emerald-500" :style="{ width: `${share(level.present_count, level.recorded_count)}%` }" />
+              <div class="bg-amber-400" :style="{ width: `${share(level.late_count, level.recorded_count)}%` }" />
+              <div class="bg-sky-400" :style="{ width: `${share(level.excused_count, level.recorded_count)}%` }" />
+              <div class="bg-rose-500" :style="{ width: `${share(level.absent_count, level.recorded_count)}%` }" />
+            </div>
+          </div>
+          <div v-if="openLevelId === level.id" class="border-t">
+            <table class="min-w-full text-sm">
+              <thead class="bg-slate-50 text-start text-xs text-slate-500">
+                <tr>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.student') }}</th>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.present') }}</th>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.absent') }}</th>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.late') }}</th>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.excused') }}</th>
+                  <th class="px-4 py-2 font-medium">{{ t('academicAttendance.rate') }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="student in level.students" :key="student.id" class="border-t">
+                  <td class="px-4 py-2 font-medium">{{ student.full_name }}</td>
+                  <td class="px-4 py-2 text-emerald-700">{{ student.present_count }}</td>
+                  <td class="px-4 py-2 text-rose-700">{{ student.absent_count }}</td>
+                  <td class="px-4 py-2 text-amber-700">{{ student.late_count }}</td>
+                  <td class="px-4 py-2 text-sky-700">{{ student.excused_count }}</td>
+                  <td class="px-4 py-2">
+                    <span
+                      class="inline-block rounded-full px-2 py-0.5 text-xs text-white"
+                      :class="rateStyle(student.attendance_rate)"
+                    >
+                      {{ student.attendance_rate != null ? `${student.attendance_rate}%` : '—' }}
+                    </span>
+                  </td>
+                </tr>
+                <tr v-if="!level.students?.length">
+                  <td colspan="6" class="px-4 py-6 text-center text-slate-500">{{ t('academicAttendance.noStudents') }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
       <div class="space-y-3">
+        <h3 class="text-base font-semibold text-[var(--rdp-forest)]">{{ t('academicAttendance.bySubject') }}</h3>
         <article
           v-for="subject in overview.subjects"
           :key="subject.id"

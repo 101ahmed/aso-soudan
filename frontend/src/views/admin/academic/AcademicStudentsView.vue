@@ -18,9 +18,9 @@ const saving = ref(false)
 const error = ref('')
 const items = ref([])
 const meta = ref(null)
-const catalog = ref({ academic_years: [], stages: [], subjects: [] })
+const catalog = ref({ academic_years: [], stages: [], subjects: [], level_counts: {} })
 const editingId = ref(null)
-const filters = reactive({ search: '', status: '', page: 1 })
+const filters = reactive({ search: '', status: '', level_id: '', page: 1 })
 const form = reactive({
   first_name: '', last_name: '', birth_date: '', gender: '', academic_year_id: '',
   education_stage_id: '', level_id: '', status: 'active', notes: '', subject_ids: [],
@@ -36,6 +36,26 @@ const levels = computed(() => {
   const stage = (catalog.value.stages || []).find((item) => String(item.id) === String(form.education_stage_id))
   return stage?.levels || []
 })
+const catalogLevels = computed(() => (catalog.value.stages || []).flatMap((stage) => stage.levels || []))
+const groupedItems = computed(() => {
+  if (filters.level_id) return null
+  return catalogLevels.value.map((level) => ({
+    level,
+    items: items.value.filter((item) => String(item.level_id) === String(level.id)),
+  }))
+})
+const unassignedItems = computed(() => items.value.filter((item) => !item.level_id))
+
+function levelCount(id) {
+  const counts = catalog.value.level_counts || {}
+  return Number(counts[id] ?? counts[String(id)] ?? 0)
+}
+
+function selectLevel(id) {
+  filters.level_id = id
+  filters.page = 1
+  load()
+}
 
 function label(item) {
   if (!item) return ''
@@ -45,10 +65,11 @@ function label(item) {
 function resetForm() {
   editingId.value = null
   const currentYear = (catalog.value.academic_years || []).find((year) => year.is_current)
+  const defaultStage = catalog.value.stages?.[0]
   Object.assign(form, {
     first_name: '', last_name: '', birth_date: '', gender: '',
     academic_year_id: currentYear?.id || catalog.value.academic_years?.[0]?.id || '',
-    education_stage_id: '', level_id: '', status: 'active', notes: '', subject_ids: [],
+    education_stage_id: defaultStage?.id || '', level_id: '', status: 'active', notes: '', subject_ids: [],
   })
 }
 
@@ -63,7 +84,13 @@ async function load() {
   loading.value = true
   error.value = ''
   try {
-    const response = await fetchStudents({ page: filters.page, search: filters.search || undefined, status: filters.status || undefined })
+    const response = await fetchStudents({
+      page: filters.page,
+      search: filters.search || undefined,
+      status: filters.status || undefined,
+      level_id: filters.level_id || undefined,
+      per_page: 100,
+    })
     items.value = response.data || []
     meta.value = response.meta || null
   } catch (e) {
@@ -101,6 +128,7 @@ async function save() {
     if (editingId.value) await updateStudent(editingId.value, payload())
     else await createStudent(payload())
     resetForm()
+    try { catalog.value = await fetchStudentCatalog() } catch { /* keep current catalog */ }
     await load()
   } catch (e) {
     const errors = e.response?.data?.errors
@@ -130,7 +158,7 @@ watch(() => form.education_stage_id, (next, prev) => {
 })
 
 onMounted(async () => {
-  try { catalog.value = await fetchStudentCatalog() } catch { catalog.value = { academic_years: [], stages: [], subjects: [] } }
+  try { catalog.value = await fetchStudentCatalog() } catch { catalog.value = { academic_years: [], stages: [], subjects: [], level_counts: {} } }
   resetForm()
   await load()
 })
@@ -154,9 +182,83 @@ onMounted(async () => {
         </select>
         <button type="button" class="rounded-md border px-3 py-2 text-sm" @click="filters.page = 1; load()">{{ t('academicStudents.filter') }}</button>
       </div>
+      <div class="flex flex-wrap gap-2">
+        <button
+          type="button"
+          class="rounded-full px-3 py-1.5 text-sm"
+          :class="!filters.level_id ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
+          @click="selectLevel('')"
+        >
+          {{ t('academicStudents.allLevels') }}
+        </button>
+        <button
+          v-for="level in catalogLevels"
+          :key="level.id"
+          type="button"
+          class="rounded-full px-3 py-1.5 text-sm"
+          :class="String(filters.level_id) === String(level.id) ? 'bg-teal-800 text-white' : 'border bg-white text-slate-700'"
+          @click="selectLevel(String(level.id))"
+        >
+          {{ label(level) }}
+          <span class="opacity-80">({{ levelCount(level.id) }})</span>
+        </button>
+      </div>
       <p v-if="error" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ error }}</p>
       <div class="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-        <div class="overflow-x-auto rounded-xl border bg-white">
+        <div class="space-y-4">
+          <template v-if="groupedItems">
+            <div
+              v-for="group in groupedItems"
+              :key="group.level.id"
+              class="overflow-x-auto rounded-xl border bg-white"
+            >
+              <div class="flex items-center justify-between border-b px-4 py-3">
+                <h3 class="font-semibold text-[var(--rdp-forest)]">{{ label(group.level) }}</h3>
+                <p class="text-xs text-slate-500">{{ group.items.length }} {{ t('academicStudents.studentsCount') }}</p>
+              </div>
+              <table class="min-w-full text-sm">
+                <thead class="bg-slate-50 text-start text-xs text-slate-500">
+                  <tr>
+                    <th class="px-4 py-3 font-medium">{{ t('academicStudents.name') }}</th>
+                    <th class="px-4 py-3 font-medium">{{ t('academicStudents.subjects') }}</th>
+                    <th class="px-4 py-3 font-medium">{{ t('academicStudents.status') }}</th>
+                    <th class="px-4 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-if="!loading && !group.items.length">
+                    <td colspan="4" class="px-4 py-6 text-center text-slate-500">{{ t('academicStudents.emptyLevel') }}</td>
+                  </tr>
+                  <tr v-for="item in group.items" :key="item.id" class="border-t">
+                    <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
+                    <td class="px-4 py-3">{{ (item.subjects || []).map(label).join(' · ') || '—' }}</td>
+                    <td class="px-4 py-3">{{ t(`academicStudents.statuses.${item.status}`) }}</td>
+                    <td class="px-4 py-3 flex gap-2">
+                      <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
+                      <button v-if="canDelete" type="button" class="text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div v-if="unassignedItems.length" class="overflow-x-auto rounded-xl border bg-white">
+              <div class="border-b px-4 py-3">
+                <h3 class="font-semibold text-slate-700">{{ t('academicStudents.unassigned') }}</h3>
+              </div>
+              <table class="min-w-full text-sm">
+                <tbody>
+                  <tr v-for="item in unassignedItems" :key="item.id" class="border-t">
+                    <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
+                    <td class="px-4 py-3">{{ (item.subjects || []).map(label).join(' · ') || '—' }}</td>
+                    <td class="px-4 py-3 flex gap-2">
+                      <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </template>
+          <div v-else class="overflow-x-auto rounded-xl border bg-white">
           <table class="min-w-full text-sm">
             <thead class="bg-slate-50 text-start text-xs text-slate-500">
               <tr>
@@ -181,6 +283,7 @@ onMounted(async () => {
               </tr>
             </tbody>
           </table>
+          </div>
         </div>
         <form v-if="canCreate || canUpdate" class="space-y-3 rounded-xl border bg-white p-5" @submit.prevent="save">
           <h3 class="font-semibold">{{ editingId ? t('academicStudents.editStudent') : t('academicStudents.newStudent') }}</h3>

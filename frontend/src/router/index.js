@@ -41,6 +41,7 @@ import SecretariatAlbumsView from '@/views/admin/secretariat/SecretariatAlbumsVi
 import SecretariatOfficerView from '@/views/admin/secretariat/SecretariatOfficerView.vue'
 import AcademicAttendanceOverview from '@/views/admin/academic/AcademicAttendanceOverview.vue'
 import AcademicSubjectAttendanceView from '@/views/admin/academic/AcademicSubjectAttendanceView.vue'
+import AcademicLevelAttendanceView from '@/views/admin/academic/AcademicLevelAttendanceView.vue'
 import AcademicAttendanceSheetView from '@/views/admin/academic/AcademicAttendanceSheetView.vue'
 import AcademicTeachersView from '@/views/admin/academic/AcademicTeachersView.vue'
 import AcademicStudentsView from '@/views/admin/academic/AcademicStudentsView.vue'
@@ -227,6 +228,12 @@ const router = createRouter({
               meta: { permission: 'attendance.view' },
             },
             {
+              path: 'attendance/levels/:levelId',
+              name: 'admin.secretariat.attendance.level',
+              component: AcademicLevelAttendanceView,
+              meta: { permission: 'attendance.view' },
+            },
+            {
               path: 'attendance/sessions/:sessionId',
               name: 'admin.secretariat.attendance.sheet',
               component: AcademicAttendanceSheetView,
@@ -334,6 +341,12 @@ const router = createRouter({
               path: 'attendance/subjects/:subjectId',
               name: 'admin.teacher.attendance.subject',
               component: AcademicSubjectAttendanceView,
+              meta: { permission: 'attendance.view' },
+            },
+            {
+              path: 'attendance/levels/:levelId',
+              name: 'admin.teacher.attendance.level',
+              component: AcademicLevelAttendanceView,
               meta: { permission: 'attendance.view' },
             },
             {

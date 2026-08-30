@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TeacherResource;
+use App\Models\AcademicYear;
+use App\Models\ClassGroup;
 use App\Models\Role;
 use App\Models\Teacher;
 use App\Models\User;
@@ -21,7 +23,7 @@ class AdminAcademicTeacherController extends Controller
         $this->authorizePermission($request, 'teacher.view');
 
         $teachers = Teacher::query()
-            ->with(['user', 'subjects'])
+            ->with(['user', 'subjects', 'levels'])
             ->withCount('classGroups')
             ->when($request->filled('search'), function ($query) use ($request) {
                 $search = '%'.$request->string('search')->toString().'%';
@@ -33,9 +35,17 @@ class AdminAcademicTeacherController extends Controller
                 });
             })
             ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
+            ->when($request->filled('subject_id'), fn ($q) => $q->whereHas(
+                'subjects',
+                fn ($inner) => $inner->where('subjects.id', $request->integer('subject_id'))
+            ))
+            ->when($request->filled('level_id'), fn ($q) => $q->whereHas(
+                'levels',
+                fn ($inner) => $inner->where('levels.id', $request->integer('level_id'))
+            ))
             ->orderBy('last_name')
             ->orderBy('first_name')
-            ->paginate($request->integer('per_page', 20));
+            ->paginate($request->integer('per_page', 100));
 
         return TeacherResource::collection($teachers);
     }
@@ -71,8 +81,10 @@ class AdminAcademicTeacherController extends Controller
                 'notes' => $data['notes'] ?? null,
             ]);
             $teacher->subjects()->sync($data['subject_ids'] ?? []);
+            $teacher->levels()->sync($data['level_ids'] ?? []);
+            $this->syncClassAssignments($teacher, $data['subject_ids'] ?? [], $data['level_ids'] ?? []);
 
-            return $teacher->load(['user', 'subjects'])->loadCount('classGroups');
+            return $teacher->load(['user', 'subjects', 'levels'])->loadCount('classGroups');
         });
 
         return (new TeacherResource($teacher))->response()->setStatusCode(201);
@@ -82,7 +94,7 @@ class AdminAcademicTeacherController extends Controller
     {
         $this->authorizePermission($request, 'teacher.view');
 
-        return new TeacherResource($teacher->load(['user', 'subjects'])->loadCount('classGroups'));
+        return new TeacherResource($teacher->load(['user', 'subjects', 'levels'])->loadCount('classGroups'));
     }
 
     public function update(Request $request, Teacher $teacher): TeacherResource
@@ -119,8 +131,16 @@ class AdminAcademicTeacherController extends Controller
             if (array_key_exists('subject_ids', $data)) {
                 $teacher->subjects()->sync($data['subject_ids'] ?? []);
             }
+            if (array_key_exists('level_ids', $data)) {
+                $teacher->levels()->sync($data['level_ids'] ?? []);
+            }
+            $this->syncClassAssignments(
+                $teacher,
+                $data['subject_ids'] ?? $teacher->subjects()->pluck('subjects.id')->all(),
+                $data['level_ids'] ?? $teacher->levels()->pluck('levels.id')->all(),
+            );
 
-            return $teacher->fresh()->load(['user', 'subjects'])->loadCount('classGroups');
+            return $teacher->fresh()->load(['user', 'subjects', 'levels'])->loadCount('classGroups');
         });
 
         return new TeacherResource($teacher);
@@ -155,7 +175,45 @@ class AdminAcademicTeacherController extends Controller
             'password' => [$teacher ? 'nullable' : 'required', 'confirmed', Password::defaults()],
             'subject_ids' => ['nullable', 'array'],
             'subject_ids.*' => ['integer', 'exists:subjects,id'],
+            'level_ids' => ['nullable', 'array'],
+            'level_ids.*' => ['integer', 'exists:levels,id'],
         ]);
+    }
+
+    private function syncClassAssignments(Teacher $teacher, array $subjectIds, array $levelIds): void
+    {
+        $year = AcademicYear::query()->current()->first()
+            ?? AcademicYear::query()->latest('id')->first();
+        if (! $year) {
+            return;
+        }
+
+        $unassign = ClassGroup::query()
+            ->where('teacher_id', $teacher->id)
+            ->where('academic_year_id', $year->id);
+
+        if ($subjectIds === [] || $levelIds === []) {
+            $unassign->update(['teacher_id' => null]);
+
+            return;
+        }
+
+        $unassign
+            ->where(function ($query) use ($subjectIds, $levelIds) {
+                $query->whereNotIn('subject_id', $subjectIds)
+                    ->orWhereNotIn('level_id', $levelIds);
+            })
+            ->update(['teacher_id' => null]);
+
+        ClassGroup::query()
+            ->where('academic_year_id', $year->id)
+            ->where('status', 'active')
+            ->whereIn('subject_id', $subjectIds)
+            ->whereIn('level_id', $levelIds)
+            ->where(function ($query) use ($teacher) {
+                $query->whereNull('teacher_id')->orWhere('teacher_id', $teacher->id);
+            })
+            ->update(['teacher_id' => $teacher->id]);
     }
 
     private function authorizeWrite(Request $request): void

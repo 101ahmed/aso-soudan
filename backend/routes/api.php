@@ -125,7 +125,9 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('admin/academic')->group(function () {
         Route::get('/attendance/overview', [AdminAcademicAttendanceController::class, 'overview']);
         Route::get('/subjects', [AdminAcademicAttendanceController::class, 'subjects']);
+        Route::get('/levels', [AdminAcademicAttendanceController::class, 'levels']);
         Route::get('/subjects/{subject}/classes', [AdminAcademicAttendanceController::class, 'classesBySubject']);
+        Route::get('/levels/{level}/classes', [AdminAcademicAttendanceController::class, 'classesByLevel']);
         Route::get('/classes/{classGroup}/sessions', [AdminAcademicAttendanceController::class, 'sessionsIndex']);
         Route::post('/classes/{classGroup}/sessions', [AdminAcademicAttendanceController::class, 'sessionsStore']);
         Route::get('/sessions/{session}/sheet', [AdminAcademicAttendanceController::class, 'sheet']);

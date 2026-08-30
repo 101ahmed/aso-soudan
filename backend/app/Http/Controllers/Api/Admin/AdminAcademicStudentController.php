@@ -30,6 +30,12 @@ class AdminAcademicStudentController extends Controller
                 ->orderBy('sort_order')
                 ->get(),
             'subjects' => Subject::query()->offered()->orderBy('name_ar')->get(['id', 'code', 'name_ar', 'name_fr']),
+            'level_counts' => Student::query()
+                ->selectRaw('level_id, COUNT(*) as total')
+                ->where('status', 'active')
+                ->whereNotNull('level_id')
+                ->groupBy('level_id')
+                ->pluck('total', 'level_id'),
         ]);
     }
 
@@ -50,7 +56,7 @@ class AdminAcademicStudentController extends Controller
             ->when($request->filled('level_id'), fn ($q) => $q->where('level_id', $request->integer('level_id')))
             ->orderBy('last_name')
             ->orderBy('first_name')
-            ->paginate($request->integer('per_page', 20));
+            ->paginate($request->integer('per_page', 100));
 
         return StudentResource::collection($students);
     }
@@ -77,7 +83,7 @@ class AdminAcademicStudentController extends Controller
             ]);
 
             $this->syncSubjects($student, $data['subject_ids'] ?? []);
-            $this->enrollInTeacherClasses($student, $request->user(), $data['subject_ids'] ?? []);
+            $this->enrollInLevelClasses($student, $data['subject_ids'] ?? []);
 
             return $student->load(['academicYear', 'educationStage', 'level', 'subjects']);
         });
@@ -112,8 +118,8 @@ class AdminAcademicStudentController extends Controller
 
             if (array_key_exists('subject_ids', $data)) {
                 $this->syncSubjects($student, $data['subject_ids'] ?? []);
-                $this->enrollInTeacherClasses($student, $request->user(), $data['subject_ids'] ?? []);
             }
+            $this->enrollInLevelClasses($student, $data['subject_ids'] ?? $student->subjects()->pluck('subjects.id')->all());
 
             return $student->fresh()->load(['academicYear', 'educationStage', 'level', 'subjects']);
         });
@@ -156,16 +162,24 @@ class AdminAcademicStudentController extends Controller
         $student->subjects()->sync($sync);
     }
 
-    private function enrollInTeacherClasses(Student $student, User $user, array $subjectIds): void
+    private function enrollInLevelClasses(Student $student, array $subjectIds): void
     {
-        $user->loadMissing('teacher');
-        $teacher = $user->teacher;
-        if (! $teacher || ! $student->level_id || ! $student->academic_year_id) {
+        if (! $student->level_id || ! $student->academic_year_id) {
             return;
         }
 
+        $otherClassIds = ClassGroup::query()
+            ->where('academic_year_id', $student->academic_year_id)
+            ->where('level_id', '!=', $student->level_id)
+            ->pluck('id');
+        if ($otherClassIds->isNotEmpty()) {
+            DB::table('class_students')
+                ->where('student_id', $student->id)
+                ->whereIn('class_group_id', $otherClassIds)
+                ->update(['status' => 'inactive', 'updated_at' => now()]);
+        }
+
         $classes = ClassGroup::query()
-            ->where('teacher_id', $teacher->id)
             ->where('academic_year_id', $student->academic_year_id)
             ->where('level_id', $student->level_id)
             ->where('status', 'active')
@@ -180,6 +194,11 @@ class AdminAcademicStudentController extends Controller
                 ],
             ]);
         }
+    }
+
+    private function enrollInTeacherClasses(Student $student, User $user, array $subjectIds): void
+    {
+        $this->enrollInLevelClasses($student, $subjectIds);
     }
 
     private function authorizePermission(Request $request, string $permission): void

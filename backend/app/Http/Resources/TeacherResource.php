@@ -34,6 +34,16 @@ class TeacherResource extends JsonResource
                     'name_fr' => $subject->name_fr,
                 ])->values();
             }),
+            'levels' => $this->whenLoaded('levels', function () {
+                return $this->levels
+                    ->sortBy('sort_order')
+                    ->map(fn ($level) => [
+                        'id' => $level->id,
+                        'code' => $level->code,
+                        'name_ar' => $level->name_ar,
+                        'name_fr' => $level->name_fr,
+                    ])->values();
+            }),
             'created_at' => $this->created_at?->toIso8601String(),
         ];
     }

@@ -19,6 +19,11 @@ export async function fetchSubjects() {
   return withoutFrenchSubject(data.data || data)
 }
 
+export async function fetchClassesByLevel(levelId) {
+  const { data } = await api.get(`/admin/academic/levels/${levelId}/classes`)
+  return data
+}
+
 export async function fetchClassesBySubject(subjectId) {
   const { data } = await api.get(`/admin/academic/subjects/${subjectId}/classes`)
   return data
@@ -42,6 +47,11 @@ export async function fetchAttendanceSheet(sessionId) {
 export async function saveAttendanceSheet(sessionId, rows) {
   const { data } = await api.post(`/admin/academic/sessions/${sessionId}/sheet`, { rows })
   return data
+}
+
+export async function fetchLevels() {
+  const { data } = await api.get('/admin/academic/levels')
+  return data.data || data
 }
 
 export async function fetchTeachers(params = {}) {
