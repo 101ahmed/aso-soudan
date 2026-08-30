@@ -1,24 +1,46 @@
 import axios from 'axios'
 
 const apiTimeout = Number(import.meta.env.VITE_API_TIMEOUT || 60000)
+const apiBase = import.meta.env.VITE_API_URL || '/api'
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/api',
+  baseURL: apiBase,
   headers: {
     Accept: 'application/json',
   },
-  withCredentials: false,
-  // Render free tier cold start can exceed 10s
+  withCredentials: true,
+  withXSRFToken: true,
   timeout: Number.isFinite(apiTimeout) && apiTimeout > 0 ? apiTimeout : 60000,
 })
 
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('rdp_token')
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`
+let csrfPromise = null
+
+function csrfUrl() {
+  const base = String(apiBase).replace(/\/?api\/?$/, '')
+  return `${base || ''}/sanctum/csrf-cookie`
+}
+
+export function ensureCsrf() {
+  if (!csrfPromise) {
+    csrfPromise = axios
+      .get(csrfUrl(), {
+        withCredentials: true,
+        headers: { Accept: 'application/json' },
+      })
+      .catch((error) => {
+        csrfPromise = null
+        throw error
+      })
+  }
+  return csrfPromise
+}
+
+api.interceptors.request.use(async (config) => {
+  const method = (config.method || 'get').toLowerCase()
+  if (['post', 'put', 'patch', 'delete'].includes(method)) {
+    await ensureCsrf()
   }
 
-  // Ne jamais forcer application/json sur FormData (sinon PHP ignore les fichiers)
   if (typeof FormData !== 'undefined' && config.data instanceof FormData) {
     if (typeof config.headers?.delete === 'function') {
       config.headers.delete('Content-Type')
@@ -50,13 +72,19 @@ api.interceptors.response.use(
       error.userMessage = 'network'
     }
 
-    if (error.response?.status === 401) {
-      localStorage.removeItem('rdp_token')
+    const status = error.response?.status
+    const path = window.location.pathname
+    const isAuthPage = path.startsWith('/login') || path.startsWith('/forgot-password') || path.startsWith('/reset-password')
+
+    if (status === 401 && path.startsWith('/admin') && !isAuthPage) {
       localStorage.removeItem('rdp_user')
-      if (!window.location.pathname.startsWith('/login')) {
-        window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`
-      }
+      window.location.href = `/login?redirect=${encodeURIComponent(path)}`
     }
+
+    if (status === 419) {
+      csrfPromise = null
+    }
+
     return Promise.reject(error)
   },
 )

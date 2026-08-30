@@ -7,6 +7,7 @@ use App\Http\Requests\Users\StoreUserRequest;
 use App\Http\Requests\Users\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Support\AuditLogger;
 use App\Support\DepartmentRoleMap;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -51,6 +52,10 @@ class UserController extends Controller
         $user->roles()->sync($roleIds);
         DepartmentRoleMap::syncUserDepartmentsFromRoles($user->fresh('roles'));
 
+        AuditLogger::record('user.created', $request->user()?->id, 'user', $user->id, [
+            'email' => $user->email,
+        ], $request);
+
         return (new UserResource($user->load(['roles', 'departments'])))
             ->response()
             ->setStatusCode(201);
@@ -77,17 +82,26 @@ class UserController extends Controller
             $data['name'] = trim($first.' '.$last);
         }
 
+        $passwordChanged = isset($data['password']);
         $user->update($data);
 
         if (is_array($roleIds)) {
             $user->roles()->sync($roleIds);
             DepartmentRoleMap::syncUserDepartmentsFromRoles($user->fresh('roles'));
+            AuditLogger::record('user.roles_updated', $request->user()?->id, 'user', $user->id, [], $request);
         }
+
+        if ($passwordChanged) {
+            $user->tokens()->delete();
+            AuditLogger::record('password.changed', $request->user()?->id, 'user', $user->id, [], $request);
+        }
+
+        AuditLogger::record('user.updated', $request->user()?->id, 'user', $user->id, [], $request);
 
         return new UserResource($user->fresh()->load(['roles.permissions', 'departments']));
     }
 
-    public function destroy(User $user): JsonResponse
+    public function destroy(Request $request, User $user): JsonResponse
     {
         if ($user->hasRole('SUPER_ADMIN') && User::query()->whereHas('roles', fn ($q) => $q->where('code', 'SUPER_ADMIN'))->count() <= 1) {
             return response()->json([
@@ -96,6 +110,9 @@ class UserController extends Controller
         }
 
         $user->tokens()->delete();
+        AuditLogger::record('user.deleted', $request->user()?->id, 'user', $user->id, [
+            'email' => $user->email,
+        ], $request);
         $user->delete();
 
         return response()->json([
@@ -103,10 +120,11 @@ class UserController extends Controller
         ]);
     }
 
-    public function disable(User $user): UserResource
+    public function disable(Request $request, User $user): UserResource
     {
         $user->update(['status' => 'inactive']);
         $user->tokens()->delete();
+        AuditLogger::record('user.disabled', $request->user()?->id, 'user', $user->id, [], $request);
 
         return new UserResource($user->fresh()->load('roles'));
     }

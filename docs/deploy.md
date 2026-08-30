@@ -146,12 +146,9 @@ Droits écriture :
 
 ### Sécurité admin
 
-Le seeder de développement crée :
+Le Super Admin n’est créé que s’il n’existe pas encore. Le mot de passe vient de `ADMIN_PASSWORD` (local `.env` / Render dashboard). **Ne jamais le mettre dans git.**
 
-- Email : `admin@acs-rennes.fr`
-- Mot de passe : `Password123!`
-
-**Changez immédiatement le mot de passe en production** (SQL, Tinker, ou écran admin une fois connecté).
+**Changez immédiatement le mot de passe en production** depuis l’écran Utilisateurs.
 
 ---
 

@@ -15,6 +15,7 @@ use App\Models\StudentAttendance;
 use App\Models\Subject;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class AcademicAttendanceSeeder extends Seeder
 {
@@ -92,19 +93,22 @@ class AcademicAttendanceSeeder extends Seeder
         ];
 
         foreach ($teachersSeed as $item) {
-            $user = User::query()->updateOrCreate(
-                ['email' => $item['email']],
-                [
-                    'first_name' => $item['first'],
-                    'last_name' => $item['last'],
-                    'name' => $item['first'].' '.$item['last'],
-                    'phone' => null,
-                    'locale' => 'ar',
-                    'status' => 'active',
-                    'password' => 'Password123!',
-                    'email_verified_at' => now(),
-                ]
-            );
+            $user = User::query()->firstOrNew(['email' => $item['email']]);
+            $user->fill([
+                'first_name' => $item['first'],
+                'last_name' => $item['last'],
+                'name' => $item['first'].' '.$item['last'],
+                'phone' => null,
+                'locale' => 'ar',
+                'status' => 'active',
+                'email_verified_at' => now(),
+            ]);
+            if (! $user->exists) {
+                $user->password = app()->environment('production')
+                    ? Str::password(20)
+                    : 'Password123!';
+            }
+            $user->save();
             if ($teacherRole) {
                 $user->roles()->syncWithoutDetaching([$teacherRole->id]);
             }

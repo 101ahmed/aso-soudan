@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RoleResource;
 use App\Models\Role;
+use App\Support\AuditLogger;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Validation\Rule;
@@ -35,6 +36,10 @@ class RoleController extends Controller
         ]);
 
         $role->permissions()->sync($data['permission_ids']);
+
+        AuditLogger::record('role.permissions_updated', $request->user()?->id, 'role', $role->id, [
+            'code' => $role->code,
+        ], $request);
 
         return new RoleResource($role->fresh()->load('permissions'));
     }

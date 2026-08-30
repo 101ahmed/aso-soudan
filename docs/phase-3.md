@@ -20,10 +20,9 @@
 - Guards auth + permissions
 - i18n FR/AR
 
-## Compte de test
+## Compte de test (local)
 
-- Email : `admin@acs-rennes.fr`
-- Mot de passe : `Password123!`
+Utiliser `ADMIN_EMAIL` / `ADMIN_PASSWORD` du fichier `.env` local. Ne pas committer ces valeurs.
 
 ```bash
 cd backend

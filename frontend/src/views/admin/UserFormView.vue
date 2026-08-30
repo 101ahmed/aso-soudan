@@ -145,7 +145,8 @@ onMounted(load)
         </label>
         <label class="text-sm">
           <span class="mb-1 block">{{ t('admin.users.password') }}</span>
-          <input v-model="form.password" type="password" class="w-full rounded-md border border-slate-300 px-3 py-2" />
+          <input v-model="form.password" type="password" autocomplete="new-password" class="w-full rounded-md border border-slate-300 px-3 py-2" />
+          <p class="mt-1 text-xs text-slate-500">{{ t('admin.users.passwordHint') }}</p>
         </label>
         <label class="text-sm">
           <span class="mb-1 block">{{ t('admin.users.passwordConfirm') }}</span>

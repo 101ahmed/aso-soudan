@@ -86,11 +86,10 @@ Page de test API : [http://127.0.0.1:5173/status](http://127.0.0.1:5173/status)
 - [x] Phase 3 — Users / Roles / Permissions
 - [ ] Phase 4 — Authentication complète (forgot/reset password…)
 
-## Compte Super Admin (dev)
+## Compte Super Admin (développement local uniquement)
 
-- Email : `admin@acs-rennes.fr`
-- Mot de passe : `Password123!`
-- Admin : http://127.0.0.1:5173/login
+Définir `ADMIN_EMAIL` et `ADMIN_PASSWORD` dans `backend/.env`.  
+Ne jamais committer ces valeurs. En production, les renseigner uniquement dans le dashboard Render.
 
 ## Site public
 

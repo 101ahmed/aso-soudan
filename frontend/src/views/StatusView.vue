@@ -26,25 +26,7 @@ onMounted(() => {
         <p class="text-lg font-medium text-teal-800">
           {{ t('status.ok') }}
         </p>
-        <dl class="grid gap-3 text-sm text-slate-700 sm:grid-cols-2">
-          <div>
-            <dt class="font-semibold">{{ t('status.database') }}</dt>
-            <dd>{{ appStore.health.database }}</dd>
-          </div>
-          <div>
-            <dt class="font-semibold">{{ t('status.environment') }}</dt>
-            <dd>{{ appStore.health.env }}</dd>
-          </div>
-          <div>
-            <dt class="font-semibold">{{ t('status.locale') }}</dt>
-            <dd>{{ appStore.health.locale }}</dd>
-          </div>
-          <div>
-            <dt class="font-semibold">{{ t('status.timestamp') }}</dt>
-            <dd>{{ appStore.health.timestamp }}</dd>
-          </div>
-        </dl>
-        <pre class="overflow-x-auto rounded-lg bg-slate-900 p-4 text-xs text-slate-100">{{ appStore.health }}</pre>
+        <p class="text-sm text-slate-600">{{ appStore.health.status }}</p>
       </div>
 
       <div v-else class="space-y-3">

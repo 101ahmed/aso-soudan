@@ -545,6 +545,7 @@
     "contactRequestsHint": "Requests to contact other associations: applicant and reason.",
     "messages": "Messages database",
     "messagesHint": "Messages received by this secretariat from the public page.",
+    "switch": "Secretariat",
     "officer": "Officer profile",
     "officerHint": "Public photo and card of the secretariat lead.",
     "officerSaved": "Officer profile saved.",
@@ -707,7 +708,7 @@
     "password": "Password",
     "login": "Log in",
     "loggingIn": "Signing in…",
-    "loginFailed": "Invalid credentials",
+    "loginFailed": "The email or password is incorrect.",
     "networkError": "Cannot reach the server. Make sure Laravel is running on port 8001 and MySQL is started.",
     "remember": "Remember me",
     "forgot": "Forgot password?",
@@ -738,6 +739,7 @@
       "president": "President area",
       "shura": "Shura Council",
       "secretariat": "My secretariat",
+      "secretariats": "Secretariats",
       "teacher": "Teacher space",
       "users": "Users",
       "roles": "Roles & permissions"
@@ -750,7 +752,11 @@
       "title": "Dashboard",
       "welcome": "Welcome {name}",
       "roles": "Roles",
-      "permissions": "Permissions"
+      "permissions": "Permissions",
+      "inboxesTitle": "Message database for each secretariat",
+      "inboxesHint": "Each secretariat has its own inbox. Messages come from the public contact form on its page.",
+      "unread": "{count} new message(s)",
+      "noUnread": "No new messages"
     },
     "users": {
       "title": "Users",
@@ -775,6 +781,7 @@
       "phone": "Phone",
       "password": "Password",
       "passwordConfirm": "Confirmation",
+      "passwordHint": "At least 10 characters, including letters and numbers.",
       "passwordRequired": "Password required",
       "assignRoles": "Assign roles",
       "confirmDisable": "Disable {name}?",

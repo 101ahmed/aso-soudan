@@ -19,10 +19,11 @@ const loading = ref(false)
 const saving = ref(false)
 const error = ref('')
 const items = ref([])
+const meta = ref({ current_page: 1, last_page: 1, total: 0 })
 const editingId = ref(null)
 const statuses = ['new', 'read', 'replied', 'archived']
 
-const filters = reactive({ search: '', status: '' })
+const filters = reactive({ search: '', status: '', page: 1 })
 const form = reactive(emptyForm())
 
 const canCreate = computed(() => auth.hasPermission('inbox.create'))
@@ -77,8 +78,10 @@ async function load() {
     const data = await fetchSecretariatMessages(code.value, {
       search: filters.search || undefined,
       status: filters.status || undefined,
+      page: filters.page,
     })
     items.value = data.data || []
+    meta.value = data.meta || { current_page: 1, last_page: 1, total: items.value.length }
   } catch (e) {
     error.value = e.response?.data?.message || e.message
   } finally {
@@ -119,7 +122,16 @@ async function remove(id) {
   await load()
 }
 
-watch([() => filters.search, () => filters.status], load)
+watch([() => filters.search, () => filters.status], () => {
+  filters.page = 1
+  load()
+})
+watch(() => code.value, () => {
+  resetForm()
+  filters.page = 1
+  load()
+})
+watch(() => filters.page, load)
 onMounted(load)
 </script>
 
@@ -176,6 +188,11 @@ onMounted(load)
         </div>
       </article>
       <p v-if="!loading && !items.length" class="text-sm text-slate-500">{{ t('secretariatInbox.empty') }}</p>
+      <div v-if="meta.last_page > 1" class="flex items-center gap-2 text-sm">
+        <button type="button" class="rounded border px-3 py-1 disabled:opacity-40" :disabled="meta.current_page <= 1" @click="filters.page -= 1">{{ t('admin.prev') }}</button>
+        <span>{{ meta.current_page }} / {{ meta.last_page }}</span>
+        <button type="button" class="rounded border px-3 py-1 disabled:opacity-40" :disabled="meta.current_page >= meta.last_page" @click="filters.page += 1">{{ t('admin.next') }}</button>
+      </div>
     </div>
 
     <form class="space-y-3 rounded-xl border border-slate-200 bg-white p-5" @submit.prevent="save">

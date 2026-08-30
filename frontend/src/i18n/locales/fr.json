@@ -545,6 +545,7 @@
     "contactRequestsHint": "Demandes de contact avec d’autres associations : demandeur et motif.",
     "messages": "Base des messages",
     "messagesHint": "Messages reçus par cette amanah depuis la page publique.",
+    "switch": "Secrétariat",
     "officer": "Fiche de l’amin",
     "officerHint": "Photo et carte publique du responsable de l’amanah.",
     "officerSaved": "Fiche de l’amin enregistrée.",
@@ -707,7 +708,7 @@
     "password": "Mot de passe",
     "login": "Se connecter",
     "loggingIn": "Connexion…",
-    "loginFailed": "Identifiants invalides",
+    "loginFailed": "Email ou mot de passe incorrect.",
     "networkError": "Impossible de joindre le serveur. Vérifiez que Laravel tourne sur le port 8001 et que MySQL est démarré.",
     "remember": "Se souvenir de moi",
     "forgot": "Mot de passe oublié ?",
@@ -738,6 +739,7 @@
       "president": "Espace Président",
       "shura": "Conseil de la Choura",
       "secretariat": "Mon secrétariat",
+      "secretariats": "Secrétariats",
       "teacher": "Espace enseignant",
       "users": "Utilisateurs",
       "roles": "Rôles & permissions"
@@ -750,7 +752,11 @@
       "title": "Tableau de bord",
       "welcome": "Bienvenue {name}",
       "roles": "Rôles",
-      "permissions": "Permissions"
+      "permissions": "Permissions",
+      "inboxesTitle": "Base des messages par amanah",
+      "inboxesHint": "Chaque secrétariat a sa propre boîte. Les messages viennent du formulaire public de sa page.",
+      "unread": "{count} nouveau(x) message(s)",
+      "noUnread": "Aucun nouveau message"
     },
     "users": {
       "title": "Utilisateurs",
@@ -775,6 +781,7 @@
       "phone": "Téléphone",
       "password": "Mot de passe",
       "passwordConfirm": "Confirmation",
+      "passwordHint": "Au moins 10 caractères, avec des lettres et des chiffres.",
       "passwordRequired": "Mot de passe requis",
       "assignRoles": "Assigner des rôles",
       "confirmDisable": "Désactiver {name} ?",

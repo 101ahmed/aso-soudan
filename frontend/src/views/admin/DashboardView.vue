@@ -1,15 +1,43 @@
 <script setup>
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
+import { fetchMyDepartments } from '@/services/content'
+import { canAccessDepartment, isSecretariatCode, SECRETARIAT_NAME_KEYS } from '@/utils/departmentAccess'
+import { pickName } from '@/utils/localized'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const auth = useAuthStore()
+const departments = ref([])
+
+const canSeeInbox = computed(() => auth.hasPermission('inbox.view'))
+
+const secretariats = computed(() =>
+  (departments.value || [])
+    .filter((dept) => isSecretariatCode(dept.code) && canAccessDepartment(auth.user, dept.code))
+    .map((dept) => ({
+      ...dept,
+      label: pickName(dept, locale.value) || t(SECRETARIAT_NAME_KEYS[dept.code] || dept.code),
+    })),
+)
+
+onMounted(async () => {
+  if (!canSeeInbox.value) return
+  try {
+    departments.value = await fetchMyDepartments()
+  } catch {
+    departments.value = []
+  }
+})
 </script>
 
 <template>
-  <section class="space-y-4">
-    <h1 class="text-2xl font-semibold">{{ t('admin.dashboard.title') }}</h1>
-    <p class="text-slate-600">{{ t('admin.dashboard.welcome', { name: auth.fullName }) }}</p>
+  <section class="space-y-6">
+    <div>
+      <h1 class="text-2xl font-semibold">{{ t('admin.dashboard.title') }}</h1>
+      <p class="text-slate-600">{{ t('admin.dashboard.welcome', { name: auth.fullName }) }}</p>
+    </div>
 
     <div class="grid gap-4 md:grid-cols-3">
       <div class="rounded-xl border border-slate-200 bg-white p-5">
@@ -24,6 +52,40 @@ const auth = useAuthStore()
           {{ (auth.user?.permissions || []).slice(0, 8).join(' · ') }}
           <span v-if="(auth.user?.permissions || []).length > 8">…</span>
         </p>
+      </div>
+    </div>
+
+    <div v-if="canSeeInbox && secretariats.length" class="space-y-3">
+      <div>
+        <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('admin.dashboard.inboxesTitle') }}</h2>
+        <p class="mt-1 text-sm text-slate-600">{{ t('admin.dashboard.inboxesHint') }}</p>
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <article
+          v-for="dept in secretariats"
+          :key="dept.code"
+          class="rounded-xl border border-slate-200 bg-white p-4"
+        >
+          <p class="font-semibold text-[var(--rdp-forest)]">{{ dept.label }}</p>
+          <p v-if="dept.unread_messages_count" class="mt-1 text-xs font-medium text-amber-800">
+            {{ t('admin.dashboard.unread', { count: dept.unread_messages_count }) }}
+          </p>
+          <p v-else class="mt-1 text-xs text-slate-500">{{ t('admin.dashboard.noUnread') }}</p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <RouterLink
+              :to="`/admin/secretariats/${dept.code}/messages`"
+              class="rounded bg-teal-800 px-3 py-1.5 text-xs font-semibold text-white"
+            >
+              {{ t('secretariatAdmin.messages') }}
+            </RouterLink>
+            <RouterLink
+              :to="`/admin/secretariats/${dept.code}`"
+              class="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-700"
+            >
+              {{ t('secretariatAdmin.home') }}
+            </RouterLink>
+          </div>
+        </article>
       </div>
     </div>
   </section>

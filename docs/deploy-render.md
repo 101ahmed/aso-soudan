@@ -52,10 +52,10 @@ Committez puis poussez vers GitHub (fichiers utiles déjà dans le repo) :
 
 Au démarrage, le conteneur **seed** toujours rôles + Super Admin (sauf `SKIP_SEEDERS=true`) :
 
-- Email : `admin@acs-rennes.fr` (ou `ADMIN_EMAIL`)
-- Mot de passe : `Password123!` (ou `ADMIN_PASSWORD`)
+- Email : `ADMIN_EMAIL` (dashboard Render uniquement)
+- Mot de passe : `ADMIN_PASSWORD` (dashboard Render uniquement, jamais dans git)
 
-→ **changez le mot de passe** après la première connexion, puis mettez `SKIP_SEEDERS=true` pour ne plus le réinitialiser à chaque redémarrage.
+`rdp:ensure-admin` **ne réécrit plus** le mot de passe d’un admin déjà existant. Changez-le depuis l’écran Utilisateurs après la première connexion.
 
 ---
 

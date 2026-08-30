@@ -1,26 +1,35 @@
 <script setup>
 import { computed } from 'vue'
-import { RouterLink, RouterView, useRouter } from 'vue-router'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
-import { primaryDepartmentCode } from '@/utils/departmentAccess'
+import {
+  departmentCodesForUser,
+  isSecretariatCode,
+  SECRETARIAT_CODES,
+  SECRETARIAT_NAME_KEYS,
+} from '@/utils/departmentAccess'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 
 const { t } = useI18n()
 const auth = useAuthStore()
 const router = useRouter()
-
-const secretariatLink = computed(() => {
-  const code = primaryDepartmentCode(auth.user)
-  return code ? `/admin/secretariats/${code}` : null
-})
+const route = useRoute()
 
 const isTeacher = computed(() => auth.user?.roles?.some((r) => r.code === 'TEACHER'))
 const isSuperAdmin = computed(() => auth.user?.roles?.some((r) => r.code === 'SUPER_ADMIN'))
-const teacherOnly = computed(() => isTeacher.value && !isSuperAdmin.value && !secretariatLink.value)
+const isPresident = computed(() => auth.user?.roles?.some((r) => r.code === 'PRESIDENT'))
+const canBrowseAllSecretariats = computed(() => isSuperAdmin.value || isPresident.value)
+
+const secretariatCodes = computed(() => {
+  if (canBrowseAllSecretariats.value) return SECRETARIAT_CODES
+  return departmentCodesForUser(auth.user).filter(isSecretariatCode)
+})
+
+const teacherOnly = computed(() => isTeacher.value && !isSuperAdmin.value && !secretariatCodes.value.length)
 
 const links = computed(() => [
-  { to: '/admin', label: t('admin.nav.dashboard'), show: !teacherOnly.value },
+  { to: '/admin', label: t('admin.nav.dashboard'), show: !teacherOnly.value, exact: true },
   {
     to: '/admin/teacher',
     label: t('admin.nav.teacher'),
@@ -29,18 +38,13 @@ const links = computed(() => [
   {
     to: '/admin/president',
     label: t('admin.nav.president'),
-    show: auth.user?.roles?.some((r) => ['PRESIDENT', 'SUPER_ADMIN'].includes(r.code)),
+    show: isPresident.value || isSuperAdmin.value,
   },
   {
     to: '/admin/shura',
     label: t('admin.nav.shura'),
     show: auth.user?.roles?.some((r) => String(r.code).startsWith('SHURA_'))
       || auth.hasPermission('shura.member.view'),
-  },
-  {
-    to: secretariatLink.value || '/admin',
-    label: t('admin.nav.secretariat'),
-    show: Boolean(secretariatLink.value),
   },
   { to: '/admin/users', label: t('admin.nav.users'), show: auth.hasPermission('user.view') },
   { to: '/admin/roles', label: t('admin.nav.roles'), show: auth.hasPermission('role.view') },
@@ -49,6 +53,11 @@ const links = computed(() => [
 async function logout() {
   await auth.logout()
   router.push({ name: 'login' })
+}
+
+function isActive(to, exact = false) {
+  if (exact) return route.path === to
+  return route.path.startsWith(to)
 }
 </script>
 
@@ -67,10 +76,25 @@ async function logout() {
             :key="link.to"
             :to="link.to"
             class="rounded-md px-3 py-2 text-sm text-slate-200 transition hover:bg-slate-800"
-            active-class="bg-teal-800 text-white hover:bg-teal-800"
+            :class="isActive(link.to, link.exact) ? 'bg-teal-800 text-white hover:bg-teal-800' : ''"
           >
             {{ link.label }}
           </RouterLink>
+
+          <div v-if="secretariatCodes.length" class="mt-3 border-t border-slate-700 pt-3">
+            <p class="px-3 pb-2 text-[11px] font-semibold tracking-wide text-teal-300 uppercase">
+              {{ t('admin.nav.secretariats') }}
+            </p>
+            <RouterLink
+              v-for="code in secretariatCodes"
+              :key="code"
+              :to="`/admin/secretariats/${code}/messages`"
+              class="rounded-md px-3 py-1.5 text-sm text-slate-200 transition hover:bg-slate-800"
+              :class="isActive(`/admin/secretariats/${code}`) ? 'bg-teal-800 text-white hover:bg-teal-800' : ''"
+            >
+              {{ t(SECRETARIAT_NAME_KEYS[code]) }}
+            </RouterLink>
+          </div>
         </nav>
       </aside>
 

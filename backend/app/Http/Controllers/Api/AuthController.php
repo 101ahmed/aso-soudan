@@ -8,11 +8,15 @@ use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use App\Support\AuditLogger;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Throwable;
@@ -21,33 +25,46 @@ class AuthController extends Controller
 {
     public function login(LoginRequest $request): JsonResponse
     {
+        $email = Str::lower($request->string('email')->toString());
+        $throttleKey = Str::transliterate('login:'.$email.'|'.$request->ip());
+
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            $seconds = RateLimiter::availableIn($throttleKey);
+            throw ValidationException::withMessages([
+                'email' => [__('auth.throttle', ['seconds' => $seconds])],
+            ]);
+        }
+
         try {
             $user = User::query()
                 ->with(['roles.permissions', 'departments'])
-                ->where('email', $request->string('email')->toString())
+                ->where('email', $email)
                 ->first();
 
-            if (! $user || ! Hash::check($request->string('password')->toString(), $user->password)) {
+            $passwordOk = $user && Hash::check($request->string('password')->toString(), $user->password);
+
+            if (! $passwordOk || ! $user->isActive()) {
+                RateLimiter::hit($throttleKey, 900);
+                AuditLogger::record('login.failed', $user?->id, 'user', $user?->id, [
+                    'email' => $email,
+                ], $request);
+
                 throw ValidationException::withMessages([
                     'email' => [__('auth.failed')],
                 ]);
             }
 
-            if (! $user->isActive()) {
-                throw ValidationException::withMessages([
-                    'email' => ['Compte désactivé.'],
-                ]);
-            }
+            RateLimiter::clear($throttleKey);
+
+            Auth::guard('web')->login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
 
             $user->forceFill(['last_login_at' => now()])->save();
+            $user->tokens()->delete();
 
-            $token = $user->createToken(
-                $request->string('device_name')->toString() ?: 'rdp-web'
-            )->plainTextToken;
+            AuditLogger::record('login.success', $user->id, 'user', $user->id, [], $request);
 
             return response()->json([
-                'token' => $token,
-                'token_type' => 'Bearer',
                 'user' => (new UserResource($user->fresh()->load(['roles.permissions', 'departments'])))->resolve(),
             ]);
         } catch (ValidationException $e) {
@@ -56,9 +73,7 @@ class AuthController extends Controller
             report($e);
 
             return response()->json([
-                'message' => 'Server Error',
-                'error' => $e->getMessage(),
-                'exception' => class_basename($e),
+                'message' => __('auth.generic_error'),
             ], 500);
         }
     }
@@ -66,31 +81,16 @@ class AuthController extends Controller
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         try {
-            $status = Password::broker()->sendResetLink(
+            Password::broker()->sendResetLink(
                 $request->only('email')
             );
         } catch (Throwable $e) {
             report($e);
-
-            $raw = $e->getMessage();
-            $message = 'Unable to send reset email. Check mail configuration.';
-
-            if (str_contains($raw, 'MS42207') || str_contains($raw, 'domain must be verified')) {
-                $message = 'MAIL_FROM_ADDRESS domain is not verified on MailerSend. Use your trial domain (…@test-….mlsender.net) or verify a custom domain.';
-            } elseif (str_contains($raw, 'api_key') || str_contains($raw, 'Unauthenticated')) {
-                $message = 'MAILERSEND_API_KEY is missing or invalid on the server.';
-            }
-
-            return response()->json([
-                'message' => $message,
-                'error' => $raw,
-            ], 503);
         }
 
-        // Always the same response (no email enumeration)
         return response()->json([
-            'message' => 'Si un compte existe pour cet email, un lien de réinitialisation a été envoyé.',
-            'status' => $status === Password::RESET_LINK_SENT ? 'sent' : 'accepted',
+            'message' => __('auth.reset_link_sent'),
+            'status' => 'accepted',
         ]);
     }
 
@@ -98,13 +98,16 @@ class AuthController extends Controller
     {
         $status = Password::broker()->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function (User $user, string $password) {
+            function (User $user, string $password) use ($request) {
                 $user->forceFill([
                     'password' => $password,
                     'remember_token' => Str::random(60),
                 ])->save();
 
                 $user->tokens()->delete();
+                DB::table('sessions')->where('user_id', $user->id)->delete();
+
+                AuditLogger::record('password.reset', $user->id, 'user', $user->id, [], $request);
 
                 event(new PasswordReset($user));
             }
@@ -112,12 +115,12 @@ class AuthController extends Controller
 
         if ($status !== Password::PASSWORD_RESET) {
             throw ValidationException::withMessages([
-                'email' => [__($status)],
+                'email' => [__('auth.failed')],
             ]);
         }
 
         return response()->json([
-            'message' => __($status),
+            'message' => __('auth.password_reset'),
         ]);
     }
 
@@ -132,7 +135,14 @@ class AuthController extends Controller
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()?->delete();
+        $user = $request->user();
+        AuditLogger::record('logout', $user?->id, 'user', $user?->id, [], $request);
+
+        $user?->currentAccessToken()?->delete();
+
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
         return response()->json([
             'message' => 'Logged out.',

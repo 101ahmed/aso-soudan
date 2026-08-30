@@ -72,6 +72,11 @@ class Department extends Model
         return $this->hasMany(Album::class);
     }
 
+    public function messages(): HasMany
+    {
+        return $this->hasMany(SecretariatMessage::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

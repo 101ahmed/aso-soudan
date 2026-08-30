@@ -16,14 +16,24 @@ class AdminDepartmentController extends Controller
     {
         $user = $request->user();
 
+        $unreadCount = fn ($query) => $query->where('status', 'new');
+
         if ($user->hasRole('SUPER_ADMIN') || $user->hasRole('PRESIDENT')) {
             return DepartmentResource::collection(
-                Department::query()->active()->orderBy('sort_order')->get()
+                Department::query()
+                    ->active()
+                    ->withCount(['messages as unread_messages_count' => $unreadCount])
+                    ->orderBy('sort_order')
+                    ->get()
             );
         }
 
         return DepartmentResource::collection(
-            $user->departments()->where('is_active', true)->orderBy('sort_order')->get()
+            $user->departments()
+                ->where('is_active', true)
+                ->withCount(['messages as unread_messages_count' => $unreadCount])
+                ->orderBy('sort_order')
+                ->get()
         );
     }
 

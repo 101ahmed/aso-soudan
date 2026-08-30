@@ -10,6 +10,11 @@ const code = computed(() => route.params.code)
 const cards = computed(() => {
   const items = [
     {
+      to: `/admin/secretariats/${code.value}/messages`,
+      label: t('secretariatAdmin.messages'),
+      hint: t('secretariatAdmin.messagesHint'),
+    },
+    {
       to: `/admin/secretariats/${code.value}/officer`,
       label: t('secretariatAdmin.officer'),
       hint: t('secretariatAdmin.officerHint'),
@@ -27,11 +32,6 @@ const cards = computed(() => {
     },
     { to: `/admin/secretariats/${code.value}/announcements`, label: t('secretariatAdmin.announcements'), hint: t('secretariatAdmin.announcementsHint') },
     { to: `/admin/secretariats/${code.value}/albums`, label: t('secretariatAdmin.albums'), hint: t('secretariatAdmin.albumsHint') },
-    {
-      to: `/admin/secretariats/${code.value}/messages`,
-      label: t('secretariatAdmin.messages'),
-      hint: t('secretariatAdmin.messagesHint'),
-    },
   ]
   if (code.value === 'academic') {
     items.unshift(

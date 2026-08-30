@@ -1,9 +1,12 @@
 <?php
 
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -15,8 +18,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // Render / reverse proxies (HTTPS termination)
         $middleware->trustProxies(at: '*');
+        $middleware->statefulApi();
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
 
-        // Auth par Bearer token (Sanctum) — pas de CSRF session SPA
+        // Sanctum SPA : session cookie HttpOnly + CSRF (pas de token dans localStorage)
         $middleware->alias([
             'permission' => \App\Http\Middleware\EnsureUserHasPermission::class,
             'department' => \App\Http\Middleware\EnsureDepartmentAccess::class,
@@ -27,11 +32,32 @@ return Application::configure(basePath: dirname(__DIR__))
             fn (Request $request) => $request->is('api/*') || $request->expectsJson(),
         );
 
-        $exceptions->render(function (\Illuminate\Auth\AuthenticationException $e, Request $request) {
+        $exceptions->render(function (AuthenticationException $e, Request $request) {
             if ($request->is('api/*') || $request->expectsJson()) {
                 return response()->json(['message' => 'Unauthenticated.'], 401);
             }
 
             return redirect()->guest('/login');
+        });
+
+        $exceptions->render(function (\Throwable $e, Request $request) {
+            if (! app()->isProduction()) {
+                return null;
+            }
+            if (! $request->is('api/*') && ! $request->expectsJson()) {
+                return null;
+            }
+            if ($e instanceof ValidationException || $e instanceof AuthenticationException) {
+                return null;
+            }
+            if ($e instanceof HttpExceptionInterface) {
+                return null;
+            }
+
+            report($e);
+
+            return response()->json([
+                'message' => __('auth.generic_error'),
+            ], 500);
         });
     })->create();

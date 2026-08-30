@@ -10,6 +10,24 @@ export const ROLE_TO_DEPARTMENT = {
   SPORTS_SECRETARIAT: 'sports',
 }
 
+export const SECRETARIAT_CODES = Object.values(ROLE_TO_DEPARTMENT)
+
+export const SECRETARIAT_NAME_KEYS = {
+  general: 'org.general',
+  academic: 'org.academic',
+  social: 'org.social',
+  finance: 'org.finance',
+  media: 'org.media',
+  'women-children': 'org.womenChildren',
+  statistics: 'org.statistics',
+  'external-relations': 'org.external',
+  sports: 'org.sports',
+}
+
+export function isSecretariatCode(code) {
+  return SECRETARIAT_CODES.includes(code)
+}
+
 export function departmentCodesForUser(user) {
   const fromPivot = (user?.departments || []).map((d) => d.code).filter(Boolean)
   if (fromPivot.length) return fromPivot

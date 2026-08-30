@@ -25,6 +25,7 @@ const publicDocuments = ref([])
 const form = reactive({
   name: '',
   email: '',
+  phone: '',
   subject: '',
   message: '',
 })
@@ -162,6 +163,7 @@ async function submitContact() {
     await submitSecretariatMessage(route.params.slug, {
       sender_name: form.name,
       sender_email: form.email,
+      sender_phone: form.phone || undefined,
       subject: form.subject,
       body: form.message,
     })
@@ -581,6 +583,7 @@ watch(
           <p v-if="contactError" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 md:col-span-2">{{ contactError }}</p>
           <input v-model="form.name" required :placeholder="t('forms.name')" class="rounded border border-slate-300 px-3 py-2" />
           <input v-model="form.email" required type="email" :placeholder="t('forms.email')" class="rounded border border-slate-300 px-3 py-2" />
+          <input v-model="form.phone" :placeholder="t('forms.phoneOptional')" class="rounded border border-slate-300 px-3 py-2 md:col-span-2" />
           <input v-model="form.subject" required :placeholder="t('forms.subject')" class="rounded border border-slate-300 px-3 py-2 md:col-span-2" />
           <textarea v-model="form.message" required rows="4" :placeholder="t('forms.message')" class="rounded border border-slate-300 px-3 py-2 md:col-span-2" />
           <button type="submit" class="rounded bg-[var(--rdp-forest)] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-50 md:col-span-2 md:w-fit" :disabled="sending">

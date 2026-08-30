@@ -22,9 +22,11 @@ class SuperAdminSeeder extends Seeder
         }
 
         $user = User::withTrashed()->firstOrNew(['email' => $email]);
+        $isNew = ! $user->exists;
 
         if ($user->trashed()) {
             $user->restore();
+            $isNew = false;
         }
 
         $user->fill([
@@ -36,7 +38,11 @@ class SuperAdminSeeder extends Seeder
             'status' => 'active',
             'email_verified_at' => now(),
         ]);
-        $user->password = $password;
+
+        if ($isNew) {
+            $user->password = $password;
+        }
+
         $user->save();
 
         User::query()
@@ -50,7 +56,7 @@ class SuperAdminSeeder extends Seeder
             $user->roles()->syncWithoutDetaching([$role->id]);
         }
 
-        if (! Hash::check($password, $user->fresh()->password)) {
+        if ($isNew && ! Hash::check($password, $user->fresh()->password)) {
             throw new \RuntimeException('SuperAdminSeeder: password hash verification failed.');
         }
     }

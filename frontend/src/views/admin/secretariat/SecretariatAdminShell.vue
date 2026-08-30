@@ -1,9 +1,14 @@
 <script setup>
-import { computed } from 'vue'
-import { RouterLink, RouterView, useRoute } from 'vue-router'
+import { computed, onMounted, ref } from 'vue'
+import { RouterLink, RouterView, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
-import { canAccessDepartment } from '@/utils/departmentAccess'
+import { fetchMyDepartments } from '@/services/content'
+import {
+  canAccessDepartment,
+  isSecretariatCode,
+  SECRETARIAT_NAME_KEYS,
+} from '@/utils/departmentAccess'
 import { pickName } from '@/utils/localized'
 
 const props = defineProps({
@@ -13,23 +18,30 @@ const props = defineProps({
 const { t, locale } = useI18n()
 const auth = useAuthStore()
 const route = useRoute()
+const router = useRouter()
+const departments = ref([])
 
 const allowed = computed(() => canAccessDepartment(auth.user, props.code, { write: false }))
 const base = computed(() => `/admin/secretariats/${props.code}`)
+const switchable = computed(() =>
+  departments.value.filter((dept) => isSecretariatCode(dept.code) && canAccessDepartment(auth.user, dept.code)),
+)
 
 const links = computed(() => {
   const items = [
     { to: base.value, label: t('secretariatAdmin.home'), exact: true },
+  ]
+  if (auth.hasPermission('inbox.view')) {
+    items.push({ to: `${base.value}/messages`, label: t('secretariatAdmin.messages') })
+  }
+  items.push(
     { to: `${base.value}/officer`, label: t('secretariatAdmin.officer') },
     { to: `${base.value}/deputy`, label: t('secretariatAdmin.deputy') },
     { to: `${base.value}/news`, label: t('secretariatAdmin.news') },
     { to: `${base.value}/events`, label: t('secretariatAdmin.events') },
     { to: `${base.value}/announcements`, label: t('secretariatAdmin.announcements') },
     { to: `${base.value}/albums`, label: t('secretariatAdmin.albums') },
-  ]
-  if (auth.hasPermission('inbox.view')) {
-    items.push({ to: `${base.value}/messages`, label: t('secretariatAdmin.messages') })
-  }
+  )
   if (props.code === 'academic' && (auth.hasPermission('attendance.view') || auth.hasPermission('student.view'))) {
     items.push({ to: `${base.value}/attendance`, label: t('secretariatAdmin.attendance') })
   }
@@ -60,10 +72,25 @@ function isActive(link) {
   return route.path.startsWith(link.to)
 }
 
+function switchSecretariat(nextCode) {
+  const suffix = route.path.slice(base.value.length) || ''
+  router.push(`/admin/secretariats/${nextCode}${suffix}`)
+}
+
 const title = computed(() => {
+  const fromApi = departments.value.find((d) => d.code === props.code)
+  if (fromApi) return pickName(fromApi, locale.value)
   const dept = (auth.user?.departments || []).find((d) => d.code === props.code)
-  if (!dept) return props.code
-  return pickName(dept, locale.value)
+  if (dept) return pickName(dept, locale.value)
+  return SECRETARIAT_NAME_KEYS[props.code] ? t(SECRETARIAT_NAME_KEYS[props.code]) : props.code
+})
+
+onMounted(async () => {
+  try {
+    departments.value = await fetchMyDepartments()
+  } catch {
+    departments.value = []
+  }
 })
 </script>
 
@@ -77,9 +104,23 @@ const title = computed(() => {
   </section>
 
   <section v-else class="space-y-6">
-    <div>
-      <p class="text-xs tracking-wide text-slate-500 uppercase">{{ t('secretariatAdmin.badge') }}</p>
-      <h1 class="mt-1 text-2xl font-semibold text-[var(--rdp-forest)]">{{ title }}</h1>
+    <div class="flex flex-wrap items-end justify-between gap-3">
+      <div>
+        <p class="text-xs tracking-wide text-slate-500 uppercase">{{ t('secretariatAdmin.badge') }}</p>
+        <h1 class="mt-1 text-2xl font-semibold text-[var(--rdp-forest)]">{{ title }}</h1>
+      </div>
+      <label v-if="switchable.length > 1" class="text-sm text-slate-600">
+        {{ t('secretariatAdmin.switch') }}
+        <select
+          class="ms-2 rounded border border-slate-300 bg-white px-3 py-1.5 text-sm"
+          :value="code"
+          @change="switchSecretariat($event.target.value)"
+        >
+          <option v-for="dept in switchable" :key="dept.code" :value="dept.code">
+            {{ pickName(dept, locale) || t(SECRETARIAT_NAME_KEYS[dept.code] || dept.code) }}
+          </option>
+        </select>
+      </label>
     </div>
 
     <nav class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">

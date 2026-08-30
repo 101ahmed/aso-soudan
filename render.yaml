@@ -42,6 +42,10 @@ services:
         value: database
       - key: SESSION_ENCRYPT
         value: "true"
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: SESSION_SAME_SITE
+        value: lax
       - key: CACHE_STORE
         value: database
       - key: QUEUE_CONNECTION
@@ -52,9 +56,10 @@ services:
       - key: SKIP_SEEDERS
         value: "false"
       - key: ADMIN_EMAIL
-        value: admin@acs-rennes.fr
+        sync: false
+      # Mot de passe admin : à définir uniquement dans le dashboard Render (jamais dans git)
       - key: ADMIN_PASSWORD
-        value: Password123!
+        sync: false
       # URL publique (liens reset password)
       - key: APP_URL
         value: https://aso-soudan.onrender.com

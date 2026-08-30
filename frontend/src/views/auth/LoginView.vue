@@ -13,8 +13,8 @@ const route = useRoute()
 const formError = ref('')
 
 const form = reactive({
-  email: localStorage.getItem('rdp_remember_email') || 'admin@acs-rennes.fr',
-  password: 'Password123!',
+  email: localStorage.getItem('rdp_remember_email') || '',
+  password: '',
   remember: Boolean(localStorage.getItem('rdp_remember_email')),
 })
 
@@ -24,6 +24,7 @@ async function submit() {
     const user = await auth.login({
       email: form.email,
       password: form.password,
+      remember: form.remember,
     })
 
     if (form.remember) {
@@ -42,11 +43,9 @@ async function submit() {
     const network = error.userMessage === 'network' || error.message === 'Network Error' || error.code === 'ERR_NETWORK'
     formError.value = network
       ? t('auth.networkError')
-      : error.userMessage ||
-        error.response?.data?.errors?.email?.[0] ||
+      : error.response?.data?.errors?.email?.[0] ||
         error.response?.data?.message ||
         auth.error ||
-        error.message ||
         t('auth.loginFailed')
   }
 }

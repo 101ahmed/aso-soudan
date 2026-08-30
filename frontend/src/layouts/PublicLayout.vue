@@ -66,16 +66,6 @@ function closeMenu() {
         <div class="flex items-center gap-2">
           <LanguageSwitcher :is-home="isHome" />
 
-          <RouterLink
-            to="/login"
-            class="hidden rounded px-3 py-2 text-sm font-semibold sm:inline-flex"
-            :class="isHome
-              ? 'bg-[var(--rdp-gold)] text-[var(--rdp-ink)]'
-              : 'bg-[var(--rdp-forest)] text-white'"
-          >
-            {{ t('nav.login') }}
-          </RouterLink>
-
           <button
             type="button"
             class="rounded border px-2.5 py-1.5 text-sm lg:hidden"
@@ -100,13 +90,6 @@ function closeMenu() {
             @click="closeMenu"
           >
             {{ link.label }}
-          </RouterLink>
-          <RouterLink
-            to="/login"
-            class="mt-2 rounded bg-[var(--rdp-forest)] px-3 py-2 text-center font-semibold text-white"
-            @click="closeMenu"
-          >
-            {{ t('nav.login') }}
           </RouterLink>
         </div>
       </div>

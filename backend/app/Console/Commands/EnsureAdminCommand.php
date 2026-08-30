@@ -15,7 +15,7 @@ class EnsureAdminCommand extends Command
                             {--email= : Admin email}
                             {--password= : Admin password}';
 
-    protected $description = 'Ensure Super Admin exists with a known password (idempotent)';
+    protected $description = 'Ensure Super Admin, roles and departments exist (does not reset an existing password)';
 
     public function handle(): int
     {
@@ -39,22 +39,22 @@ class EnsureAdminCommand extends Command
         $email = $this->option('email')
             ?: (getenv('ADMIN_EMAIL') ?: null)
             ?: 'admin@acs-rennes.fr';
-        $password = $this->option('password')
-            ?: (getenv('ADMIN_PASSWORD') ?: null)
-            ?: 'Password123!';
+        $providedPassword = $this->option('password') ?: (getenv('ADMIN_PASSWORD') ?: null);
 
         if (trim((string) $email) === '') {
             $email = 'admin@acs-rennes.fr';
         }
-        if (trim((string) $password) === '') {
-            $password = 'Password123!';
+        if (is_string($providedPassword) && trim($providedPassword) === '') {
+            $providedPassword = null;
         }
 
         /** @var User $user */
         $user = User::withTrashed()->firstOrNew(['email' => $email]);
+        $isNew = ! $user->exists;
 
         if ($user->trashed()) {
             $user->restore();
+            $isNew = false;
         }
 
         $user->fill([
@@ -66,16 +66,26 @@ class EnsureAdminCommand extends Command
             'email_verified_at' => now(),
         ]);
 
-        // Plain password — User cast "hashed" will bcrypt once
-        $user->password = $password;
-        $user->save();
+        if ($isNew) {
+            $password = $providedPassword;
+            if (! $password) {
+                if (app()->environment('production')) {
+                    $this->error('ADMIN_PASSWORD must be set in the environment to create the first admin.');
 
-        // Verify round-trip so deploy logs catch hash problems early
-        $user->refresh();
-        if (! Hash::check($password, $user->password)) {
-            $this->error('Password hash verification failed after save.');
+                    return self::FAILURE;
+                }
+                $password = 'Password123!';
+            }
+            $user->password = $password;
+            $user->save();
+            $user->refresh();
+            if (! Hash::check($password, $user->password)) {
+                $this->error('Password hash verification failed after save.');
 
-            return self::FAILURE;
+                return self::FAILURE;
+            }
+        } else {
+            $user->save();
         }
 
         $role = Role::query()->where('code', 'SUPER_ADMIN')->first();

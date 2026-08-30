@@ -1,15 +1,15 @@
 import { defineStore } from 'pinia'
-import api from '@/services/api'
+import api, { ensureCsrf } from '@/services/api'
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    token: localStorage.getItem('rdp_token'),
-    user: JSON.parse(localStorage.getItem('rdp_user') || 'null'),
+    user: null,
     loading: false,
     error: null,
+    bootstrapped: false,
   }),
   getters: {
-    isAuthenticated: (state) => Boolean(state.token),
+    isAuthenticated: (state) => Boolean(state.user),
     permissions: (state) => state.user?.permissions || [],
     fullName: (state) =>
       state.user
@@ -22,48 +22,50 @@ export const useAuthStore = defineStore('auth', {
       if (this.user.roles?.some((role) => role.code === 'SUPER_ADMIN')) return true
       return this.permissions.includes(code)
     },
-    persist(token, user) {
-      this.token = token
+    setUser(user) {
       this.user = user
-      localStorage.setItem('rdp_token', token)
-      localStorage.setItem('rdp_user', JSON.stringify(user))
     },
     clear() {
-      this.token = null
       this.user = null
-      localStorage.removeItem('rdp_token')
-      localStorage.removeItem('rdp_user')
+    },
+    async bootstrap() {
+      if (this.bootstrapped) return this.user
+      try {
+        await this.fetchMe()
+      } catch {
+        this.clear()
+      } finally {
+        this.bootstrapped = true
+      }
+      return this.user
     },
     async login(payload) {
       this.loading = true
       this.error = null
       try {
-        const { data } = await api.post('/auth/login', {
-          ...payload,
-          device_name: 'rdp-web',
-        })
-        this.persist(data.token, data.user)
+        await ensureCsrf()
+        const { data } = await api.post('/auth/login', payload)
+        this.setUser(data.user)
         return data.user
       } catch (error) {
         this.error =
-          error.userMessage || error.response?.data?.message || error.message
+          error.response?.data?.errors?.email?.[0] ||
+          error.userMessage ||
+          error.response?.data?.message ||
+          error.message
         throw error
       } finally {
         this.loading = false
       }
     },
     async fetchMe() {
-      if (!this.token) return null
       const { data } = await api.get('/auth/me')
-      this.user = data.data || data
-      localStorage.setItem('rdp_user', JSON.stringify(this.user))
+      this.setUser(data.data || data)
       return this.user
     },
     async logout() {
       try {
-        if (this.token) {
-          await api.post('/auth/logout')
-        }
+        await api.post('/auth/logout')
       } catch {
         // ignore network errors on logout
       } finally {
