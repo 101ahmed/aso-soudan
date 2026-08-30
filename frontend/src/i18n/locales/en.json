@@ -746,6 +746,7 @@
     },
     "header": {
       "signedInAs": "Signed in as",
+      "backToHome": "Back to homepage",
       "logout": "Log out"
     },
     "dashboard": {

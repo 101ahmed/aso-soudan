@@ -3,10 +3,12 @@ import { computed, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import PublicLoginForm from '@/components/PublicLoginForm.vue'
 
 const { t } = useI18n()
 const route = useRoute()
 const menuOpen = ref(false)
+const loginOpen = ref(false)
 const isHome = computed(() => route.name === 'home')
 
 const links = computed(() => [
@@ -24,6 +26,11 @@ const links = computed(() => [
 
 function closeMenu() {
   menuOpen.value = false
+  loginOpen.value = false
+}
+
+function toggleLogin() {
+  loginOpen.value = !loginOpen.value
 }
 </script>
 
@@ -33,7 +40,7 @@ function closeMenu() {
       class="inset-x-0 top-0 z-30"
       :class="isHome ? 'absolute' : 'relative border-b border-black/10 bg-white/95 backdrop-blur'"
     >
-      <div class="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 md:px-8">
+      <div class="relative z-50 mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-4 md:px-8">
         <RouterLink to="/" class="flex min-w-0 items-center gap-3" @click="closeMenu">
           <img
             src="/logo.png"
@@ -66,15 +73,27 @@ function closeMenu() {
         <div class="flex items-center gap-2">
           <LanguageSwitcher :is-home="isHome" />
 
-          <RouterLink
-            to="/login"
-            class="hidden rounded px-3 py-2 text-sm font-semibold sm:inline-flex"
-            :class="isHome
-              ? 'bg-[var(--rdp-gold)] text-[var(--rdp-ink)]'
-              : 'bg-[var(--rdp-forest)] text-white'"
-          >
-            {{ t('nav.login') }}
-          </RouterLink>
+          <div class="relative hidden sm:block">
+            <button
+              type="button"
+              class="rounded px-3 py-2 text-sm font-semibold"
+              :class="isHome
+                ? 'bg-[var(--rdp-gold)] text-[var(--rdp-ink)]'
+                : 'bg-[var(--rdp-forest)] text-white'"
+              :aria-expanded="loginOpen"
+              @click.stop="toggleLogin"
+            >
+              {{ t('nav.login') }}
+            </button>
+            <div
+              v-if="loginOpen"
+              class="absolute top-full z-50 mt-2 w-80 rounded-xl border border-slate-200 bg-white p-4 shadow-xl end-0"
+              @click.stop
+            >
+              <p class="mb-3 text-sm font-semibold text-[var(--rdp-forest)]">{{ t('auth.loginTitle') }}</p>
+              <PublicLoginForm @success="closeMenu" />
+            </div>
+          </div>
 
           <button
             type="button"
@@ -88,8 +107,14 @@ function closeMenu() {
       </div>
 
       <div
+        v-if="loginOpen"
+        class="fixed inset-0 z-40"
+        @click="loginOpen = false"
+      />
+
+      <div
         v-if="menuOpen"
-        class="border-t border-black/10 bg-white px-4 py-4 shadow-lg lg:hidden"
+        class="relative z-50 border-t border-black/10 bg-white px-4 py-4 shadow-lg lg:hidden"
       >
         <div class="mx-auto flex max-w-6xl flex-col gap-2 text-sm">
           <RouterLink
@@ -101,13 +126,10 @@ function closeMenu() {
           >
             {{ link.label }}
           </RouterLink>
-          <RouterLink
-            to="/login"
-            class="mt-2 rounded bg-[var(--rdp-forest)] px-3 py-2 text-center font-semibold text-white"
-            @click="closeMenu"
-          >
-            {{ t('nav.login') }}
-          </RouterLink>
+          <div class="mt-2 rounded-xl border border-slate-200 bg-[var(--rdp-cream)] p-4">
+            <p class="mb-3 text-center font-semibold text-[var(--rdp-forest)]">{{ t('auth.loginTitle') }}</p>
+            <PublicLoginForm @success="closeMenu" />
+          </div>
         </div>
       </div>
     </header>

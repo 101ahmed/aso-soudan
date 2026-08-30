@@ -297,7 +297,7 @@ router.beforeEach(async (to) => {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
 
-  if (to.meta.guest && auth.isAuthenticated) {
+  if (to.meta.guest && to.name !== 'login' && auth.isAuthenticated) {
     return resolvePostLoginPath(auth.user)
   }
 

@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Models\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Throwable;
 
 class AuditLogger
 {
@@ -16,17 +17,21 @@ class AuditLogger
         array $meta = [],
         ?Request $request = null,
     ): void {
-        $request ??= request();
+        try {
+            $request ??= request();
 
-        AuditLog::query()->create([
-            'user_id' => $userId,
-            'action' => $action,
-            'target_type' => $targetType,
-            'target_id' => $targetId,
-            'ip' => $request?->ip(),
-            'user_agent' => $request?->userAgent() ? Str::limit($request->userAgent(), 512, '') : null,
-            'meta' => $meta === [] ? null : $meta,
-            'created_at' => now(),
-        ]);
+            AuditLog::query()->create([
+                'user_id' => $userId,
+                'action' => $action,
+                'target_type' => $targetType,
+                'target_id' => $targetId,
+                'ip' => $request?->ip(),
+                'user_agent' => $request?->userAgent() ? Str::limit($request->userAgent(), 512, '') : null,
+                'meta' => $meta === [] ? null : $meta,
+                'created_at' => now(),
+            ]);
+        } catch (Throwable $e) {
+            report($e);
+        }
     }
 }

@@ -746,6 +746,7 @@
     },
     "header": {
       "signedInAs": "Connecté en tant que",
+      "backToHome": "Retour à l’accueil",
       "logout": "Déconnexion"
     },
     "dashboard": {

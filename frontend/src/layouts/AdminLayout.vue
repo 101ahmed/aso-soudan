@@ -66,9 +66,11 @@ function isActive(to, exact = false) {
     <div class="flex min-h-screen">
       <aside class="w-64 shrink-0 border-e border-slate-200 bg-slate-900 text-slate-100">
         <div class="border-b border-slate-700 px-5 py-5">
-          <img src="/logo.png" :alt="t('app.name')" class="mb-3 h-14 w-auto rounded-md bg-white object-contain px-2 py-1" />
-          <p class="text-xs tracking-wide text-teal-300">Rennes · RDP</p>
-          <h1 class="mt-1 text-base font-semibold leading-snug">{{ t('app.name') }}</h1>
+          <RouterLink to="/" class="block">
+            <img src="/logo.png" :alt="t('app.name')" class="mb-3 h-14 w-auto rounded-md bg-white object-contain px-2 py-1" />
+            <p class="text-xs tracking-wide text-teal-300">Rennes · RDP</p>
+            <h1 class="mt-1 text-base font-semibold leading-snug">{{ t('app.name') }}</h1>
+          </RouterLink>
         </div>
         <nav class="flex flex-col gap-1 p-3">
           <RouterLink
@@ -106,6 +108,12 @@ function isActive(to, exact = false) {
           </div>
           <div class="flex items-center gap-3">
             <LanguageSwitcher variant="admin" />
+            <RouterLink
+              to="/"
+              class="rounded-md bg-teal-800 px-3 py-1.5 text-sm font-medium text-white hover:bg-teal-700"
+            >
+              {{ t('admin.header.backToHome') }}
+            </RouterLink>
             <button
               type="button"
               class="rounded-md border border-slate-300 px-3 py-1.5 text-sm hover:bg-slate-50"

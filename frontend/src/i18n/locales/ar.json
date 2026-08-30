@@ -746,6 +746,7 @@
     },
     "header": {
       "signedInAs": "مسجل الدخول باسم",
+      "backToHome": "العودة إلى الرئيسية",
       "logout": "تسجيل الخروج"
     },
     "dashboard": {
