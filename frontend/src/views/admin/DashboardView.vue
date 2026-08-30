@@ -58,6 +58,17 @@ onMounted(async () => {
       </div>
     </div>
 
+    <div v-if="auth.hasPermission('report.view')" class="rounded-xl border border-slate-200 bg-white p-5">
+      <h2 class="font-semibold text-[var(--rdp-forest)]">{{ t('secretariatReports.hubTitle') }}</h2>
+      <p class="mt-1 text-sm text-slate-600">{{ t('secretariatReports.hubHint') }}</p>
+      <RouterLink
+        to="/admin/reports"
+        class="mt-3 inline-flex rounded bg-teal-800 px-3 py-1.5 text-sm font-semibold text-white"
+      >
+        {{ t('secretariatReports.open') }}
+      </RouterLink>
+    </div>
+
     <div v-if="canManageContent" class="space-y-3">
       <div>
         <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('admin.dashboard.contentTitle') }}</h2>
@@ -111,6 +122,13 @@ onMounted(async () => {
               class="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-700"
             >
               {{ t('secretariatAdmin.home') }}
+            </RouterLink>
+            <RouterLink
+              v-if="auth.hasPermission('report.view')"
+              :to="`/admin/secretariats/${dept.code}/reports`"
+              class="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-700"
+            >
+              {{ t('secretariatAdmin.reports') }}
             </RouterLink>
           </div>
         </article>

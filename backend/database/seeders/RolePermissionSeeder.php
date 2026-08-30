@@ -106,6 +106,18 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'inbox.create', 'module' => 'inbox', 'name_fr' => 'Créer message amanah', 'name_ar' => 'إنشاء رسالة أمانة'],
             ['code' => 'inbox.update', 'module' => 'inbox', 'name_fr' => 'Modifier message amanah', 'name_ar' => 'تعديل رسالة أمانة'],
             ['code' => 'inbox.delete', 'module' => 'inbox', 'name_fr' => 'Supprimer message amanah', 'name_ar' => 'حذف رسالة أمانة'],
+            ['code' => 'finance.view', 'module' => 'finance', 'name_fr' => 'Voir finances', 'name_ar' => 'عرض المالية'],
+            ['code' => 'finance.create', 'module' => 'finance', 'name_fr' => 'Créer opération financière', 'name_ar' => 'إنشاء عملية مالية'],
+            ['code' => 'finance.update', 'module' => 'finance', 'name_fr' => 'Modifier opération financière', 'name_ar' => 'تعديل عملية مالية'],
+            ['code' => 'finance.delete', 'module' => 'finance', 'name_fr' => 'Supprimer opération financière', 'name_ar' => 'حذف عملية مالية'],
+            ['code' => 'decision.view', 'module' => 'media', 'name_fr' => 'Voir décisions', 'name_ar' => 'عرض القرارات'],
+            ['code' => 'decision.create', 'module' => 'media', 'name_fr' => 'Créer décision', 'name_ar' => 'إنشاء قرار'],
+            ['code' => 'decision.update', 'module' => 'media', 'name_fr' => 'Modifier décision', 'name_ar' => 'تعديل قرار'],
+            ['code' => 'decision.delete', 'module' => 'media', 'name_fr' => 'Supprimer décision', 'name_ar' => 'حذف قرار'],
+            ['code' => 'press.view', 'module' => 'media', 'name_fr' => 'Voir centre médias', 'name_ar' => 'عرض مركز الإعلام'],
+            ['code' => 'press.create', 'module' => 'media', 'name_fr' => 'Créer contenu médias', 'name_ar' => 'إنشاء محتوى إعلامي'],
+            ['code' => 'press.update', 'module' => 'media', 'name_fr' => 'Modifier contenu médias', 'name_ar' => 'تعديل محتوى إعلامي'],
+            ['code' => 'press.delete', 'module' => 'media', 'name_fr' => 'Supprimer contenu médias', 'name_ar' => 'حذف محتوى إعلامي'],
             ['code' => 'shura.member.view', 'module' => 'shura', 'name_fr' => 'Voir membres Choura', 'name_ar' => 'عرض أعضاء الشورى'],
             ['code' => 'shura.member.manage', 'module' => 'shura', 'name_fr' => 'Gérer membres Choura', 'name_ar' => 'إدارة أعضاء الشورى'],
             ['code' => 'shura.meeting.view', 'module' => 'shura', 'name_fr' => 'Voir réunions Choura', 'name_ar' => 'عرض اجتماعات الشورى'],
@@ -145,13 +157,13 @@ class RolePermissionSeeder extends Seeder
 
         Role::query()->where('code', 'PRESIDENT')->first()?->permissions()->sync(
             Permission::query()->whereIn('code', [
-                'news.view', 'announcement.view', 'gallery.view', 'report.view', 'statistics.view', 'member.view', 'help.view', 'partner.view', 'extcontact.view', 'inbox.view',
+                'news.view', 'announcement.view', 'gallery.view', 'report.view', 'report.export', 'statistics.view', 'member.view', 'help.view', 'partner.view', 'extcontact.view', 'inbox.view', 'finance.view', 'decision.view', 'press.view',
             ])->pluck('id')
         );
 
         $secretariatManagerCodes = array_merge($contentCodes, [
             'user.view',
-            'report.view',
+            'report.view', 'report.export',
             'inbox.view', 'inbox.create', 'inbox.update', 'inbox.delete',
         ]);
 
@@ -165,8 +177,13 @@ class RolePermissionSeeder extends Seeder
             'SOCIAL_SECRETARIAT' => array_merge($secretariatManagerCodes, [
                 'help.view', 'help.create', 'help.update', 'help.delete',
             ]),
-            'FINANCE_SECRETARIAT' => $secretariatManagerCodes,
-            'MEDIA_SECRETARIAT' => $secretariatManagerCodes,
+            'FINANCE_SECRETARIAT' => array_merge($secretariatManagerCodes, [
+                'finance.view', 'finance.create', 'finance.update', 'finance.delete',
+            ]),
+            'MEDIA_SECRETARIAT' => array_merge($secretariatManagerCodes, [
+                'decision.view', 'decision.create', 'decision.update', 'decision.delete',
+                'press.view', 'press.create', 'press.update', 'press.delete',
+            ]),
             'WOMEN_CHILDREN' => $secretariatManagerCodes,
             'STATISTICS_SECRETARIAT' => array_merge($contentCodes, [
                 'statistics.view', 'report.view', 'report.export',

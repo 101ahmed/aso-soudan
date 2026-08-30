@@ -13,6 +13,8 @@ import PresidentView from '@/views/public/PresidentView.vue'
 import PrivacyPolicyView from '@/views/public/PrivacyPolicyView.vue'
 import NewsListView from '@/views/public/NewsListView.vue'
 import NewsDetailView from '@/views/public/NewsDetailView.vue'
+import MediaCenterListView from '@/views/public/MediaCenterListView.vue'
+import MediaCenterDetailView from '@/views/public/MediaCenterDetailView.vue'
 import EventsListView from '@/views/public/EventsListView.vue'
 import EventDetailView from '@/views/public/EventDetailView.vue'
 import GalleryView from '@/views/public/GalleryView.vue'
@@ -30,6 +32,8 @@ import DashboardView from '@/views/admin/DashboardView.vue'
 import PresidentDashboardView from '@/views/admin/PresidentDashboardView.vue'
 import SecretariatAdminShell from '@/views/admin/secretariat/SecretariatAdminShell.vue'
 import SecretariatHomeView from '@/views/admin/secretariat/SecretariatHomeView.vue'
+import SecretariatReportView from '@/views/admin/secretariat/SecretariatReportView.vue'
+import SecretariatReportsHubView from '@/views/admin/SecretariatReportsHubView.vue'
 import SecretariatNewsView from '@/views/admin/secretariat/SecretariatNewsView.vue'
 import SecretariatEventsView from '@/views/admin/secretariat/SecretariatEventsView.vue'
 import SecretariatAnnouncementsView from '@/views/admin/secretariat/SecretariatAnnouncementsView.vue'
@@ -42,6 +46,11 @@ import AcademicTeachersView from '@/views/admin/academic/AcademicTeachersView.vu
 import AcademicStudentsView from '@/views/admin/academic/AcademicStudentsView.vue'
 import StatisticsMembersView from '@/views/admin/statistics/StatisticsMembersView.vue'
 import SocialHelpRequestsView from '@/views/admin/secretariat/SocialHelpRequestsView.vue'
+import FinanceOverviewView from '@/views/admin/secretariat/FinanceOverviewView.vue'
+import FinanceRevenuesView from '@/views/admin/secretariat/FinanceRevenuesView.vue'
+import FinanceExpensesView from '@/views/admin/secretariat/FinanceExpensesView.vue'
+import MediaDecisionsView from '@/views/admin/secretariat/MediaDecisionsView.vue'
+import MediaCenterView from '@/views/admin/secretariat/MediaCenterView.vue'
 import ExternalPartnersView from '@/views/admin/secretariat/ExternalPartnersView.vue'
 import ExternalDocumentsView from '@/views/admin/secretariat/ExternalDocumentsView.vue'
 import ExternalContactRequestsView from '@/views/admin/secretariat/ExternalContactRequestsView.vue'
@@ -118,6 +127,8 @@ const router = createRouter({
         },
         { path: 'news', name: 'news', component: NewsListView },
         { path: 'news/:slug', name: 'news.detail', component: NewsDetailView },
+        { path: 'media-center', name: 'mediaCenter', component: MediaCenterListView },
+        { path: 'media-center/:slug', name: 'mediaCenter.detail', component: MediaCenterDetailView },
         { path: 'events', name: 'events', component: EventsListView },
         { path: 'events/:slug', name: 'events.detail', component: EventDetailView },
         { path: 'gallery', name: 'gallery', component: GalleryView },
@@ -154,6 +165,12 @@ const router = createRouter({
       children: [
         { path: '', name: 'admin.dashboard', component: DashboardView },
         {
+          path: 'reports',
+          name: 'admin.reports',
+          component: SecretariatReportsHubView,
+          meta: { permission: 'report.view' },
+        },
+        {
           path: 'content',
           component: ContentEditorShell,
           meta: { anyPermission: ['news.view', 'announcement.view'] },
@@ -185,6 +202,12 @@ const router = createRouter({
           props: true,
           children: [
             { path: '', name: 'admin.secretariat', component: SecretariatHomeView },
+            {
+              path: 'reports',
+              name: 'admin.secretariat.reports',
+              component: SecretariatReportView,
+              meta: { permission: 'report.view' },
+            },
             { path: 'news', name: 'admin.secretariat.news', component: SecretariatNewsView },
             { path: 'events', name: 'admin.secretariat.events', component: SecretariatEventsView },
             { path: 'announcements', name: 'admin.secretariat.announcements', component: SecretariatAnnouncementsView },
@@ -232,6 +255,36 @@ const router = createRouter({
               name: 'admin.secretariat.help',
               component: SocialHelpRequestsView,
               meta: { permission: 'help.view' },
+            },
+            {
+              path: 'accounts',
+              name: 'admin.secretariat.finance',
+              component: FinanceOverviewView,
+              meta: { permission: 'finance.view' },
+            },
+            {
+              path: 'revenues',
+              name: 'admin.secretariat.finance.revenues',
+              component: FinanceRevenuesView,
+              meta: { permission: 'finance.view' },
+            },
+            {
+              path: 'expenses',
+              name: 'admin.secretariat.finance.expenses',
+              component: FinanceExpensesView,
+              meta: { permission: 'finance.view' },
+            },
+            {
+              path: 'decisions',
+              name: 'admin.secretariat.decisions',
+              component: MediaDecisionsView,
+              meta: { permission: 'decision.view' },
+            },
+            {
+              path: 'media-center',
+              name: 'admin.secretariat.mediaCenter',
+              component: MediaCenterView,
+              meta: { permission: 'press.view' },
             },
             {
               path: 'partners',

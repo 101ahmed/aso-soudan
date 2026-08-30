@@ -31,6 +31,11 @@ const teacherOnly = computed(() => isTeacher.value && !isSuperAdmin.value && !se
 const links = computed(() => [
   { to: '/admin', label: t('admin.nav.dashboard'), show: !teacherOnly.value, exact: true },
   {
+    to: '/admin/reports',
+    label: t('admin.nav.reports'),
+    show: auth.hasPermission('report.view'),
+  },
+  {
     to: '/admin/teacher',
     label: t('admin.nav.teacher'),
     show: isTeacher.value || isSuperAdmin.value,
@@ -69,7 +74,7 @@ function isActive(to, exact = false) {
 <template>
   <div class="min-h-screen bg-slate-100 text-slate-900">
     <div class="flex min-h-screen">
-      <aside class="w-64 shrink-0 border-e border-slate-200 bg-slate-900 text-slate-100">
+      <aside class="no-print w-64 shrink-0 border-e border-slate-200 bg-slate-900 text-slate-100">
         <div class="border-b border-slate-700 px-5 py-5">
           <RouterLink to="/" class="block">
             <img src="/logo.png" :alt="t('app.name')" class="mb-3 h-14 w-auto rounded-md bg-white object-contain px-2 py-1" />
@@ -106,7 +111,7 @@ function isActive(to, exact = false) {
       </aside>
 
       <div class="flex min-w-0 flex-1 flex-col">
-        <header class="flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4">
+        <header class="no-print flex items-center justify-between gap-4 border-b border-slate-200 bg-white px-6 py-4">
           <div>
             <p class="text-sm text-slate-500">{{ t('admin.header.signedInAs') }}</p>
             <p class="font-medium">{{ auth.fullName || auth.user?.email }}</p>

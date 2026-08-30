@@ -7,12 +7,14 @@ use App\Http\Resources\AlbumResource;
 use App\Http\Resources\AnnouncementResource;
 use App\Http\Resources\DepartmentResource;
 use App\Http\Resources\EventResource;
+use App\Http\Resources\MediaCenterItemResource;
 use App\Http\Resources\NewsResource;
 use App\Models\Album;
 use App\Models\Announcement;
 use App\Models\Department;
 use App\Models\Event;
 use App\Models\EventRating;
+use App\Models\MediaCenterItem;
 use App\Models\News;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -71,12 +73,23 @@ class PublicContentController extends Controller
             ->limit(12)
             ->get();
 
+        $mediaCenter = [];
+        if ($code === 'media') {
+            $mediaCenter = MediaCenterItem::query()
+                ->published()
+                ->latest('occurred_on')
+                ->latest('id')
+                ->limit(8)
+                ->get();
+        }
+
         return response()->json([
             'department' => (new DepartmentResource($department))->resolve(),
             'news' => NewsResource::collection($news)->resolve(),
             'announcements' => AnnouncementResource::collection($announcements)->resolve(),
             'albums' => AlbumResource::collection($albums)->resolve(),
             'events' => EventResource::collection($events)->resolve(),
+            'media_center' => MediaCenterItemResource::collection($mediaCenter)->resolve(),
         ]);
     }
 
@@ -104,6 +117,26 @@ class PublicContentController extends Controller
         $news = News::query()->with('department')->published()->where('slug', $slug)->firstOrFail();
 
         return new NewsResource($news);
+    }
+
+    public function mediaCenter(Request $request): AnonymousResourceCollection
+    {
+        $query = MediaCenterItem::query()->published();
+
+        if ($request->filled('kind')) {
+            $query->where('kind', $request->string('kind'));
+        }
+
+        return MediaCenterItemResource::collection(
+            $query->latest('occurred_on')->latest('id')->paginate($request->integer('per_page', 24))
+        );
+    }
+
+    public function mediaCenterShow(string $slug): MediaCenterItemResource
+    {
+        $item = MediaCenterItem::query()->published()->where('slug', $slug)->firstOrFail();
+
+        return new MediaCenterItemResource($item);
     }
 
     public function announcements(Request $request): AnonymousResourceCollection

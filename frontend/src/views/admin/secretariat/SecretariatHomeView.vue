@@ -2,9 +2,11 @@
 import { computed } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
 const { t } = useI18n()
+const auth = useAuthStore()
 const code = computed(() => route.params.code)
 
 const cards = computed(() => {
@@ -33,6 +35,13 @@ const cards = computed(() => {
     { to: `/admin/secretariats/${code.value}/announcements`, label: t('secretariatAdmin.announcements'), hint: t('secretariatAdmin.announcementsHint') },
     { to: `/admin/secretariats/${code.value}/albums`, label: t('secretariatAdmin.albums'), hint: t('secretariatAdmin.albumsHint') },
   ]
+  if (auth.hasPermission('report.view')) {
+    items.push({
+      to: `/admin/secretariats/${code.value}/reports`,
+      label: t('secretariatAdmin.reports'),
+      hint: t('secretariatAdmin.reportsHint'),
+    })
+  }
   if (code.value === 'academic') {
     items.unshift(
       {
@@ -58,6 +67,39 @@ const cards = computed(() => {
       label: t('secretariatAdmin.members'),
       hint: t('secretariatAdmin.membersHint'),
     })
+  }
+  if (code.value === 'finance') {
+    items.unshift(
+      {
+        to: `/admin/secretariats/finance/accounts`,
+        label: t('secretariatAdmin.financeOverview'),
+        hint: t('secretariatAdmin.financeOverviewHint'),
+      },
+      {
+        to: `/admin/secretariats/finance/revenues`,
+        label: t('secretariatAdmin.financeRevenues'),
+        hint: t('secretariatAdmin.financeRevenuesHint'),
+      },
+      {
+        to: `/admin/secretariats/finance/expenses`,
+        label: t('secretariatAdmin.financeExpenses'),
+        hint: t('secretariatAdmin.financeExpensesHint'),
+      },
+    )
+  }
+  if (code.value === 'media') {
+    items.unshift(
+      {
+        to: `/admin/secretariats/media/media-center`,
+        label: t('secretariatAdmin.mediaCenter'),
+        hint: t('secretariatAdmin.mediaCenterHint'),
+      },
+      {
+        to: `/admin/secretariats/media/decisions`,
+        label: t('secretariatAdmin.decisions'),
+        hint: t('secretariatAdmin.decisionsHint'),
+      },
+    )
   }
   if (code.value === 'social') {
     items.unshift({

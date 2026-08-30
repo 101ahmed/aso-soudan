@@ -13,7 +13,7 @@ const menus = computed(() => [
   { to: '/admin/users', label: t('president.dash.menu.members') },
   { to: '/admin', label: t('president.dash.menu.academic') },
   { to: '/admin', label: t('president.dash.menu.stats') },
-  { to: '/admin', label: t('president.dash.menu.reports') },
+  { to: '/admin/reports', label: t('president.dash.menu.reports') },
   { to: '/events', label: t('president.dash.menu.events'), external: true },
   { to: '/shura-council', label: t('president.dash.menu.shura'), external: true },
   { to: '/parents-council', label: t('president.dash.menu.parents'), external: true },

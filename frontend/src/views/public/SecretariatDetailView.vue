@@ -18,7 +18,7 @@ const { t, locale } = useI18n()
 const sent = ref(false)
 const sending = ref(false)
 const contactError = ref('')
-const feed = ref({ news: [], announcements: [], albums: [], events: [], department: null })
+const feed = ref({ news: [], announcements: [], albums: [], events: [], media_center: [], department: null })
 const publicPartners = ref([])
 const publicDocuments = ref([])
 
@@ -89,6 +89,7 @@ const news = computed(() => {
   return newsBySecretariat(route.params.slug)
 })
 
+const mediaCenter = computed(() => feed.value.media_center || [])
 const announcements = computed(() => feed.value.announcements || [])
 
 const events = computed(() =>
@@ -180,7 +181,7 @@ async function loadFeed(slug) {
   try {
     feed.value = await fetchSecretariatFeed(slug)
   } catch {
-    feed.value = { news: [], announcements: [], albums: [], events: [], department: null }
+    feed.value = { news: [], announcements: [], albums: [], events: [], media_center: [], department: null }
   }
   if (slug === 'external-relations') {
     try {
@@ -508,6 +509,39 @@ watch(
               <p class="mt-2 text-sm text-slate-600">
                 {{ locale === 'ar' ? item.content_ar : (item.content_en || item.content_fr) }}
               </p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Media center -->
+      <section v-if="route.params.slug === 'media'" class="space-y-4">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">📢 {{ t('mediaCenter.publicTitle') }}</h2>
+          <RouterLink to="/media-center" class="text-sm font-semibold text-[var(--rdp-forest)] hover:underline">
+            {{ t('home.readMore') }}
+          </RouterLink>
+        </div>
+        <div class="flex flex-wrap gap-2">
+          <RouterLink
+            v-for="kind in ['official', 'statement', 'coverage', 'conference', 'interview']"
+            :key="kind"
+            :to="`/media-center?kind=${kind}`"
+            class="rounded-full bg-white px-4 py-2 text-sm text-[var(--rdp-forest)] shadow-sm"
+          >
+            {{ t(`mediaCenter.kinds.${kind}`) }}
+          </RouterLink>
+        </div>
+        <div v-if="mediaCenter.length" class="grid gap-4 md:grid-cols-3">
+          <article v-for="item in mediaCenter" :key="item.id" class="overflow-hidden rounded-xl bg-white shadow-sm">
+            <img :src="item.image_url || '/logo.png'" alt="" class="h-36 w-full object-cover" />
+            <div class="space-y-1 p-4">
+              <p class="text-xs font-semibold text-[var(--rdp-gold)]">{{ t(`mediaCenter.kinds.${item.kind}`) }}</p>
+              <p class="text-xs text-slate-500">{{ item.occurred_on || (item.published_at || '').slice(0, 10) }}</p>
+              <h3 class="font-semibold">{{ locale === 'ar' ? item.title_ar : item.title_fr }}</h3>
+              <RouterLink :to="`/media-center/${item.slug}`" class="text-sm font-semibold text-[var(--rdp-forest)] hover:underline">
+                {{ t('home.readMore') }}
+              </RouterLink>
             </div>
           </article>
         </div>

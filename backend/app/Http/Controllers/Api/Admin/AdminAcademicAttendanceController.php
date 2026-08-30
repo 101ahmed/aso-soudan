@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\AcademicSession;
 use App\Models\AcademicYear;
 use App\Models\ClassGroup;
+use App\Models\ClassSchedule;
+use App\Models\Level;
 use App\Models\Student;
 use App\Models\StudentAttendance;
 use App\Models\Subject;
@@ -25,7 +27,7 @@ class AdminAcademicAttendanceController extends Controller
             ?? AcademicYear::query()->latest('id')->first();
 
         $classes = $this->scopedClassGroups($request, $year)
-            ->get(['id', 'subject_id', 'name', 'teacher_id']);
+            ->get(['id', 'subject_id', 'level_id', 'name', 'teacher_id']);
         $classIds = $classes->pluck('id');
         $subjectIds = $classes->pluck('subject_id')->unique()->filter()->values();
 
@@ -178,12 +180,35 @@ class AdminAcademicAttendanceController extends Controller
 
         $studentsCount = $enrollments->pluck('student_id')->unique()->count();
 
+        $levelIds = $classes->pluck('level_id')->unique()->filter()->values();
+        $levels = $levelIds->isEmpty()
+            ? collect()
+            : Level::query()->whereIn('id', $levelIds)->orderBy('sort_order')->get(['id', 'code', 'name_ar', 'name_fr']);
+
+        $levelPayload = $this->summarizeByClassKey(
+            $levels,
+            'level_id',
+            $classes,
+            $sessions,
+            $attendance,
+            $enrollments,
+            $classById,
+            $sessionById,
+        );
+
+        $studentsByClass = $enrollments->groupBy('class_group_id')->map->count();
+
         return response()->json([
             'academic_year' => $year,
             'students_count' => $studentsCount,
+            'subjects_count' => $payload->count(),
+            'classes_count' => $classes->count(),
             'totals' => $totals,
             'generated_at' => now()->toIso8601String(),
             'subjects' => $payload,
+            'levels' => $levelPayload,
+            'schedule' => $this->weeklySchedule($classIds, $classes, $payload, $levels, $studentsByClass),
+            'upcoming_sessions' => $this->upcomingSessions($classIds, $classes, $payload, $levels, $studentsByClass, $sessions),
         ]);
     }
 
@@ -204,12 +229,10 @@ class AdminAcademicAttendanceController extends Controller
         $year = AcademicYear::query()->current()->first()
             ?? AcademicYear::query()->latest('id')->first();
 
-        $classes = ClassGroup::query()
+        $classes = $this->scopedClassGroups($request, $year)
             ->with(['level', 'subject'])
             ->withCount(['students as students_count' => fn ($q) => $q->where('class_students.status', 'active')])
             ->where('subject_id', $subject->id)
-            ->when($year, fn ($q) => $q->where('academic_year_id', $year->id))
-            ->where('status', 'active')
             ->orderBy('name')
             ->get();
 
@@ -222,6 +245,7 @@ class AdminAcademicAttendanceController extends Controller
     public function sessionsIndex(Request $request, ClassGroup $classGroup): JsonResponse
     {
         $this->authorizePermission($request, 'attendance.view');
+        $this->assertClassAccess($request, $classGroup);
 
         $sessions = AcademicSession::query()
             ->where('class_group_id', $classGroup->id)
@@ -244,6 +268,7 @@ class AdminAcademicAttendanceController extends Controller
     public function sessionsStore(Request $request, ClassGroup $classGroup): JsonResponse
     {
         $this->authorizePermission($request, 'attendance.create');
+        $this->assertClassAccess($request, $classGroup);
 
         $data = $request->validate([
             'session_date' => ['required', 'date'],
@@ -258,6 +283,7 @@ class AdminAcademicAttendanceController extends Controller
             'starts_at' => $data['starts_at'].':00',
             'ends_at' => $data['ends_at'].':00',
             'class_group_id' => $classGroup->id,
+            'teacher_id' => $classGroup->teacher_id,
             'status' => 'scheduled',
         ]);
 
@@ -267,8 +293,9 @@ class AdminAcademicAttendanceController extends Controller
     public function sheet(Request $request, AcademicSession $session): JsonResponse
     {
         $this->authorizePermission($request, 'attendance.view');
-
         $session->load(['classGroup.subject', 'classGroup.level', 'attendances']);
+        abort_unless($session->classGroup, 404);
+        $this->assertClassAccess($request, $session->classGroup);
 
         $students = $session->classGroup->students()
             ->wherePivot('status', 'active')
@@ -311,6 +338,9 @@ class AdminAcademicAttendanceController extends Controller
     public function syncSheet(Request $request, AcademicSession $session): JsonResponse
     {
         $this->authorizePermission($request, 'attendance.create');
+        $session->loadMissing('classGroup');
+        abort_unless($session->classGroup, 404);
+        $this->assertClassAccess($request, $session->classGroup);
 
         $data = $request->validate([
             'rows' => ['required', 'array', 'min:1'],
@@ -380,6 +410,277 @@ class AdminAcademicAttendanceController extends Controller
     private function authorizePermission(Request $request, string $permission): void
     {
         abort_unless($request->user()?->hasPermission($permission), 403);
+    }
+
+    private function assertClassAccess(Request $request, ClassGroup $classGroup): void
+    {
+        $year = AcademicYear::query()->current()->first()
+            ?? AcademicYear::query()->latest('id')->first();
+
+        abort_unless(
+            $this->scopedClassGroups($request, $year)->where('id', $classGroup->id)->exists(),
+            403
+        );
+    }
+
+    private function summarizeByClassKey(
+        $groups,
+        string $classKey,
+        $classes,
+        $sessions,
+        $attendance,
+        $enrollments,
+        $classById,
+        $sessionById,
+    ) {
+        $statusByGroup = [];
+        $statusByGroupStudent = [];
+        foreach ($attendance as $row) {
+            $session = $sessionById->get($row->academic_session_id);
+            $class = $session ? $classById->get($session->class_group_id) : null;
+            if (! $class) {
+                continue;
+            }
+            $gid = (int) $class->{$classKey};
+            if (! $gid) {
+                continue;
+            }
+            $status = (string) $row->status;
+            $statusByGroup[$gid][$status] = ($statusByGroup[$gid][$status] ?? 0) + 1;
+            $studentId = (int) $row->student_id;
+            $statusByGroupStudent[$gid][$studentId][$status] = ($statusByGroupStudent[$gid][$studentId][$status] ?? 0) + 1;
+        }
+
+        $studentsByGroup = [];
+        foreach ($enrollments as $row) {
+            $class = $classById->get($row->class_group_id);
+            if (! $class) {
+                continue;
+            }
+            $gid = (int) $class->{$classKey};
+            if (! $gid) {
+                continue;
+            }
+            $studentsByGroup[$gid][(int) $row->student_id] = [
+                'id' => (int) $row->student_id,
+                'full_name' => trim($row->first_name.' '.$row->last_name),
+            ];
+        }
+
+        return $groups->map(function ($group) use (
+            $classKey,
+            $classes,
+            $sessions,
+            $statusByGroup,
+            $statusByGroupStudent,
+            $studentsByGroup,
+        ) {
+            $gid = (int) $group->id;
+            $groupClasses = $classes->where($classKey, $gid);
+            $groupClassIds = $groupClasses->pluck('id');
+            $groupSessions = $sessions->whereIn('class_group_id', $groupClassIds);
+            $counts = $statusByGroup[$gid] ?? [];
+            $present = (int) ($counts[StudentAttendance::STATUS_PRESENT] ?? 0);
+            $absent = (int) ($counts[StudentAttendance::STATUS_ABSENT] ?? 0);
+            $late = (int) ($counts[StudentAttendance::STATUS_LATE] ?? 0);
+            $excused = (int) ($counts[StudentAttendance::STATUS_EXCUSED] ?? 0);
+            $recorded = $present + $absent + $late + $excused;
+            $rate = $recorded > 0 ? round((($present + $late) / $recorded) * 100, 1) : null;
+
+            $last = $groupSessions->sortByDesc(function ($session) {
+                return $session->session_date?->toDateString().' '.$session->starts_at;
+            })->first();
+
+            $students = collect($studentsByGroup[$gid] ?? [])
+                ->map(function (array $student) use ($statusByGroupStudent, $gid) {
+                    $st = $statusByGroupStudent[$gid][$student['id']] ?? [];
+                    $present = (int) ($st[StudentAttendance::STATUS_PRESENT] ?? 0);
+                    $absent = (int) ($st[StudentAttendance::STATUS_ABSENT] ?? 0);
+                    $late = (int) ($st[StudentAttendance::STATUS_LATE] ?? 0);
+                    $excused = (int) ($st[StudentAttendance::STATUS_EXCUSED] ?? 0);
+                    $recorded = $present + $absent + $late + $excused;
+
+                    return [
+                        'id' => $student['id'],
+                        'full_name' => $student['full_name'],
+                        'present_count' => $present,
+                        'absent_count' => $absent,
+                        'late_count' => $late,
+                        'excused_count' => $excused,
+                        'recorded_count' => $recorded,
+                        'attendance_rate' => $recorded > 0 ? round((($present + $late) / $recorded) * 100, 1) : null,
+                    ];
+                })
+                ->sortByDesc('absent_count')
+                ->values();
+
+            return [
+                'id' => $group->id,
+                'code' => $group->code,
+                'name_ar' => $group->name_ar,
+                'name_fr' => $group->name_fr,
+                'classes_count' => $groupClasses->count(),
+                'sessions_count' => $groupSessions->count(),
+                'students_count' => $students->count(),
+                'present_count' => $present,
+                'absent_count' => $absent,
+                'late_count' => $late,
+                'excused_count' => $excused,
+                'recorded_count' => $recorded,
+                'attendance_rate' => $rate,
+                'last_session_date' => $last?->session_date?->toDateString(),
+                'students' => $students,
+            ];
+        })->values();
+    }
+
+    private function weeklySchedule($classIds, $classes, $subjects, $levels, $studentsByClass)
+    {
+        if ($classIds->isEmpty()) {
+            return [];
+        }
+
+        $subjectById = collect($subjects)->keyBy('id');
+        $levelById = collect($levels)->keyBy('id');
+        $classById = $classes->keyBy('id');
+
+        return ClassSchedule::query()
+            ->whereIn('class_group_id', $classIds)
+            ->orderBy('weekday')
+            ->orderBy('starts_at')
+            ->get()
+            ->map(function (ClassSchedule $slot) use ($classById, $subjectById, $levelById, $studentsByClass) {
+                $class = $classById->get($slot->class_group_id);
+                $subject = $class ? $subjectById->get($class->subject_id) : null;
+                $level = $class ? $levelById->get($class->level_id) : null;
+
+                return [
+                    'id' => $slot->id,
+                    'class_group_id' => $slot->class_group_id,
+                    'class_name' => $class?->name,
+                    'weekday' => (int) $slot->weekday,
+                    'starts_at' => $slot->startsAt(),
+                    'ends_at' => $slot->endsAt(),
+                    'room' => $slot->room,
+                    'students_count' => (int) ($studentsByClass[$slot->class_group_id] ?? 0),
+                    'subject' => $subject ? [
+                        'id' => $subject['id'] ?? $subject->id,
+                        'name_ar' => $subject['name_ar'] ?? $subject->name_ar,
+                        'name_fr' => $subject['name_fr'] ?? $subject->name_fr,
+                    ] : null,
+                    'level' => $level ? [
+                        'id' => $level['id'] ?? $level->id,
+                        'name_ar' => $level['name_ar'] ?? $level->name_ar,
+                        'name_fr' => $level['name_fr'] ?? $level->name_fr,
+                    ] : null,
+                ];
+            })
+            ->values();
+    }
+
+    private function upcomingSessions($classIds, $classes, $subjects, $levels, $studentsByClass, $sessions)
+    {
+        if ($classIds->isEmpty()) {
+            return [];
+        }
+
+        $subjectById = collect($subjects)->keyBy('id');
+        $levelById = collect($levels)->keyBy('id');
+        $classById = $classes->keyBy('id');
+        $sessionIndex = $sessions->keyBy(function ($session) {
+            return $session->class_group_id.'|'.$session->session_date?->toDateString().'|'.substr((string) $session->starts_at, 0, 5);
+        });
+
+        $upcoming = collect();
+        $today = now()->startOfDay();
+
+        $schedules = ClassSchedule::query()
+            ->whereIn('class_group_id', $classIds)
+            ->orderBy('weekday')
+            ->orderBy('starts_at')
+            ->get();
+
+        for ($offset = 0; $offset < 21 && $upcoming->count() < 10; $offset++) {
+            $date = $today->copy()->addDays($offset);
+            $weekday = (int) $date->isoWeekday();
+            foreach ($schedules as $slot) {
+                if ((int) $slot->weekday !== $weekday) {
+                    continue;
+                }
+                $class = $classById->get($slot->class_group_id);
+                $key = $slot->class_group_id.'|'.$date->toDateString().'|'.$slot->startsAt();
+                $session = $sessionIndex->get($key);
+                $subject = $class ? $subjectById->get($class->subject_id) : null;
+                $level = $class ? $levelById->get($class->level_id) : null;
+                $upcoming->push([
+                    'session_id' => $session?->id,
+                    'class_group_id' => $slot->class_group_id,
+                    'class_name' => $class?->name,
+                    'session_date' => $date->toDateString(),
+                    'weekday' => $weekday,
+                    'starts_at' => $slot->startsAt(),
+                    'ends_at' => $slot->endsAt(),
+                    'room' => $slot->room,
+                    'status' => $session?->status ?? 'scheduled',
+                    'students_count' => (int) ($studentsByClass[$slot->class_group_id] ?? 0),
+                    'subject' => $subject ? [
+                        'id' => $subject['id'] ?? $subject->id,
+                        'name_ar' => $subject['name_ar'] ?? $subject->name_ar,
+                        'name_fr' => $subject['name_fr'] ?? $subject->name_fr,
+                    ] : null,
+                    'level' => $level ? [
+                        'id' => $level['id'] ?? $level->id,
+                        'name_ar' => $level['name_ar'] ?? $level->name_ar,
+                        'name_fr' => $level['name_fr'] ?? $level->name_fr,
+                    ] : null,
+                ]);
+                if ($upcoming->count() >= 10) {
+                    break;
+                }
+            }
+        }
+
+        if ($upcoming->isNotEmpty()) {
+            return $upcoming->values();
+        }
+
+        return $sessions
+            ->filter(function ($session) use ($today) {
+                $date = $session->session_date?->startOfDay();
+
+                return $date && $date->gte($today);
+            })
+            ->sortBy(fn ($session) => $session->session_date?->toDateString().' '.$session->starts_at)
+            ->take(10)
+            ->map(function ($session) use ($classById, $subjectById, $levelById, $studentsByClass) {
+                $class = $classById->get($session->class_group_id);
+                $subject = $class ? $subjectById->get($class->subject_id) : null;
+                $level = $class ? $levelById->get($class->level_id) : null;
+
+                return [
+                    'session_id' => $session->id,
+                    'class_group_id' => $session->class_group_id,
+                    'class_name' => $class?->name,
+                    'session_date' => $session->session_date?->toDateString(),
+                    'weekday' => (int) ($session->session_date?->isoWeekday() ?? 0),
+                    'starts_at' => substr((string) $session->starts_at, 0, 5),
+                    'ends_at' => substr((string) $session->ends_at, 0, 5),
+                    'room' => $session->room,
+                    'status' => $session->status,
+                    'students_count' => (int) ($studentsByClass[$session->class_group_id] ?? 0),
+                    'subject' => $subject ? [
+                        'id' => $subject['id'] ?? $subject->id,
+                        'name_ar' => $subject['name_ar'] ?? $subject->name_ar,
+                        'name_fr' => $subject['name_fr'] ?? $subject->name_fr,
+                    ] : null,
+                    'level' => $level ? [
+                        'id' => $level['id'] ?? $level->id,
+                        'name_ar' => $level['name_ar'] ?? $level->name_ar,
+                        'name_fr' => $level['name_fr'] ?? $level->name_fr,
+                    ] : null,
+                ];
+            })
+            ->values();
     }
 
     private function isTeacherOnly(?User $user): bool

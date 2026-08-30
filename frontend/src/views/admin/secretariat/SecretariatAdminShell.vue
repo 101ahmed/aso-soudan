@@ -57,12 +57,26 @@ const links = computed(() => {
   if (props.code === 'social' && auth.hasPermission('help.view')) {
     items.push({ to: `${base.value}/help-requests`, label: t('secretariatAdmin.helpRequests') })
   }
+  if (props.code === 'finance' && auth.hasPermission('finance.view')) {
+    items.push({ to: `${base.value}/accounts`, label: t('secretariatAdmin.financeOverview') })
+    items.push({ to: `${base.value}/revenues`, label: t('secretariatAdmin.financeRevenues') })
+    items.push({ to: `${base.value}/expenses`, label: t('secretariatAdmin.financeExpenses') })
+  }
+  if (props.code === 'media' && auth.hasPermission('decision.view')) {
+    items.push({ to: `${base.value}/decisions`, label: t('secretariatAdmin.decisions') })
+  }
+  if (props.code === 'media' && auth.hasPermission('press.view')) {
+    items.push({ to: `${base.value}/media-center`, label: t('secretariatAdmin.mediaCenter') })
+  }
   if (props.code === 'external-relations' && auth.hasPermission('partner.view')) {
     items.push({ to: `${base.value}/partners`, label: t('secretariatAdmin.partners') })
     items.push({ to: `${base.value}/files`, label: t('secretariatAdmin.externalFiles') })
   }
   if (props.code === 'external-relations' && auth.hasPermission('extcontact.view')) {
     items.push({ to: `${base.value}/contact-requests`, label: t('secretariatAdmin.contactRequests') })
+  }
+  if (auth.hasPermission('report.view')) {
+    items.push({ to: `${base.value}/reports`, label: t('secretariatAdmin.reports') })
   }
   return items
 })
@@ -104,7 +118,7 @@ onMounted(async () => {
   </section>
 
   <section v-else class="space-y-6">
-    <div class="flex flex-wrap items-end justify-between gap-3">
+    <div class="no-print flex flex-wrap items-end justify-between gap-3">
       <div>
         <p class="text-xs tracking-wide text-slate-500 uppercase">{{ t('secretariatAdmin.badge') }}</p>
         <h1 class="mt-1 text-2xl font-semibold text-[var(--rdp-forest)]">{{ title }}</h1>
@@ -123,7 +137,7 @@ onMounted(async () => {
       </label>
     </div>
 
-    <nav class="flex flex-wrap gap-2 border-b border-slate-200 pb-3">
+    <nav class="no-print flex flex-wrap gap-2 border-b border-slate-200 pb-3">
       <RouterLink
         v-for="link in links"
         :key="link.to"

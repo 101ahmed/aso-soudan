@@ -10,8 +10,12 @@ use App\Http\Controllers\Api\Admin\AdminEventController;
 use App\Http\Controllers\Api\Admin\AdminExternalContactRequestController;
 use App\Http\Controllers\Api\Admin\AdminExternalDocumentController;
 use App\Http\Controllers\Api\Admin\AdminExternalPartnerController;
+use App\Http\Controllers\Api\Admin\AdminFinanceController;
+use App\Http\Controllers\Api\Admin\AdminMediaCenterController;
+use App\Http\Controllers\Api\Admin\AdminMediaDecisionController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatMessageController;
+use App\Http\Controllers\Api\Admin\AdminSecretariatReportController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
 use App\Http\Controllers\Api\Admin\AdminSiteContentController;
 use App\Http\Controllers\Api\Admin\AdminSocialHelpRequestController;
@@ -38,6 +42,8 @@ Route::prefix('public')->group(function () {
     Route::post('/secretariats/{code}/messages', [PublicSecretariatMessageController::class, 'store']);
     Route::get('/news', [PublicContentController::class, 'news']);
     Route::get('/news/{slug}', [PublicContentController::class, 'newsShow']);
+    Route::get('/media-center', [PublicContentController::class, 'mediaCenter']);
+    Route::get('/media-center/{slug}', [PublicContentController::class, 'mediaCenterShow']);
     Route::get('/announcements', [PublicContentController::class, 'announcements']);
     Route::get('/albums', [PublicContentController::class, 'albums']);
     Route::get('/albums/{album}', [PublicContentController::class, 'albumShow']);
@@ -83,6 +89,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/permissions', [PermissionController::class, 'index'])->middleware('permission:permission.view');
 
     Route::get('/admin/departments', [AdminDepartmentController::class, 'index']);
+    Route::get('/admin/reports', [AdminSecretariatReportController::class, 'index']);
 
     Route::prefix('admin/content')->group(function () {
         Route::get('/news', [AdminSiteContentController::class, 'newsIndex'])->middleware('permission:news.view');
@@ -153,6 +160,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
         ->middleware('department:read')
         ->group(function () {
             Route::get('/', [AdminDepartmentController::class, 'show']);
+            Route::get('/report', [AdminSecretariatReportController::class, 'show']);
+            Route::get('/report/pdf', [AdminSecretariatReportController::class, 'pdf']);
             Route::post('/officer', [AdminDepartmentController::class, 'updateOfficer'])->middleware('department:write');
             Route::put('/officer', [AdminDepartmentController::class, 'updateOfficer'])->middleware('department:write');
             Route::post('/deputy', [AdminDepartmentController::class, 'updateDeputy'])->middleware('department:write');
@@ -196,6 +205,31 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::delete('/events/{event}', [AdminEventController::class, 'destroy'])->middleware(['department:write']);
             Route::post('/events/{event}/publish', [AdminEventController::class, 'publish'])->middleware(['department:write']);
             Route::post('/events/{event}/archive', [AdminEventController::class, 'archive'])->middleware(['department:write']);
+
+            Route::get('/finance/overview', [AdminFinanceController::class, 'overview']);
+            Route::put('/finance/budget', [AdminFinanceController::class, 'saveBudget'])->middleware(['department:write']);
+            Route::post('/finance/budget', [AdminFinanceController::class, 'saveBudget'])->middleware(['department:write']);
+            Route::get('/finance/revenues', [AdminFinanceController::class, 'revenuesIndex']);
+            Route::post('/finance/revenues', [AdminFinanceController::class, 'revenuesStore'])->middleware(['department:write']);
+            Route::put('/finance/revenues/{financeRevenue}', [AdminFinanceController::class, 'revenuesUpdate'])->middleware(['department:write']);
+            Route::delete('/finance/revenues/{financeRevenue}', [AdminFinanceController::class, 'revenuesDestroy'])->middleware(['department:write']);
+            Route::get('/finance/expenses', [AdminFinanceController::class, 'expensesIndex']);
+            Route::post('/finance/expenses', [AdminFinanceController::class, 'expensesStore'])->middleware(['department:write']);
+            Route::put('/finance/expenses/{financeExpense}', [AdminFinanceController::class, 'expensesUpdate'])->middleware(['department:write']);
+            Route::delete('/finance/expenses/{financeExpense}', [AdminFinanceController::class, 'expensesDestroy'])->middleware(['department:write']);
+
+            Route::get('/decisions', [AdminMediaDecisionController::class, 'index']);
+            Route::post('/decisions', [AdminMediaDecisionController::class, 'store'])->middleware(['department:write']);
+            Route::put('/decisions/{mediaDecision}', [AdminMediaDecisionController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/decisions/{mediaDecision}', [AdminMediaDecisionController::class, 'destroy'])->middleware(['department:write']);
+
+            Route::get('/media-center', [AdminMediaCenterController::class, 'index']);
+            Route::post('/media-center', [AdminMediaCenterController::class, 'store'])->middleware(['department:write']);
+            Route::put('/media-center/{mediaCenterItem}', [AdminMediaCenterController::class, 'update'])->middleware(['department:write']);
+            Route::post('/media-center/{mediaCenterItem}', [AdminMediaCenterController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/media-center/{mediaCenterItem}', [AdminMediaCenterController::class, 'destroy'])->middleware(['department:write']);
+            Route::post('/media-center/{mediaCenterItem}/publish', [AdminMediaCenterController::class, 'publish'])->middleware(['department:write']);
+            Route::post('/media-center/{mediaCenterItem}/archive', [AdminMediaCenterController::class, 'archive'])->middleware(['department:write']);
 
             Route::get('/help-requests', [AdminSocialHelpRequestController::class, 'index']);
             Route::post('/help-requests', [AdminSocialHelpRequestController::class, 'store'])->middleware(['department:write']);
