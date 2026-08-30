@@ -41,26 +41,3 @@ function openMap(event) {
     </a>
   </div>
 </template>
-
-
-<template>
-  <div v-if="href" class="mt-3 space-y-2">
-    <iframe
-      v-if="embed"
-      :src="embed"
-      :title="t('parents.mapLink')"
-      class="h-48 w-full rounded-xl border border-slate-200 bg-slate-100"
-      loading="lazy"
-      referrerpolicy="no-referrer-when-downgrade"
-      allowfullscreen
-    />
-    <a
-      :href="href"
-      target="_blank"
-      rel="noopener noreferrer"
-      class="inline-flex text-sm font-semibold text-teal-800 hover:underline"
-    >
-      {{ t('parents.mapLink') }}
-    </a>
-  </div>
-</template>

@@ -47,6 +47,8 @@ function emptyChild() {
   return { first_name: '', last_name: '', birth_date: '', gender: '', level: '' }
 }
 
+const MAX_CHILDREN = 12
+
 const registerForm = reactive({
   first_name: '',
   last_name: '',
@@ -88,12 +90,19 @@ function submitProposal() {
 }
 
 function addChild() {
+  if (registerForm.children.length >= MAX_CHILDREN) return
   registerForm.children.push(emptyChild())
 }
 
 function removeChild(index) {
   if (registerForm.children.length === 1) return
   registerForm.children.splice(index, 1)
+}
+
+function registerAnotherStudent() {
+  registerSent.value = false
+  registerError.value = ''
+  registerForm.children = [emptyChild()]
 }
 
 async function submitRegister() {
@@ -220,7 +229,12 @@ onMounted(async () => {
       <section id="register" class="rounded-2xl border border-[var(--rdp-forest)]/15 bg-white p-6">
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('parents.registerTitle') }}</h2>
         <p class="mt-2 text-sm text-slate-600">{{ t('parents.registerHint') }}</p>
-        <p v-if="registerSent" class="mt-4 text-sm text-teal-800">{{ t('parents.registerSuccess') }}</p>
+        <p v-if="registerSent" class="mt-4 space-y-3 text-sm text-teal-800">
+          <span class="block">{{ t('parents.registerSuccess') }}</span>
+          <button type="button" class="rounded border border-[var(--rdp-forest)] px-4 py-2 font-semibold text-[var(--rdp-forest)]" @click="registerAnotherStudent">
+            {{ t('parents.registerAgain') }}
+          </button>
+        </p>
         <form v-else class="mt-4 space-y-4" @submit.prevent="submitRegister">
           <p v-if="registerError" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ registerError }}</p>
           <div class="grid gap-3 md:grid-cols-2">
@@ -236,13 +250,12 @@ onMounted(async () => {
             <input v-model="registerForm.address" :placeholder="t('statisticsMembers.address')" class="rounded border border-slate-300 px-3 py-2" />
           </div>
           <div>
-            <div class="flex items-center justify-between gap-3">
-              <h3 class="font-semibold text-[var(--rdp-forest)]">{{ t('parents.children') }}</h3>
-              <button type="button" class="text-sm font-semibold text-[var(--rdp-forest)] hover:underline" @click="addChild">
-                {{ t('parents.addChild') }}
-              </button>
-            </div>
+            <h3 class="font-semibold text-[var(--rdp-forest)]">{{ t('parents.children') }}</h3>
+            <p class="mt-1 text-sm text-slate-600">{{ t('parents.childrenMultipleHint') }}</p>
             <div v-for="(child, index) in registerForm.children" :key="index" class="mt-3 grid gap-3 rounded-xl bg-[var(--rdp-cream)] p-4 md:grid-cols-2">
+              <p class="md:col-span-2 text-sm font-semibold text-[var(--rdp-forest)]">
+                {{ t('parents.childNumber', { n: index + 1 }) }}
+              </p>
               <input v-model="child.first_name" required :placeholder="t('forms.firstName')" class="rounded border border-slate-300 bg-white px-3 py-2" />
               <input v-model="child.last_name" required :placeholder="t('forms.lastName')" class="rounded border border-slate-300 bg-white px-3 py-2" />
               <input v-model="child.birth_date" type="date" class="rounded border border-slate-300 bg-white px-3 py-2" />
@@ -261,6 +274,14 @@ onMounted(async () => {
                 {{ t('parents.removeChild') }}
               </button>
             </div>
+            <button
+              type="button"
+              class="mt-3 w-full rounded-xl border-2 border-dashed border-[var(--rdp-forest)]/40 px-4 py-3 text-sm font-semibold text-[var(--rdp-forest)] hover:bg-[var(--rdp-forest)]/5 disabled:opacity-50"
+              :disabled="registerForm.children.length >= MAX_CHILDREN"
+              @click="addChild"
+            >
+              + {{ t('parents.addChild') }}
+            </button>
           </div>
           <button type="submit" class="rounded bg-[var(--rdp-forest)] px-5 py-2.5 text-sm font-semibold text-white disabled:opacity-60" :disabled="registerSending">
             {{ t('parents.sendRegister') }}
