@@ -57,10 +57,28 @@ const selectedCount = computed(() => selected.value.length)
 const membershipTypes = ['adherent', 'volunteer', 'supporter', 'student', 'family', 'other']
 const suburbCities = RENNES_SUBURBS
 
+function canonicalizeCity(city) {
+  if (!city) return ''
+  const trimmed = String(city).trim()
+  if (!trimmed) return ''
+  if (trimmed === 'رين' || trimmed.toLowerCase() === 'rennes') return RENNES_CITY
+  return trimmed
+}
+
 function cityLabel(city) {
   if (!city) return '—'
-  return city === RENNES_CITY ? t('statisticsMembers.rennes') : city
+  return canonicalizeCity(city) === RENNES_CITY ? t('statisticsMembers.rennes') : city
 }
+
+const extraCityOptions = computed(() => {
+  const known = new Set([RENNES_CITY, ...RENNES_SUBURBS])
+  const extras = extraCities.value.filter((city) => city && !known.has(city))
+  const current = canonicalizeCity(form.city)
+  if (current && !known.has(current) && !extras.includes(current)) {
+    return [...extras, current]
+  }
+  return extras
+})
 
 function emptyForm() {
   return {
@@ -129,7 +147,7 @@ function edit(item) {
     email: item.email || '',
     phone: item.phone || '',
     address: item.address || '',
-    city: item.city || '',
+    city: canonicalizeCity(item.city),
     membership_type: item.membership_type || '',
     status: item.status || 'active',
     notes: item.notes || '',
@@ -145,7 +163,7 @@ function payload() {
     email: form.email || null,
     phone: form.phone || null,
     address: form.address || null,
-    city: form.city || null,
+    city: canonicalizeCity(form.city) || null,
     membership_type: form.membership_type || null,
     status: form.status,
     notes: form.notes || null,
@@ -307,6 +325,9 @@ onMounted(load)
           <optgroup :label="t('statisticsMembers.suburbsGroup')">
             <option v-for="city in suburbCities" :key="city" :value="city">{{ city }}</option>
           </optgroup>
+          <optgroup v-if="extraCityOptions.length" :label="t('statisticsMembers.extraCitiesGroup')">
+            <option v-for="city in extraCityOptions" :key="city" :value="city">{{ city }}</option>
+          </optgroup>
         </select>
         <input v-model="filters.age_min" type="number" min="0" max="120" :placeholder="t('statisticsMembers.ageMin')" class="rounded-md border px-3 py-2 text-sm" />
         <input v-model="filters.age_max" type="number" min="0" max="120" :placeholder="t('statisticsMembers.ageMax')" class="rounded-md border px-3 py-2 text-sm" />
@@ -387,7 +408,21 @@ onMounted(load)
             <optgroup :label="t('statisticsMembers.suburbsGroup')">
               <option v-for="city in suburbCities" :key="city" :value="city">{{ city }}</option>
             </optgroup>
+            <optgroup v-if="extraCityOptions.length" :label="t('statisticsMembers.extraCitiesGroup')">
+              <option v-for="city in extraCityOptions" :key="`form-${city}`" :value="city">{{ city }}</option>
+            </optgroup>
           </select>
+          <div v-if="canCreate || canUpdate" class="flex gap-2">
+            <input
+              v-model="newCity"
+              class="w-full rounded border px-3 py-2 text-sm"
+              :placeholder="t('statisticsMembers.addCityPlaceholder')"
+              @keyup.enter.prevent="addCity"
+            />
+            <button type="button" class="shrink-0 rounded border px-3 py-2 text-sm" :disabled="addingCity" @click="addCity">
+              {{ t('statisticsMembers.addCity') }}
+            </button>
+          </div>
           <input v-model="form.address" class="w-full rounded border px-3 py-2 text-sm" :placeholder="t('statisticsMembers.address')" />
           <select v-model="form.membership_type" class="w-full rounded border px-3 py-2 text-sm">
             <option value="">{{ t('statisticsMembers.type') }}</option>

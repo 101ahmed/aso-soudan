@@ -96,8 +96,8 @@ class AdminStatisticsMemberController extends Controller
             'name' => ['required', 'string', 'max:120'],
         ]);
 
-        $name = Member::normalizeCityName($data['name']);
-        if ($name === '') {
+        $name = Member::canonicalCity($data['name']);
+        if ($name === null) {
             return response()->json(['message' => 'Invalid city name.'], 422);
         }
 
@@ -172,6 +172,10 @@ class AdminStatisticsMemberController extends Controller
             $request->merge(['email' => null]);
         }
 
+        $request->merge([
+            'city' => Member::canonicalCity($request->input('city')),
+        ]);
+
         $emailRule = ['nullable', 'email', 'max:190'];
         if ($request->filled('email')) {
             $unique = Rule::unique('members', 'email')->whereNull('deleted_at');
@@ -179,6 +183,15 @@ class AdminStatisticsMemberController extends Controller
                 $unique->ignore($member->id);
             }
             $emailRule[] = $unique;
+        }
+
+        $allowedCities = Member::allowedCities();
+        if ($member?->city) {
+            $allowedCities[] = $member->city;
+            $canonical = Member::canonicalCity($member->city);
+            if ($canonical) {
+                $allowedCities[] = $canonical;
+            }
         }
 
         return $request->validate([
@@ -189,10 +202,12 @@ class AdminStatisticsMemberController extends Controller
             'email' => $emailRule,
             'phone' => ['nullable', 'string', 'max:50'],
             'address' => ['nullable', 'string', 'max:255'],
-            'city' => ['nullable', Rule::in(Member::allowedCities())],
+            'city' => ['nullable', 'string', 'max:120', Rule::in(array_values(array_unique($allowedCities)))],
             'membership_type' => ['nullable', Rule::in(Member::MEMBERSHIP_TYPES)],
             'status' => ['nullable', Rule::in(Member::STATUSES)],
             'notes' => ['nullable', 'string', 'max:2000'],
+        ], [
+            'city.in' => 'المدينة المختارة غير صالحة.',
         ]);
     }
 
@@ -206,7 +221,7 @@ class AdminStatisticsMemberController extends Controller
             'email' => $data['email'] ?? null,
             'phone' => $data['phone'] ?? null,
             'address' => $data['address'] ?? null,
-            'city' => $data['city'] ?? null,
+            'city' => Member::rememberExtraCity($data['city'] ?? null),
             'membership_type' => $data['membership_type'] ?? null,
             'status' => $data['status'] ?? 'active',
             'notes' => $data['notes'] ?? null,

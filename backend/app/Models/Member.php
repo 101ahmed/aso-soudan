@@ -161,11 +161,66 @@ class Member extends Model
         return trim(preg_replace('/\s+/u', ' ', $name) ?? $name);
     }
 
+    public static function cityKey(string $name): string
+    {
+        $normalized = str_replace(["\u{2019}", "\u{2018}", "\u{02BC}", '`'], "'", self::normalizeCityName($name));
+
+        return mb_strtolower($normalized);
+    }
+
+    public static function canonicalCity(null|string $city): ?string
+    {
+        if ($city === null) {
+            return null;
+        }
+
+        $name = self::normalizeCityName($city);
+        if ($name === '') {
+            return null;
+        }
+
+        $key = self::cityKey($name);
+        $allAreaLabels = ['rennes et banlieue', 'rennes and suburbs', 'رين والضواحي'];
+        if (in_array($key, $allAreaLabels, true)) {
+            return null;
+        }
+
+        $aliases = [
+            'rennes' => 'Rennes',
+            'رين' => 'Rennes',
+        ];
+        if (isset($aliases[$key])) {
+            return $aliases[$key];
+        }
+
+        foreach (self::allowedCities() as $existing) {
+            if (self::cityKey((string) $existing) === $key) {
+                return $existing;
+            }
+        }
+
+        return $name;
+    }
+
+    public static function rememberExtraCity(?string $city): ?string
+    {
+        $name = self::canonicalCity($city);
+        if ($name === null) {
+            return null;
+        }
+
+        if (! self::cityAlreadyExists($name) && Schema::hasTable('member_cities')) {
+            MemberCity::query()->firstOrCreate(['name' => $name]);
+        }
+
+        return $name;
+    }
+
     public static function cityAlreadyExists(string $name): bool
     {
-        $needle = mb_strtolower(self::normalizeCityName($name));
+        $needle = self::cityKey($name);
         foreach (self::allowedCities() as $existing) {
-            if (mb_strtolower((string) $existing) === $needle) {
+            if (self::cityKey((string) $existing) === $needle) {
                 return true;
             }
         }

@@ -27,6 +27,10 @@ class PublicMemberController extends Controller
             ], 429);
         }
 
+        $request->merge([
+            'city' => Member::canonicalCity($request->input('city')),
+        ]);
+
         $data = $request->validate([
             'first_name' => ['required', 'string', 'max:100'],
             'last_name' => ['required', 'string', 'max:100'],
@@ -37,6 +41,8 @@ class PublicMemberController extends Controller
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', Rule::in(Member::allowedCities())],
             'membership_type' => ['nullable', Rule::in(Member::MEMBERSHIP_TYPES)],
+        ], [
+            'city.in' => 'المدينة المختارة غير صالحة.',
         ]);
 
         RateLimiter::hit($key, 3600);
