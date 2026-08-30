@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { resolvePostLoginPath } from '@/utils/roleRedirect'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import PasswordField from '@/components/PasswordField.vue'
 
 const { t } = useI18n()
 const auth = useAuthStore()
@@ -87,13 +88,7 @@ async function submit() {
         </label>
         <label class="block text-sm">
           <span class="mb-1 block text-slate-700">{{ t('auth.password') }}</span>
-          <input
-            v-model="form.password"
-            type="password"
-            autocomplete="current-password"
-            required
-            class="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-teal-700"
-          />
+          <PasswordField v-model="form.password" input-class="focus:border-teal-700" />
         </label>
         <div class="flex items-center justify-between gap-3 text-sm">
           <label class="flex items-center gap-2">

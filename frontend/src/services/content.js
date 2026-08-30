@@ -47,9 +47,73 @@ export async function fetchPublicNewsItem(slug) {
   return data.data || data
 }
 
+export async function fetchPublicAnnouncements(params = {}) {
+  const { data } = await api.get('/public/announcements', { params })
+  return data
+}
+
 export async function fetchPublicAlbums(params = {}) {
   const { data } = await api.get('/public/albums', { params })
   return data
+}
+
+export async function fetchSiteNews(params = {}) {
+  const { data } = await api.get('/admin/content/news', { params })
+  return data
+}
+
+export async function createSiteNews(payload) {
+  const body = toFormData(payload)
+  const { data } = await api.post('/admin/content/news', body)
+  return data.data || data
+}
+
+export async function updateSiteNews(id, payload) {
+  const body = toFormData(payload)
+  body.append('_method', 'PUT')
+  const { data } = await api.post(`/admin/content/news/${id}`, body)
+  return data.data || data
+}
+
+export async function publishSiteNews(id) {
+  const { data } = await api.post(`/admin/content/news/${id}/publish`)
+  return data.data || data
+}
+
+export async function archiveSiteNews(id) {
+  const { data } = await api.post(`/admin/content/news/${id}/archive`)
+  return data.data || data
+}
+
+export async function deleteSiteNews(id) {
+  await api.delete(`/admin/content/news/${id}`)
+}
+
+export async function fetchSiteAnnouncements(params = {}) {
+  const { data } = await api.get('/admin/content/announcements', { params })
+  return data
+}
+
+export async function createSiteAnnouncement(payload) {
+  const body = toFormData(payload)
+  const { data } = await api.post('/admin/content/announcements', body)
+  return data.data || data
+}
+
+export async function updateSiteAnnouncement(id, payload) {
+  const body = toFormData(payload)
+  body.append('_method', 'PUT')
+  const { data } = await api.post(`/admin/content/announcements/${id}`, body)
+  return data.data || data
+}
+
+export async function publishSiteAnnouncement(id) {
+  const { data } = await api.post(`/admin/content/announcements/${id}/publish`)
+  return data.data || data
+}
+
+export async function deleteSiteAnnouncement(id) {
+  await api.delete(`/admin/content/announcements/${id}`)
 }
 
 export async function fetchDepartmentNews(code, params = {}) {

@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import { resolvePostLoginPath } from '@/utils/roleRedirect'
+import { resolveAdminEntryPath, rememberAdminPath, resolvePostLoginPath } from '@/utils/roleRedirect'
 import PublicLayout from '@/layouts/PublicLayout.vue'
 import HomeView from '@/views/HomeView.vue'
 import StatusView from '@/views/StatusView.vue'
@@ -55,6 +55,10 @@ import ShuraMeetingsView from '@/views/admin/shura/ShuraMeetingsView.vue'
 import UsersView from '@/views/admin/UsersView.vue'
 import UserFormView from '@/views/admin/UserFormView.vue'
 import RolesView from '@/views/admin/RolesView.vue'
+import ContentEditorShell from '@/views/admin/content/ContentEditorShell.vue'
+import ContentEditorHomeView from '@/views/admin/content/ContentEditorHomeView.vue'
+import ContentEditorNewsView from '@/views/admin/content/ContentEditorNewsView.vue'
+import ContentEditorAnnouncementsView from '@/views/admin/content/ContentEditorAnnouncementsView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -149,6 +153,26 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         { path: '', name: 'admin.dashboard', component: DashboardView },
+        {
+          path: 'content',
+          component: ContentEditorShell,
+          meta: { anyPermission: ['news.view', 'announcement.view'] },
+          children: [
+            { path: '', name: 'admin.content', component: ContentEditorHomeView },
+            {
+              path: 'news',
+              name: 'admin.content.news',
+              component: ContentEditorNewsView,
+              meta: { permission: 'news.view' },
+            },
+            {
+              path: 'announcements',
+              name: 'admin.content.announcements',
+              component: ContentEditorAnnouncementsView,
+              meta: { permission: 'announcement.view' },
+            },
+          ],
+        },
         {
           path: 'president',
           name: 'admin.president',
@@ -293,16 +317,27 @@ router.beforeEach(async (to) => {
   const auth = useAuthStore()
   await auth.bootstrap()
 
+  if (to.path.startsWith('/admin') && auth.isAuthenticated) {
+    rememberAdminPath(to.fullPath)
+  }
+
   if (to.meta.requiresAuth && !auth.isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
 
-  if (to.meta.guest && to.name !== 'login' && auth.isAuthenticated) {
-    return resolvePostLoginPath(auth.user)
+  if (to.meta.guest && auth.isAuthenticated) {
+    return resolveAdminEntryPath(auth.user)
   }
 
   if (to.meta.permission && !auth.hasPermission(to.meta.permission)) {
     return resolvePostLoginPath(auth.user)
+  }
+
+  if (to.meta.anyPermission?.length) {
+    const allowed = to.meta.anyPermission.some((permission) => auth.hasPermission(permission))
+    if (!allowed) {
+      return resolvePostLoginPath(auth.user)
+    }
   }
 
   if (to.meta.roles?.length) {

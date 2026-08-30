@@ -12,7 +12,7 @@ const ROLE_HOME = {
   STATISTICS_SECRETARIAT: '/admin/secretariats/statistics',
   EXTERNAL_RELATIONS: '/admin/secretariats/external-relations',
   SPORTS_SECRETARIAT: '/admin/secretariats/sports',
-  CONTENT_EDITOR: '/admin',
+  CONTENT_EDITOR: '/admin/content',
   SHURA_COUNCIL: '/admin/shura',
   SHURA_PRESIDENT: '/admin/shura',
   SHURA_VICE_PRESIDENT: '/admin/shura',
@@ -60,4 +60,22 @@ export function resolvePostLoginPath(user) {
 
   const firstKnown = codes.find((code) => ROLE_HOME[code])
   return firstKnown ? ROLE_HOME[firstKnown] : '/admin'
+}
+
+const LAST_ADMIN_KEY = 'rdp_last_admin'
+
+export function rememberAdminPath(path) {
+  if (typeof path === 'string' && path.startsWith('/admin')) {
+    sessionStorage.setItem(LAST_ADMIN_KEY, path)
+  }
+}
+
+export function resolveAdminEntryPath(user) {
+  try {
+    const last = sessionStorage.getItem(LAST_ADMIN_KEY)
+    if (last?.startsWith('/admin')) return last
+  } catch {
+    // ignore unavailable sessionStorage
+  }
+  return resolvePostLoginPath(user)
 }

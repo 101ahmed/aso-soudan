@@ -11,11 +11,16 @@ import {
   publicStats,
   recentActivities,
 } from '@/data/publicContent'
-import { fetchPublicAlbums, fetchPublicEvents, fetchPublicNews, mapPublicEvent } from '@/services/content'
+import { fetchPublicAlbums, fetchPublicAnnouncements, fetchPublicEvents, fetchPublicNews, mapPublicEvent } from '@/services/content'
 import { albumsToSlides } from '@/utils/gallerySlides'
+import { useAuthStore } from '@/stores/auth'
+import { resolveAdminEntryPath } from '@/utils/roleRedirect'
 
 const { t, locale } = useI18n()
+const auth = useAuthStore()
+const adminPath = computed(() => resolveAdminEntryPath(auth.user))
 const apiNews = ref([])
+const apiAnnouncements = ref([])
 const apiAlbums = ref([])
 const apiEvents = ref([])
 const eventsLoaded = ref(false)
@@ -41,6 +46,18 @@ const latestNews = computed(() => {
   return newsItems.slice(0, 3)
 })
 
+const homeAnnouncements = computed(() =>
+  apiAnnouncements.value.slice(0, 4).map((item) => ({
+    id: item.id,
+    image: item.image_url || '/logo.png',
+    title: { ar: item.title_ar, fr: item.title_fr },
+    excerpt: {
+      ar: (item.content_ar || '').slice(0, 140),
+      fr: (item.content_fr || '').slice(0, 140),
+    },
+  })),
+)
+
 const homeSlides = computed(() => {
   const source = apiAlbums.value.length ? apiAlbums.value : galleryAlbums
   const slides = albumsToSlides(source, locale.value)
@@ -61,6 +78,13 @@ onMounted(async () => {
     }
   } catch {
     apiNews.value = []
+  }
+
+  try {
+    const data = await fetchPublicAnnouncements({ home: 1, per_page: 6 })
+    apiAnnouncements.value = data.data || []
+  } catch {
+    apiAnnouncements.value = []
   }
 
   try {
@@ -157,6 +181,25 @@ onMounted(async () => {
           >
             {{ t(unit.nameKey) }}
           </RouterLink>
+        </div>
+      </div>
+    </section>
+
+    <section v-if="homeAnnouncements.length" class="bg-[var(--rdp-gold)]/15 py-16">
+      <div class="mx-auto max-w-6xl px-5 md:px-8">
+        <SectionHeading :title="t('home.announcementsTitle')" :subtitle="t('home.announcementsSubtitle')" />
+        <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+          <article
+            v-for="item in homeAnnouncements"
+            :key="item.id"
+            class="overflow-hidden rounded-xl bg-white shadow-sm"
+          >
+            <img :src="item.image" alt="" class="h-36 w-full object-cover" />
+            <div class="space-y-2 p-4">
+              <h3 class="text-base font-semibold text-[var(--rdp-ink)]">{{ localized(item.title) }}</h3>
+              <p v-if="localized(item.excerpt)" class="text-sm text-slate-600">{{ localized(item.excerpt) }}</p>
+            </div>
+          </article>
         </div>
       </div>
     </section>
@@ -273,8 +316,11 @@ onMounted(async () => {
         </div>
         <div class="text-sm text-white/70">
           <p>{{ t('home.footerNote') }}</p>
-          <RouterLink to="/login" class="mt-3 inline-flex text-[var(--rdp-gold)] hover:underline">
-            {{ t('nav.login') }}
+          <RouterLink
+            :to="auth.isAuthenticated ? adminPath : '/login'"
+            class="mt-3 inline-flex text-[var(--rdp-gold)] hover:underline"
+          >
+            {{ auth.isAuthenticated ? t('nav.admin') : t('nav.login') }}
           </RouterLink>
         </div>
       </div>

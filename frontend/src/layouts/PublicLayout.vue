@@ -2,14 +2,18 @@
 import { computed, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { useAuthStore } from '@/stores/auth'
+import { resolveAdminEntryPath } from '@/utils/roleRedirect'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import PublicLoginForm from '@/components/PublicLoginForm.vue'
 
 const { t } = useI18n()
 const route = useRoute()
+const auth = useAuthStore()
 const menuOpen = ref(false)
 const loginOpen = ref(false)
 const isHome = computed(() => route.name === 'home')
+const adminPath = computed(() => resolveAdminEntryPath(auth.user))
 
 const links = computed(() => [
   { to: '/', label: t('nav.home') },
@@ -30,6 +34,7 @@ function closeMenu() {
 }
 
 function toggleLogin() {
+  if (auth.isAuthenticated) return
   loginOpen.value = !loginOpen.value
 }
 </script>
@@ -74,25 +79,37 @@ function toggleLogin() {
           <LanguageSwitcher :is-home="isHome" />
 
           <div class="relative hidden sm:block">
-            <button
-              type="button"
+            <RouterLink
+              v-if="auth.isAuthenticated"
+              :to="adminPath"
               class="rounded px-3 py-2 text-sm font-semibold"
               :class="isHome
                 ? 'bg-[var(--rdp-gold)] text-[var(--rdp-ink)]'
                 : 'bg-[var(--rdp-forest)] text-white'"
-              :aria-expanded="loginOpen"
-              @click.stop="toggleLogin"
             >
-              {{ t('nav.login') }}
-            </button>
-            <div
-              v-if="loginOpen"
-              class="absolute top-full z-50 mt-2 w-80 rounded-xl border border-slate-200 bg-white p-4 shadow-xl end-0"
-              @click.stop
-            >
-              <p class="mb-3 text-sm font-semibold text-[var(--rdp-forest)]">{{ t('auth.loginTitle') }}</p>
-              <PublicLoginForm @success="closeMenu" />
-            </div>
+              {{ t('nav.admin') }}
+            </RouterLink>
+            <template v-else>
+              <button
+                type="button"
+                class="rounded px-3 py-2 text-sm font-semibold"
+                :class="isHome
+                  ? 'bg-[var(--rdp-gold)] text-[var(--rdp-ink)]'
+                  : 'bg-[var(--rdp-forest)] text-white'"
+                :aria-expanded="loginOpen"
+                @click.stop="toggleLogin"
+              >
+                {{ t('nav.login') }}
+              </button>
+              <div
+                v-if="loginOpen"
+                class="absolute top-full z-50 mt-2 w-80 rounded-xl border border-slate-200 bg-white p-4 shadow-xl end-0"
+                @click.stop
+              >
+                <p class="mb-3 text-sm font-semibold text-[var(--rdp-forest)]">{{ t('auth.loginTitle') }}</p>
+                <PublicLoginForm @success="closeMenu" />
+              </div>
+            </template>
           </div>
 
           <button
@@ -126,7 +143,15 @@ function toggleLogin() {
           >
             {{ link.label }}
           </RouterLink>
-          <div class="mt-2 rounded-xl border border-slate-200 bg-[var(--rdp-cream)] p-4">
+          <RouterLink
+            v-if="auth.isAuthenticated"
+            :to="adminPath"
+            class="mt-2 rounded bg-[var(--rdp-forest)] px-3 py-2 text-center font-semibold text-white"
+            @click="closeMenu"
+          >
+            {{ t('nav.admin') }}
+          </RouterLink>
+          <div v-else class="mt-2 rounded-xl border border-slate-200 bg-[var(--rdp-cream)] p-4">
             <p class="mb-3 text-center font-semibold text-[var(--rdp-forest)]">{{ t('auth.loginTitle') }}</p>
             <PublicLoginForm @success="closeMenu" />
           </div>

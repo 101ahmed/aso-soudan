@@ -4,6 +4,7 @@ import { RouterLink, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { resolvePostLoginPath } from '@/utils/roleRedirect'
+import PasswordField from '@/components/PasswordField.vue'
 
 const emit = defineEmits(['success'])
 
@@ -34,7 +35,7 @@ async function submit() {
     }
 
     emit('success')
-    router.replace(resolvePostLoginPath(user))
+    router.push(resolvePostLoginPath(user))
   } catch (error) {
     const network = error.userMessage === 'network' || error.message === 'Network Error' || error.code === 'ERR_NETWORK'
     formError.value = network
@@ -62,13 +63,7 @@ async function submit() {
     </label>
     <label class="block text-sm">
       <span class="mb-1 block text-slate-700">{{ t('auth.password') }}</span>
-      <input
-        v-model="form.password"
-        type="password"
-        autocomplete="current-password"
-        required
-        class="w-full rounded-md border border-slate-300 px-3 py-2 text-[var(--rdp-ink)] outline-none focus:border-[var(--rdp-forest)]"
-      />
+      <PasswordField v-model="form.password" />
     </label>
     <div class="flex items-center justify-between gap-3 text-sm">
       <label class="flex items-center gap-2 text-slate-700">

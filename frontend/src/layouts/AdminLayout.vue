@@ -41,6 +41,11 @@ const links = computed(() => [
     show: isPresident.value || isSuperAdmin.value,
   },
   {
+    to: '/admin/content',
+    label: t('admin.nav.content'),
+    show: auth.hasPermission('news.view') || auth.hasPermission('announcement.view'),
+  },
+  {
     to: '/admin/shura',
     label: t('admin.nav.shura'),
     show: auth.user?.roles?.some((r) => String(r.code).startsWith('SHURA_'))

@@ -4,6 +4,7 @@ import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import api from '@/services/api'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
+import PasswordField from '@/components/PasswordField.vue'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -73,23 +74,11 @@ async function submit() {
         </label>
         <label class="block text-sm">
           <span class="mb-1 block text-slate-700">{{ t('auth.newPassword') }}</span>
-          <input
-            v-model="form.password"
-            type="password"
-            required
-            autocomplete="new-password"
-            class="w-full rounded-md border border-slate-300 px-3 py-2"
-          />
+          <PasswordField v-model="form.password" autocomplete="new-password" />
         </label>
         <label class="block text-sm">
           <span class="mb-1 block text-slate-700">{{ t('auth.confirmPassword') }}</span>
-          <input
-            v-model="form.password_confirmation"
-            type="password"
-            required
-            autocomplete="new-password"
-            class="w-full rounded-md border border-slate-300 px-3 py-2"
-          />
+          <PasswordField v-model="form.password_confirmation" autocomplete="new-password" />
         </label>
         <p v-if="!form.token" class="text-sm text-amber-700">{{ t('auth.resetMissingToken') }}</p>
         <p v-if="error" class="text-sm text-rose-700">{{ error }}</p>

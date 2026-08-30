@@ -17,6 +17,7 @@
     "president": "President",
     "status": "System status",
     "login": "Log in",
+    "admin": "Admin area",
     "menu": "Menu",
     "close": "Close"
   },
@@ -46,6 +47,8 @@
     "orgTitle": "Organisation",
     "orgSubtitle": "The main bodies of the Rabta",
     "newsTitle": "Latest news",
+    "announcementsTitle": "Announcements",
+    "announcementsSubtitle": "Announcements shown on the homepage",
     "eventsTitle": "Upcoming events",
     "eventsSubtitle": "Find the next activities open to the public",
     "eventsEmpty": "No published events yet. Activities from all secretariats will appear here once published.",
@@ -514,6 +517,20 @@
     "cancel": "Cancel",
     "save": "Save"
   },
+  "contentAdmin": {
+    "badge": "Content editor",
+    "title": "Content management",
+    "intro": "Create, edit and delete news and announcements, and show them on the homepage.",
+    "home": "Overview",
+    "homeIntro": "Manage public site content here: news and the homepage announcements area.",
+    "news": "News",
+    "newsHint": "View, edit and delete news, with the option to show them on the homepage.",
+    "announcements": "Announcements",
+    "announcementsHint": "View, edit and delete announcements, with the option to show them in the homepage announcements area.",
+    "onHome": "Shown on homepage",
+    "emptyNews": "No news yet.",
+    "emptyAnnouncements": "No announcements yet."
+  },
   "secretariatAdmin": {
     "badge": "Secretariat space",
     "forbidden": "You are not allowed to access this secretariat.",
@@ -706,6 +723,8 @@
     "loginSubtitle": "Reserved for internal accounts (administration, secretariats, teachers…)",
     "email": "Email",
     "password": "Password",
+    "showPassword": "Show",
+    "hidePassword": "Hide",
     "login": "Log in",
     "loggingIn": "Signing in…",
     "loginFailed": "The email or password is incorrect.",
@@ -741,6 +760,7 @@
       "secretariat": "My secretariat",
       "secretariats": "Secretariats",
       "teacher": "Teacher space",
+      "content": "Content",
       "users": "Users",
       "roles": "Roles & permissions"
     },
@@ -754,6 +774,8 @@
       "welcome": "Welcome {name}",
       "roles": "Roles",
       "permissions": "Permissions",
+      "contentTitle": "Public content",
+      "contentHint": "Manage news and announcements, and show them on the homepage.",
       "inboxesTitle": "Message database for each secretariat",
       "inboxesHint": "Each secretariat has its own inbox. Messages come from the public contact form on its page.",
       "unread": "{count} new message(s)",

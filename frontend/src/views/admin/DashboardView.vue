@@ -12,6 +12,9 @@ const auth = useAuthStore()
 const departments = ref([])
 
 const canSeeInbox = computed(() => auth.hasPermission('inbox.view'))
+const canManageContent = computed(
+  () => auth.hasPermission('news.view') || auth.hasPermission('announcement.view'),
+)
 
 const secretariats = computed(() =>
   (departments.value || [])
@@ -52,6 +55,31 @@ onMounted(async () => {
           {{ (auth.user?.permissions || []).slice(0, 8).join(' · ') }}
           <span v-if="(auth.user?.permissions || []).length > 8">…</span>
         </p>
+      </div>
+    </div>
+
+    <div v-if="canManageContent" class="space-y-3">
+      <div>
+        <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('admin.dashboard.contentTitle') }}</h2>
+        <p class="mt-1 text-sm text-slate-600">{{ t('admin.dashboard.contentHint') }}</p>
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <RouterLink
+          v-if="auth.hasPermission('news.view')"
+          to="/admin/content/news"
+          class="rounded-xl border border-slate-200 bg-white p-4 hover:border-teal-700/40"
+        >
+          <p class="font-semibold text-[var(--rdp-forest)]">{{ t('contentAdmin.news') }}</p>
+          <p class="mt-1 text-sm text-slate-600">{{ t('contentAdmin.newsHint') }}</p>
+        </RouterLink>
+        <RouterLink
+          v-if="auth.hasPermission('announcement.view')"
+          to="/admin/content/announcements"
+          class="rounded-xl border border-slate-200 bg-white p-4 hover:border-teal-700/40"
+        >
+          <p class="font-semibold text-[var(--rdp-forest)]">{{ t('contentAdmin.announcements') }}</p>
+          <p class="mt-1 text-sm text-slate-600">{{ t('contentAdmin.announcementsHint') }}</p>
+        </RouterLink>
       </div>
     </div>
 

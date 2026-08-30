@@ -17,6 +17,7 @@
     "president": "Président",
     "status": "État du système",
     "login": "Connexion",
+    "admin": "Espace admin",
     "menu": "Menu",
     "close": "Fermer"
   },
@@ -46,6 +47,8 @@
     "orgTitle": "Organisation",
     "orgSubtitle": "Les principaux organes de la Rabta",
     "newsTitle": "Dernières actualités",
+    "announcementsTitle": "Annonces",
+    "announcementsSubtitle": "Les annonces affichées sur la page d’accueil",
     "eventsTitle": "Événements à venir",
     "eventsSubtitle": "Retrouvez les prochaines activités ouvertes au public",
     "eventsEmpty": "Aucun événement publié pour le moment. Les activités de toutes les amanahs apparaîtront ici une fois publiées.",
@@ -514,6 +517,20 @@
     "cancel": "Annuler",
     "save": "Enregistrer"
   },
+  "contentAdmin": {
+    "badge": "Éditeur de contenu",
+    "title": "Gestion du contenu",
+    "intro": "Créer, modifier et supprimer actualités et annonces, et les afficher sur la page d’accueil.",
+    "home": "Aperçu",
+    "homeIntro": "Gérez ici le contenu public du site : actualités et espace annonces de l’accueil.",
+    "news": "Actualités",
+    "newsHint": "Voir, modifier et supprimer les actualités, avec affichage sur l’accueil.",
+    "announcements": "Annonces",
+    "announcementsHint": "Voir, modifier et supprimer les annonces, avec affichage dans l’espace annonces de l’accueil.",
+    "onHome": "Affiché sur l’accueil",
+    "emptyNews": "Aucune actualité pour le moment.",
+    "emptyAnnouncements": "Aucune annonce pour le moment."
+  },
   "secretariatAdmin": {
     "badge": "Espace secrétariat",
     "forbidden": "Accès non autorisé à ce secrétariat.",
@@ -706,6 +723,8 @@
     "loginSubtitle": "Réservé aux comptes internes (administration, académique, enseignants…)",
     "email": "Email",
     "password": "Mot de passe",
+    "showPassword": "Afficher",
+    "hidePassword": "Masquer",
     "login": "Se connecter",
     "loggingIn": "Connexion…",
     "loginFailed": "Email ou mot de passe incorrect.",
@@ -741,6 +760,7 @@
       "secretariat": "Mon secrétariat",
       "secretariats": "Secrétariats",
       "teacher": "Espace enseignant",
+      "content": "Contenu",
       "users": "Utilisateurs",
       "roles": "Rôles & permissions"
     },
@@ -754,6 +774,8 @@
       "welcome": "Bienvenue {name}",
       "roles": "Rôles",
       "permissions": "Permissions",
+      "contentTitle": "Contenu public",
+      "contentHint": "Gérer les actualités et annonces, et les afficher sur l’accueil.",
       "inboxesTitle": "Base des messages par amanah",
       "inboxesHint": "Chaque secrétariat a sa propre boîte. Les messages viennent du formulaire public de sa page.",
       "unread": "{count} nouveau(x) message(s)",

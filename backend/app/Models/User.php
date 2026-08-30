@@ -93,6 +93,10 @@ class User extends Authenticatable
             return true;
         }
 
+        if ($this->hasRole('CONTENT_EDITOR')) {
+            return true;
+        }
+
         return $this->belongsToDepartment($department);
     }
 

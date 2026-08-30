@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Admin\AdminExternalPartnerController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatMessageController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
+use App\Http\Controllers\Api\Admin\AdminSiteContentController;
 use App\Http\Controllers\Api\Admin\AdminSocialHelpRequestController;
 use App\Http\Controllers\Api\Admin\AdminStatisticsMemberController;
 use App\Http\Controllers\Api\AuthController;
@@ -82,6 +83,23 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/permissions', [PermissionController::class, 'index'])->middleware('permission:permission.view');
 
     Route::get('/admin/departments', [AdminDepartmentController::class, 'index']);
+
+    Route::prefix('admin/content')->group(function () {
+        Route::get('/news', [AdminSiteContentController::class, 'newsIndex'])->middleware('permission:news.view');
+        Route::post('/news', [AdminSiteContentController::class, 'newsStore'])->middleware('permission:news.create');
+        Route::put('/news/{news}', [AdminSiteContentController::class, 'newsUpdate'])->middleware('permission:news.update');
+        Route::post('/news/{news}', [AdminSiteContentController::class, 'newsUpdate'])->middleware('permission:news.update');
+        Route::delete('/news/{news}', [AdminSiteContentController::class, 'newsDestroy'])->middleware('permission:news.delete');
+        Route::post('/news/{news}/publish', [AdminSiteContentController::class, 'newsPublish'])->middleware('permission:news.publish');
+        Route::post('/news/{news}/archive', [AdminSiteContentController::class, 'newsArchive'])->middleware('permission:news.update');
+
+        Route::get('/announcements', [AdminSiteContentController::class, 'announcementsIndex'])->middleware('permission:announcement.view');
+        Route::post('/announcements', [AdminSiteContentController::class, 'announcementsStore'])->middleware('permission:announcement.create');
+        Route::put('/announcements/{announcement}', [AdminSiteContentController::class, 'announcementsUpdate'])->middleware('permission:announcement.update');
+        Route::post('/announcements/{announcement}', [AdminSiteContentController::class, 'announcementsUpdate'])->middleware('permission:announcement.update');
+        Route::delete('/announcements/{announcement}', [AdminSiteContentController::class, 'announcementsDestroy'])->middleware('permission:announcement.delete');
+        Route::post('/announcements/{announcement}/publish', [AdminSiteContentController::class, 'announcementsPublish'])->middleware('permission:announcement.publish');
+    });
 
     Route::prefix('admin/shura')->group(function () {
         Route::get('/overview', [AdminShuraController::class, 'overview']);
