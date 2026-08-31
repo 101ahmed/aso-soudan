@@ -11,6 +11,14 @@ export async function fetchTeacherRegister(params = {}) {
   return data
 }
 
+export async function downloadTeacherRegisterPdf(params = {}) {
+  const { data, headers } = await api.get('/admin/academic/register/pdf', {
+    params,
+    responseType: 'blob',
+  })
+  return { blob: data, contentType: headers['content-type'] || data.type }
+}
+
 export async function upsertTeacherRegister(studentId, payload) {
   const { data } = await api.put(`/admin/academic/register/${studentId}`, payload)
   return data

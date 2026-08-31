@@ -652,6 +652,9 @@
     "empty": "No students yet. Add one with the form above.",
     "totals": "Total present / absent",
     "confirmDelete": "Remove {name} from the register?",
+    "downloadPdf": "Download PDF",
+    "downloading": "Downloading…",
+    "downloadFailed": "Could not download the PDF.",
     "short": {
       "present": "P",
       "absent": "A"

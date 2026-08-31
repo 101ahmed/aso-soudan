@@ -652,6 +652,9 @@
     "empty": "Aucun élève. Ajoutez-en un depuis le formulaire ci-dessus.",
     "totals": "Total présents / absents",
     "confirmDelete": "Supprimer {name} du tableau ?",
+    "downloadPdf": "Télécharger PDF",
+    "downloading": "Téléchargement…",
+    "downloadFailed": "Impossible de télécharger le PDF.",
     "short": {
       "present": "P",
       "absent": "A"

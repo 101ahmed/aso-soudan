@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import {
   createStudent,
   deleteStudent,
+  downloadTeacherRegisterPdf,
   fetchTeacherRegister,
   updateStudent,
   upsertTeacherRegister,
@@ -21,6 +22,7 @@ const levels = ref([])
 const selectedLevelId = ref('')
 const editingId = ref(null)
 const savingId = ref(null)
+const downloading = ref(false)
 
 const canManage = computed(() => (
   auth.hasPermission('attendance.create')
@@ -185,6 +187,46 @@ function countFor(iso, status) {
   return visibleStudents.value.filter((student) => dayStatus(student, iso) === status).length
 }
 
+async function downloadPdf() {
+  downloading.value = true
+  error.value = ''
+  try {
+    const { blob, contentType } = await downloadTeacherRegisterPdf({
+      from: days.value[0].iso,
+      to: days.value[6].iso,
+      level_id: selectedLevelId.value || undefined,
+      locale: locale.value,
+    })
+    if (blob.type.includes('json') || String(contentType).includes('json')) {
+      const payload = JSON.parse(await blob.text())
+      throw new Error(payload.message || t('teacherRegister.downloadFailed'))
+    }
+    const url = URL.createObjectURL(blob)
+    const isPdf = String(contentType).includes('pdf') || blob.type.includes('pdf')
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `attendance-${days.value[0].iso}-${days.value[6].iso}.${isPdf ? 'pdf' : 'html'}`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1500)
+  } catch (e) {
+    const data = e.response?.data
+    if (data instanceof Blob) {
+      try {
+        const payload = JSON.parse(await data.text())
+        error.value = payload.message || t('teacherRegister.downloadFailed')
+      } catch {
+        error.value = t('teacherRegister.downloadFailed')
+      }
+    } else {
+      error.value = e.message || e.response?.data?.message || t('teacherRegister.downloadFailed')
+    }
+  } finally {
+    downloading.value = false
+  }
+}
+
 watch([weekStart, selectedLevelId], load)
 onMounted(load)
 </script>
@@ -202,6 +244,14 @@ onMounted(load)
         <button type="button" class="rounded border px-3 py-1.5 text-sm" @click="shiftWeek(1)">→</button>
         <button type="button" class="rounded bg-teal-800 px-3 py-1.5 text-sm text-white" @click="weekStart = startOfSaturdayWeek(new Date())">
           {{ t('teacherRegister.thisWeek') }}
+        </button>
+        <button
+          type="button"
+          class="rounded border border-teal-800 px-3 py-1.5 text-sm font-semibold text-teal-800 disabled:opacity-60"
+          :disabled="downloading"
+          @click="downloadPdf"
+        >
+          ⬇️ {{ downloading ? t('teacherRegister.downloading') : t('teacherRegister.downloadPdf') }}
         </button>
       </div>
     </div>

@@ -652,6 +652,9 @@
     "empty": "لا يوجد طلاب. أضيفوا طالباً من النموذج أعلاه.",
     "totals": "المجموع حاضر / غائب",
     "confirmDelete": "حذف {name} من الجدول؟",
+    "downloadPdf": "تحميل PDF",
+    "downloading": "جاري التحميل…",
+    "downloadFailed": "تعذر تحميل ملف PDF.",
     "short": {
       "present": "ح",
       "absent": "غ"
