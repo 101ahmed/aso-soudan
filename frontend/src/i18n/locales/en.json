@@ -399,6 +399,13 @@
     "rowDeleted": "Attendance record deleted.",
     "confirmDeleteSession": "Delete this session and all its attendance records?",
     "confirmDeleteRow": "Delete attendance for {name} on this session?",
+    "rosterTitle": "Class students",
+    "addStudent": "Add student",
+    "chooseStudent": "Choose a student to add to the class",
+    "removeFromClass": "Remove from class",
+    "clearStatus": "Clear status",
+    "pickSession": "Create or select a session above, then mark each student present or absent.",
+    "confirmRemoveStudent": "Remove {name} from this class?",
     "statuses": {
       "present": "Present",
       "absent": "Absent",
@@ -557,7 +564,7 @@
     "students": "Students",
     "studentsHint": "Add, edit or delete a student.",
     "attendance": "Attendance / Absences",
-    "attendanceHint": "Add, edit or delete a session, then fill in the attendance sheet.",
+    "attendanceHint": "Attendance table independent of sessions: add, edit or delete a student, then mark present or absent by day.",
     "timetable": "Timetable",
     "timetableHint": "Sessions entered by the academic secretary: teacher, subject, date and time.",
     "upcoming": "Upcoming sessions",
@@ -629,6 +636,26 @@
     "next": "Next",
     "close": "Close",
     "goto": "Go to slide {n}"
+  },
+  "teacherRegister": {
+    "title": "Attendance register",
+    "subtitle": "This table is independent of class sessions. Add, edit or delete students, then mark present or absent for each day.",
+    "thisWeek": "This week",
+    "allLevels": "All levels",
+    "student": "Student",
+    "level": "Level",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "addStudent": "Add student",
+    "saveStudent": "Save student",
+    "loading": "Loading…",
+    "empty": "No students yet. Add one with the form above.",
+    "totals": "Total present / absent",
+    "confirmDelete": "Remove {name} from the register?",
+    "short": {
+      "present": "P",
+      "absent": "A"
+    }
   },
   "forms": {
     "name": "Full name",

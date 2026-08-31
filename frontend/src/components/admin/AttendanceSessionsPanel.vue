@@ -1,6 +1,6 @@
 <script setup>
 import { computed, reactive, ref, watch } from 'vue'
-import { RouterLink, useRouter } from 'vue-router'
+import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -9,18 +9,19 @@ import {
   fetchClassSessions,
   updateClassSession,
 } from '@/services/academic'
+import AttendanceRosterTable from '@/components/admin/AttendanceRosterTable.vue'
 
 const props = defineProps({
   classId: { type: [Number, String], default: null },
   attendanceBase: { type: String, required: true },
 })
 
-const emit = defineEmits(['error'])
+const emit = defineEmits(['error', 'changed'])
 const { t } = useI18n()
-const router = useRouter()
 const auth = useAuthStore()
 const sessions = ref([])
 const editingId = ref(null)
+const selectedSessionId = ref(null)
 
 const canManage = computed(() => (
   auth.hasPermission('attendance.create')
@@ -56,6 +57,9 @@ async function loadSessions() {
   try {
     const data = await fetchClassSessions(props.classId)
     sessions.value = data.data || []
+    if (!sessions.value.some((item) => String(item.id) === String(selectedSessionId.value))) {
+      selectedSessionId.value = sessions.value[0]?.id || null
+    }
   } catch (e) {
     emit('error', e.response?.data?.message || e.message)
   }
@@ -71,7 +75,7 @@ async function saveSession() {
     }
     const session = await createClassSession(props.classId, { ...form })
     await loadSessions()
-    router.push(`${props.attendanceBase}/sessions/${session.id}`)
+    selectedSessionId.value = session.id
   } catch (e) {
     emit('error', e.response?.data?.message || e.message)
   }
@@ -97,13 +101,20 @@ async function removeSession(session) {
   try {
     await deleteClassSession(session.id)
     if (editingId.value === session.id) cancelEdit()
+    if (String(selectedSessionId.value) === String(session.id)) selectedSessionId.value = null
     await loadSessions()
   } catch (e) {
     emit('error', e.response?.data?.message || e.message)
   }
 }
 
+function onRosterChanged() {
+  loadSessions()
+  emit('changed')
+}
+
 watch(() => props.classId, () => {
+  selectedSessionId.value = null
   cancelEdit()
   loadSessions()
 }, { immediate: true })
@@ -147,12 +158,18 @@ defineExpose({ reload: loadSessions })
           </tr>
         </thead>
         <tbody>
-          <tr v-for="s in sessions" :key="s.id" class="border-t">
+          <tr
+            v-for="s in sessions"
+            :key="s.id"
+            class="cursor-pointer border-t"
+            :class="String(selectedSessionId) === String(s.id) ? 'bg-teal-50' : 'hover:bg-slate-50'"
+            @click="selectedSessionId = s.id"
+          >
             <td class="px-4 py-3">{{ (s.session_date || '').slice(0, 10) }}</td>
             <td class="px-4 py-3">{{ timeValue(s.starts_at) }} – {{ timeValue(s.ends_at) }}</td>
             <td class="px-4 py-3 text-emerald-700">{{ s.present_count }}</td>
             <td class="px-4 py-3 text-rose-700">{{ s.absent_count }}</td>
-            <td class="px-4 py-3">
+            <td class="px-4 py-3" @click.stop>
               <div class="flex flex-wrap justify-end gap-3">
                 <RouterLink
                   :to="`${attendanceBase}/sessions/${s.id}`"
@@ -185,5 +202,15 @@ defineExpose({ reload: loadSessions })
         </tbody>
       </table>
     </div>
+
+    <AttendanceRosterTable
+      v-if="classId"
+      :key="`${classId}-${selectedSessionId || 'none'}`"
+      :class-id="classId"
+      :session-id="selectedSessionId"
+      :can-manage="canManage"
+      @error="emit('error', $event)"
+      @changed="onRosterChanged"
+    />
   </div>
 </template>

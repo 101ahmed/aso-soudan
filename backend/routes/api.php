@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\Admin\AdminAcademicAttendanceController;
 use App\Http\Controllers\Api\Admin\AdminAcademicStudentController;
 use App\Http\Controllers\Api\Admin\AdminAcademicTeacherController;
+use App\Http\Controllers\Api\Admin\AdminTeacherRegisterController;
 use App\Http\Controllers\Api\Admin\AdminAcademicTimetableController;
 use App\Http\Controllers\Api\Admin\AdminAlbumController;
 use App\Http\Controllers\Api\Admin\AdminAnnouncementController;
@@ -146,6 +147,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::prefix('admin/academic')->group(function () {
+        Route::get('/register', [AdminTeacherRegisterController::class, 'index']);
+        Route::put('/register/{student}', [AdminTeacherRegisterController::class, 'upsert']);
         Route::get('/timetable', [AdminAcademicTimetableController::class, 'index']);
         Route::post('/timetable', [AdminAcademicTimetableController::class, 'store']);
         Route::put('/timetable/{session}', [AdminAcademicTimetableController::class, 'update']);
@@ -157,10 +160,14 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/attendance/overview', [AdminAcademicAttendanceController::class, 'overview']);
         Route::get('/classes/{classGroup}/sessions', [AdminAcademicAttendanceController::class, 'sessionsIndex']);
         Route::post('/classes/{classGroup}/sessions', [AdminAcademicAttendanceController::class, 'sessionsStore']);
+        Route::get('/classes/{classGroup}/roster', [AdminAcademicAttendanceController::class, 'roster']);
+        Route::post('/classes/{classGroup}/students', [AdminAcademicAttendanceController::class, 'attachStudent']);
+        Route::delete('/classes/{classGroup}/students/{student}', [AdminAcademicAttendanceController::class, 'detachStudent']);
         Route::put('/sessions/{session}', [AdminAcademicAttendanceController::class, 'sessionsUpdate']);
         Route::delete('/sessions/{session}', [AdminAcademicAttendanceController::class, 'sessionsDestroy']);
         Route::get('/sessions/{session}/sheet', [AdminAcademicAttendanceController::class, 'sheet']);
         Route::post('/sessions/{session}/sheet', [AdminAcademicAttendanceController::class, 'syncSheet']);
+        Route::put('/sessions/{session}/students/{student}/attendance', [AdminAcademicAttendanceController::class, 'upsertAttendance']);
         Route::delete('/sessions/{session}/students/{student}/attendance', [AdminAcademicAttendanceController::class, 'destroyAttendance']);
         Route::get('/students/{student}/attendance', [AdminAcademicAttendanceController::class, 'studentReport']);
 

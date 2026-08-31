@@ -88,6 +88,7 @@ onActivated(loadClasses)
         :class-id="selectedClassId"
         :attendance-base="attendanceBase"
         @error="error = $event"
+        @changed="loadClasses"
       />
     </div>
   </div>

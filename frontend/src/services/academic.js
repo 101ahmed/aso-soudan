@@ -6,6 +6,16 @@ function withoutFrenchSubject(items = []) {
   )
 }
 
+export async function fetchTeacherRegister(params = {}) {
+  const { data } = await api.get('/admin/academic/register', { params })
+  return data
+}
+
+export async function upsertTeacherRegister(studentId, payload) {
+  const { data } = await api.put(`/admin/academic/register/${studentId}`, payload)
+  return data
+}
+
 export async function fetchAttendanceOverview() {
   const { data } = await api.get('/admin/academic/attendance/overview')
   return {
@@ -46,6 +56,36 @@ export async function updateClassSession(sessionId, payload) {
 
 export async function deleteClassSession(sessionId) {
   await api.delete(`/admin/academic/sessions/${sessionId}`)
+}
+
+export async function fetchClassRoster(classId, sessionId = null) {
+  const { data } = await api.get(`/admin/academic/classes/${classId}/roster`, {
+    params: sessionId ? { session_id: sessionId } : {},
+  })
+  return data
+}
+
+export async function addStudentToClass(classId, studentId, sessionId = null) {
+  const { data } = await api.post(`/admin/academic/classes/${classId}/students`, {
+    student_id: studentId,
+    session_id: sessionId || undefined,
+  })
+  return data
+}
+
+export async function removeStudentFromClass(classId, studentId, sessionId = null) {
+  const { data } = await api.delete(`/admin/academic/classes/${classId}/students/${studentId}`, {
+    params: sessionId ? { session_id: sessionId } : {},
+  })
+  return data
+}
+
+export async function upsertStudentAttendance(sessionId, studentId, payload) {
+  const { data } = await api.put(
+    `/admin/academic/sessions/${sessionId}/students/${studentId}/attendance`,
+    payload,
+  )
+  return data
 }
 
 export async function deleteStudentAttendance(sessionId, studentId) {

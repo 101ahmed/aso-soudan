@@ -302,10 +302,11 @@ class AdminAcademicAttendanceController extends Controller
 
         $classes = $this->scopedClassGroups($request, $year)
             ->with(['level', 'subject'])
-            ->withCount(['students as students_count' => fn ($q) => $q->where('class_students.status', 'active')])
             ->where('subject_id', $subject->id)
             ->orderBy('name')
             ->get();
+
+        $this->hydrateClassRosters($classes);
 
         return response()->json([
             'subject' => $subject,
@@ -323,12 +324,13 @@ class AdminAcademicAttendanceController extends Controller
 
         $classes = $this->scopedClassGroups($request, $year)
             ->with(['level', 'subject'])
-            ->withCount(['students as students_count' => fn ($q) => $q->where('class_students.status', 'active')])
             ->where('level_id', $level->id)
             ->orderBy('name')
             ->get()
             ->reject(fn (ClassGroup $class) => $class->subject && Subject::isFrenchLanguage($class->subject))
             ->values();
+
+        $this->hydrateClassRosters($classes);
 
         return response()->json([
             'level' => $level->only(['id', 'code', 'name_ar', 'name_fr']),
@@ -408,6 +410,108 @@ class AdminAcademicAttendanceController extends Controller
         return response()->json(['message' => 'Deleted.']);
     }
 
+    public function roster(Request $request, ClassGroup $classGroup): JsonResponse
+    {
+        $this->authorizePermission($request, 'attendance.view');
+        $this->assertClassAccess($request, $classGroup);
+        $this->ensureLevelStudentsEnrolled($classGroup);
+
+        $session = null;
+        if ($request->filled('session_id')) {
+            $session = AcademicSession::query()
+                ->where('class_group_id', $classGroup->id)
+                ->whereKey($request->integer('session_id'))
+                ->with('attendances')
+                ->first();
+        }
+
+        return response()->json($this->rosterPayload($classGroup, $session));
+    }
+
+    public function attachStudent(Request $request, ClassGroup $classGroup): JsonResponse
+    {
+        $this->authorizeAttendanceManage($request);
+        $this->assertClassAccess($request, $classGroup);
+
+        $data = $request->validate([
+            'student_id' => ['required', 'integer', 'exists:students,id'],
+        ]);
+
+        $student = Student::query()->findOrFail($data['student_id']);
+        $this->enrollStudentInClass($classGroup, $student);
+
+        $session = $request->filled('session_id')
+            ? AcademicSession::query()
+                ->where('class_group_id', $classGroup->id)
+                ->whereKey($request->integer('session_id'))
+                ->with('attendances')
+                ->first()
+            : null;
+
+        return response()->json($this->rosterPayload($classGroup->fresh(), $session));
+    }
+
+    public function detachStudent(Request $request, ClassGroup $classGroup, Student $student): JsonResponse
+    {
+        $this->authorizeAttendanceManage($request);
+        $this->assertClassAccess($request, $classGroup);
+
+        $classGroup->students()->syncWithoutDetaching([
+            $student->id => [
+                'status' => 'inactive',
+                'left_on' => now()->toDateString(),
+            ],
+        ]);
+
+        if ($request->filled('session_id')) {
+            StudentAttendance::query()
+                ->where('academic_session_id', $request->integer('session_id'))
+                ->where('student_id', $student->id)
+                ->delete();
+        }
+
+        $session = $request->filled('session_id')
+            ? AcademicSession::query()
+                ->where('class_group_id', $classGroup->id)
+                ->whereKey($request->integer('session_id'))
+                ->with('attendances')
+                ->first()
+            : null;
+
+        return response()->json($this->rosterPayload($classGroup->fresh(), $session));
+    }
+
+    public function upsertAttendance(Request $request, AcademicSession $session, Student $student): JsonResponse
+    {
+        $this->authorizeAttendanceManage($request);
+        $session->loadMissing('classGroup');
+        abort_unless($session->classGroup, 404);
+        $this->assertClassAccess($request, $session->classGroup);
+
+        $data = $request->validate([
+            'status' => ['required', Rule::in(StudentAttendance::STATUSES)],
+            'notes' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $this->enrollStudentInClass($session->classGroup, $student);
+
+        StudentAttendance::query()->updateOrCreate(
+            [
+                'academic_session_id' => $session->id,
+                'student_id' => $student->id,
+            ],
+            [
+                'status' => $data['status'],
+                'notes' => $data['notes'] ?? null,
+                'recorded_by' => $request->user()->id,
+            ]
+        );
+
+        $session->update(['status' => 'completed']);
+
+        return $this->sheet($request, $session->fresh(['classGroup.subject', 'classGroup.level', 'attendances']));
+    }
+
     public function destroyAttendance(Request $request, AcademicSession $session, Student $student): JsonResponse
     {
         $this->authorizeAttendanceManage($request);
@@ -429,29 +533,9 @@ class AdminAcademicAttendanceController extends Controller
         $session->load(['classGroup.subject', 'classGroup.level', 'attendances']);
         abort_unless($session->classGroup, 404);
         $this->assertClassAccess($request, $session->classGroup);
+        $this->ensureLevelStudentsEnrolled($session->classGroup);
 
-        $students = $session->classGroup->students()
-            ->wherePivot('status', 'active')
-            ->orderBy('last_name')
-            ->orderBy('first_name')
-            ->get();
-
-        $byStudent = $session->attendances->keyBy('student_id');
-
-        $rows = $students->map(function (Student $student) use ($byStudent) {
-            $att = $byStudent->get($student->id);
-
-            return [
-                'student_id' => $student->id,
-                'full_name' => $student->full_name,
-                'first_name' => $student->first_name,
-                'last_name' => $student->last_name,
-                'status' => $att?->status,
-                'recorded' => $att !== null,
-                'notes' => $att?->notes,
-                'attendance_id' => $att?->id,
-            ];
-        });
+        $payload = $this->rosterPayload($session->classGroup, $session);
 
         return response()->json([
             'session' => [
@@ -463,14 +547,15 @@ class AdminAcademicAttendanceController extends Controller
                 'room' => $session->room,
                 'class_group' => $session->classGroup,
             ],
-            'rows' => $rows,
+            'rows' => $payload['students'],
+            'available_students' => $payload['available_students'],
             'statuses' => StudentAttendance::STATUSES,
         ]);
     }
 
     public function syncSheet(Request $request, AcademicSession $session): JsonResponse
     {
-        $this->authorizePermission($request, 'attendance.create');
+        $this->authorizeAttendanceManage($request);
         $session->loadMissing('classGroup');
         abort_unless($session->classGroup, 404);
         $this->assertClassAccess($request, $session->classGroup);
@@ -478,12 +563,25 @@ class AdminAcademicAttendanceController extends Controller
         $data = $request->validate([
             'rows' => ['required', 'array', 'min:1'],
             'rows.*.student_id' => ['required', 'integer', 'exists:students,id'],
-            'rows.*.status' => ['required', Rule::in(StudentAttendance::STATUSES)],
+            'rows.*.status' => ['nullable', Rule::in(StudentAttendance::STATUSES)],
             'rows.*.notes' => ['nullable', 'string', 'max:500'],
         ]);
 
         DB::transaction(function () use ($data, $session, $request) {
             foreach ($data['rows'] as $row) {
+                $student = Student::query()->find($row['student_id']);
+                if ($student) {
+                    $this->enrollStudentInClass($session->classGroup, $student);
+                }
+
+                if (empty($row['status'])) {
+                    StudentAttendance::query()
+                        ->where('academic_session_id', $session->id)
+                        ->where('student_id', $row['student_id'])
+                        ->delete();
+                    continue;
+                }
+
                 StudentAttendance::query()->updateOrCreate(
                     [
                         'academic_session_id' => $session->id,
@@ -1066,5 +1164,147 @@ class AdminAcademicAttendanceController extends Controller
                 $inner->whereRaw('1 = 0');
             }
         });
+    }
+
+    private function hydrateClassRosters($classes): void
+    {
+        foreach ($classes as $class) {
+            $this->ensureLevelStudentsEnrolled($class);
+        }
+
+        $classes->each->unsetRelation('students');
+        $classes->loadCount([
+            'students as students_count' => fn ($q) => $q->where('class_students.status', 'active'),
+        ]);
+    }
+
+    private function ensureLevelStudentsEnrolled(ClassGroup $class): void
+    {
+        if (! $class->level_id) {
+            return;
+        }
+
+        $query = Student::query()
+            ->where('level_id', $class->level_id)
+            ->whereIn('status', ['active', 'pending']);
+
+        $levelStudentIds = $query->pluck('id');
+        if ($levelStudentIds->isEmpty()) {
+            return;
+        }
+
+        $existing = DB::table('class_students')
+            ->where('class_group_id', $class->id)
+            ->whereIn('student_id', $levelStudentIds)
+            ->pluck('status', 'student_id');
+
+        foreach ($levelStudentIds as $studentId) {
+            $current = $existing->get($studentId);
+            if ($current === 'inactive') {
+                continue;
+            }
+            if ($current === 'active') {
+                continue;
+            }
+
+            $class->students()->syncWithoutDetaching([
+                $studentId => [
+                    'status' => 'active',
+                    'enrolled_on' => now()->toDateString(),
+                ],
+            ]);
+        }
+    }
+
+    private function enrollStudentInClass(ClassGroup $class, Student $student): void
+    {
+        $class->students()->syncWithoutDetaching([
+            $student->id => [
+                'status' => 'active',
+                'enrolled_on' => now()->toDateString(),
+                'left_on' => null,
+            ],
+        ]);
+    }
+
+    private function rosterStudents(ClassGroup $class)
+    {
+        $enrolled = $class->students()
+            ->wherePivot('status', 'active')
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->get();
+
+        $levelStudents = collect();
+        if ($class->level_id) {
+            $levelStudents = Student::query()
+                ->where('level_id', $class->level_id)
+                ->whereIn('status', ['active', 'pending'])
+                ->orderBy('last_name')
+                ->orderBy('first_name')
+                ->get();
+        }
+
+        $inactiveIds = DB::table('class_students')
+            ->where('class_group_id', $class->id)
+            ->where('status', 'inactive')
+            ->pluck('student_id');
+
+        return $enrolled
+            ->concat($levelStudents)
+            ->unique('id')
+            ->reject(fn (Student $student) => $inactiveIds->contains($student->id))
+            ->sortBy([
+                ['last_name', 'asc'],
+                ['first_name', 'asc'],
+            ])
+            ->values();
+    }
+
+    private function rosterPayload(ClassGroup $class, ?AcademicSession $session = null): array
+    {
+        $students = $this->rosterStudents($class);
+        $byStudent = $session?->attendances?->keyBy('student_id') ?? collect();
+
+        if ($session) {
+            $extraIds = $byStudent->keys()->diff($students->pluck('id'));
+            if ($extraIds->isNotEmpty()) {
+                $students = $students
+                    ->concat(Student::query()->whereIn('id', $extraIds)->get())
+                    ->unique('id')
+                    ->values();
+            }
+        }
+
+        $rosterIds = $students->pluck('id');
+
+        $available = Student::query()
+            ->whereIn('status', ['active', 'pending'])
+            ->whereNotIn('id', $rosterIds->isEmpty() ? [0] : $rosterIds)
+            ->orderBy('last_name')
+            ->orderBy('first_name')
+            ->limit(200)
+            ->get(['id', 'first_name', 'last_name', 'level_id']);
+
+        return [
+            'students' => $students->map(function (Student $student) use ($byStudent) {
+                $att = $byStudent->get($student->id);
+
+                return [
+                    'student_id' => $student->id,
+                    'full_name' => $student->full_name,
+                    'first_name' => $student->first_name,
+                    'last_name' => $student->last_name,
+                    'status' => $att?->status,
+                    'recorded' => $att !== null,
+                    'notes' => $att?->notes,
+                    'attendance_id' => $att?->id,
+                ];
+            })->values(),
+            'available_students' => $available->map(fn (Student $student) => [
+                'id' => $student->id,
+                'full_name' => $student->full_name,
+            ])->values(),
+        ];
     }
 }

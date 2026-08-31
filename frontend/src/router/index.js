@@ -59,6 +59,7 @@ import ExternalContactRequestsView from '@/views/admin/secretariat/ExternalConta
 import SecretariatMessagesView from '@/views/admin/secretariat/SecretariatMessagesView.vue'
 import TeacherAdminShell from '@/views/admin/teacher/TeacherAdminShell.vue'
 import TeacherHomeView from '@/views/admin/teacher/TeacherHomeView.vue'
+import TeacherAttendanceRegisterView from '@/views/admin/teacher/TeacherAttendanceRegisterView.vue'
 import ShuraAdminShell from '@/views/admin/shura/ShuraAdminShell.vue'
 import ShuraOverviewView from '@/views/admin/shura/ShuraOverviewView.vue'
 import ShuraMembersView from '@/views/admin/shura/ShuraMembersView.vue'
@@ -346,7 +347,7 @@ const router = createRouter({
             {
               path: 'attendance',
               name: 'admin.teacher.attendance',
-              component: AcademicAttendanceOverview,
+              component: TeacherAttendanceRegisterView,
               meta: { permission: 'attendance.view' },
             },
             {

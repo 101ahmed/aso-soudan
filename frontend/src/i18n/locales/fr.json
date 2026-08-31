@@ -399,6 +399,13 @@
     "rowDeleted": "Présence supprimée.",
     "confirmDeleteSession": "Supprimer cette séance et toutes ses présences ?",
     "confirmDeleteRow": "Supprimer la présence de {name} pour cette séance ?",
+    "rosterTitle": "Élèves de la classe",
+    "addStudent": "Ajouter un élève",
+    "chooseStudent": "Choisir un élève à ajouter à la classe",
+    "removeFromClass": "Retirer de la classe",
+    "clearStatus": "Effacer le statut",
+    "pickSession": "Créez ou choisissez une séance ci-dessus, puis marquez présent ou absent pour chaque élève.",
+    "confirmRemoveStudent": "Retirer {name} de cette classe ?",
     "statuses": {
       "present": "Présent",
       "absent": "Absent",
@@ -557,7 +564,7 @@
     "students": "Élèves",
     "studentsHint": "Ajouter, modifier ou supprimer un élève.",
     "attendance": "Présences / Absences",
-    "attendanceHint": "Ajouter, modifier ou supprimer une séance, puis saisir la feuille de présence.",
+    "attendanceHint": "Tableau de présence indépendant des séances : ajouter, modifier ou supprimer un élève, puis marquer présent ou absent par jour.",
     "timetable": "Emploi du temps",
     "timetableHint": "Séances saisies par l’amin académique : enseignant, matière, date et heure.",
     "upcoming": "Séances à venir",
@@ -629,6 +636,26 @@
     "next": "Suivant",
     "close": "Fermer",
     "goto": "Aller à la diapositive {n}"
+  },
+  "teacherRegister": {
+    "title": "Tableau des présences",
+    "subtitle": "Ce tableau est indépendant des séances. Ajoutez, modifiez ou supprimez des élèves, puis marquez présent ou absent pour chaque jour.",
+    "thisWeek": "Cette semaine",
+    "allLevels": "Tous les niveaux",
+    "student": "Élève",
+    "level": "Niveau",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "addStudent": "Ajouter un élève",
+    "saveStudent": "Enregistrer l’élève",
+    "loading": "Chargement…",
+    "empty": "Aucun élève. Ajoutez-en un depuis le formulaire ci-dessus.",
+    "totals": "Total présents / absents",
+    "confirmDelete": "Supprimer {name} du tableau ?",
+    "short": {
+      "present": "P",
+      "absent": "A"
+    }
   },
   "forms": {
     "name": "Nom complet",
