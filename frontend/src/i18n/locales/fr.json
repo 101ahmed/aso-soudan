@@ -428,7 +428,7 @@
   },
   "academicTeachers": {
     "title": "Enseignants",
-    "subtitle": "Classer les enseignants par matière et par niveau (1re, 2e, 3e, cas particulier).",
+    "subtitle": "Classer les enseignants par matière et par niveau (1re, 2e, 3e, cas particulier, adultes).",
     "bySubject": "Par matière",
     "byLevel": "Par niveau",
     "allSubjects": "Toutes les matières",
@@ -464,7 +464,7 @@
   },
   "academicStudents": {
     "title": "Élèves",
-    "subtitle": "Classement des élèves par niveau : 1re, 2e, 3e année et cas particulier.",
+    "subtitle": "Classement des élèves par niveau : 1re, 2e, 3e année, cas particulier et adultes.",
     "allLevels": "Tous les niveaux",
     "studentsCount": "élèves",
     "emptyLevel": "Aucun élève dans ce niveau.",

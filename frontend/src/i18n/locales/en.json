@@ -428,7 +428,7 @@
   },
   "academicTeachers": {
     "title": "Teachers",
-    "subtitle": "Group teachers by subject and by level (1st, 2nd, 3rd, special case).",
+    "subtitle": "Group teachers by subject and by level (1st, 2nd, 3rd, special case, adults).",
     "bySubject": "By subject",
     "byLevel": "By level",
     "allSubjects": "All subjects",
@@ -464,7 +464,7 @@
   },
   "academicStudents": {
     "title": "Students",
-    "subtitle": "Group students by level: 1st, 2nd, 3rd, and special case.",
+    "subtitle": "Group students by level: 1st, 2nd, 3rd, special case, and adults.",
     "allLevels": "All levels",
     "studentsCount": "students",
     "emptyLevel": "No students in this level.",

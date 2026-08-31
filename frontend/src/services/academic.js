@@ -1,6 +1,7 @@
 import api from '@/services/api'
 
 function withoutFrenchSubject(items = []) {
+  // Children's FR only. Adult French (FR_ADULT / اللغة الفرنسية للبالغين) stays visible.
   return (items || []).filter(
     (item) => item?.code !== 'FR' && item?.name_ar !== 'اللغة الفرنسية',
   )

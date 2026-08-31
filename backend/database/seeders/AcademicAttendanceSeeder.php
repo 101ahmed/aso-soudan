@@ -14,6 +14,7 @@ use App\Models\Teacher;
 use App\Models\User;
 use App\Models\StudentAttendance;
 use App\Models\Subject;
+use App\Support\FrenchAdultCatalog;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -188,6 +189,7 @@ class AcademicAttendanceSeeder extends Seeder
         }
 
         $this->seedWeeklySchedules($subjectModels, $levels, $year);
+        FrenchAdultCatalog::ensure();
     }
 
     /**
@@ -285,6 +287,9 @@ class AcademicAttendanceSeeder extends Seeder
             ->where(function ($query) {
                 $query->where('code', 'FR')
                     ->orWhere('name_ar', 'اللغة الفرنسية');
+            })
+            ->where(function ($query) {
+                $query->whereNull('code')->orWhere('code', '!=', FrenchAdultCatalog::SUBJECT_CODE);
             })
             ->get();
 

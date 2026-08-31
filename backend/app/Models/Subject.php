@@ -32,6 +32,10 @@ class Subject extends Model
         })->where('name_ar', '!=', 'اللغة الفرنسية');
     }
 
+    /**
+     * Children's school French (code FR / اللغة الفرنسية) is not offered.
+     * Adult French (FR_ADULT / اللغة الفرنسية للبالغين) is offered and must not match.
+     */
     public static function isFrenchLanguage(?self $subject): bool
     {
         if (! $subject) {
