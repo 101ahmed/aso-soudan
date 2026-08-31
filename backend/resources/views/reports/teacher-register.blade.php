@@ -1,6 +1,9 @@
 @php
     $isAr = ($locale ?? 'ar') === 'ar';
-    $dir = $isAr ? 'rtl' : 'ltr';
+    // Dompdf has no OpenType shaping: Arabic is converted to visual glyphs in the controller.
+    // Keep dir=ltr so those glyphs are not reversed a second time.
+    $dir = 'ltr';
+    $align = $isAr ? 'right' : 'left';
     $t = [
         'ar' => [
             'org' => 'رابطة الجالية السودانية برين',
@@ -13,8 +16,6 @@
             'totals' => 'المجموع حاضر / غائب',
             'present' => 'حاضر',
             'absent' => 'غائب',
-            'late' => 'متأخر',
-            'excused' => 'معذور',
             'footer' => 'وثيقة داخلية — رابطة الجالية السودانية برين',
             'generated' => 'تاريخ الإصدار',
             'marks' => ['present' => 'ح', 'absent' => 'غ', 'late' => 'ت', 'excused' => 'ع'],
@@ -30,8 +31,6 @@
             'totals' => 'Total présents / absents',
             'present' => 'Présent',
             'absent' => 'Absent',
-            'late' => 'Retard',
-            'excused' => 'Excusé',
             'footer' => 'Document interne — Association de la communauté soudanaise de Rennes',
             'generated' => 'Émis le',
             'marks' => ['present' => 'P', 'absent' => 'A', 'late' => 'R', 'excused' => 'E'],
@@ -47,8 +46,6 @@
             'totals' => 'Total present / absent',
             'present' => 'Present',
             'absent' => 'Absent',
-            'late' => 'Late',
-            'excused' => 'Excused',
             'footer' => 'Internal document — Sudanese Community Association of Rennes',
             'generated' => 'Issued',
             'marks' => ['present' => 'P', 'absent' => 'A', 'late' => 'R', 'excused' => 'E'],
@@ -82,34 +79,37 @@
     <meta charset="utf-8">
     <title>{{ $label('title') }}</title>
     <style>
-        body { font-family: DejaVu Sans, Tahoma, Arial, sans-serif; color: #1e293b; font-size: 11px; margin: 18px; }
+        body { font-family: DejaVu Sans, Tahoma, Arial, sans-serif; color: #1e293b; font-size: 11px; margin: 18px; text-align: {{ $align }}; direction: ltr; unicode-bidi: bidi-override; }
         h1 { font-size: 18px; margin: 0 0 4px; color: #134e4a; }
         .muted { color: #64748b; font-size: 10px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 12px; direction: ltr; }
         th, td { border: 1px solid #cbd5e1; padding: 5px 6px; text-align: center; }
         th { background: #f1f5f9; font-weight: bold; }
-        td.name, th.name { text-align: start; }
+        td.name, th.name { text-align: {{ $align }}; }
         .present { color: #047857; font-weight: bold; }
         .absent { color: #b91c1c; font-weight: bold; }
         .late { color: #b45309; font-weight: bold; }
         .excused { color: #0369a1; font-weight: bold; }
         .footer { margin-top: 18px; font-size: 9px; color: #64748b; }
-        .legend span { margin-inline-end: 12px; }
+        .legend span { margin: 0 10px; }
     </style>
 </head>
 <body>
     <p class="muted">{{ $label('org') }}</p>
     <h1>{{ $label('title') }}</h1>
     <p class="muted">
-        {{ $label('period') }}: {{ $fromLabel }} — {{ $toLabel }}
-        · {{ $label('level') }}: {{ $levelName ?: $label('allLevels') }}
-        · {{ $label('generated') }} {{ now()->format('Y-m-d H:i') }}
+        <span>{{ $label('period') }}</span>
+        {{ $fromLabel }} — {{ $toLabel }}
+        ·
+        <span>{{ $label('level') }}</span>
+        {{ $levelName ?: $label('allLevels') }}
+        ·
+        <span>{{ $label('generated') }}</span>
+        {{ now()->format('Y-m-d H:i') }}
     </p>
     <p class="legend muted">
-        <span class="present">{{ $t['marks']['present'] }} {{ $label('present') }}</span>
-        <span class="absent">{{ $t['marks']['absent'] }} {{ $label('absent') }}</span>
-        <span class="late">{{ $t['marks']['late'] }} {{ $label('late') }}</span>
-        <span class="excused">{{ $t['marks']['excused'] }} {{ $label('excused') }}</span>
+        <span class="present"><span>{{ $t['marks']['present'] }}</span> <span>{{ $label('present') }}</span></span>
+        <span class="absent"><span>{{ $t['marks']['absent'] }}</span> <span>{{ $label('absent') }}</span></span>
     </p>
 
     <table>
@@ -119,7 +119,10 @@
                 <th class="name">{{ $label('student') }}</th>
                 <th>{{ $label('level') }}</th>
                 @foreach($days as $day)
-                    <th>{{ $day['label'] }}</th>
+                    <th>
+                        <div>{{ $day['weekday'] ?? $day['label'] }}</div>
+                        <div>{{ $day['date'] ?? '' }}</div>
+                    </th>
                 @endforeach
             </tr>
         </thead>

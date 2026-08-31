@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Department;
 use App\Services\SecretariatReportBuilder;
+use App\Support\ArabicPdfGlyphs;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -51,6 +52,7 @@ class AdminSecretariatReportController extends Controller
             : 'ar';
         $report = $this->builder->build($department, $year);
         $html = view('reports.secretariat', compact('report', 'locale'))->render();
+        $html = ArabicPdfGlyphs::shapeHtml($html);
         $filename = 'rapport-'.$department->code.'-'.$year.'.pdf';
 
         if (class_exists(\Dompdf\Dompdf::class)) {
@@ -58,6 +60,7 @@ class AdminSecretariatReportController extends Controller
             $options->set('isRemoteEnabled', false);
             $options->set('isHtml5ParserEnabled', true);
             $options->set('defaultFont', 'DejaVu Sans');
+            $options->set('isFontSubsettingEnabled', true);
             $dompdf = new \Dompdf\Dompdf($options);
             $dompdf->loadHtml($html, 'UTF-8');
             $dompdf->setPaper('A4', 'portrait');

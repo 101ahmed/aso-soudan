@@ -1,6 +1,8 @@
 @php
     $isAr = ($locale ?? 'ar') === 'ar';
-    $dir = $isAr ? 'rtl' : 'ltr';
+    // Dompdf: Arabic glyphs are shaped in the controller; keep LTR to avoid a second reverse.
+    $dir = 'ltr';
+    $align = $isAr ? 'right' : 'left';
     $dept = $report['department'];
     $activity = $report['activity'];
     $specific = $report['specific'] ?? [];
@@ -156,12 +158,12 @@
     <meta charset="utf-8">
     <title>{{ $label('title') }} — {{ $name }} — {{ $report['year'] }}</title>
     <style>
-        body { font-family: DejaVu Sans, Tahoma, Arial, sans-serif; color: #1e293b; font-size: 12px; margin: 24px; }
+        body { font-family: DejaVu Sans, Tahoma, Arial, sans-serif; color: #1e293b; font-size: 12px; margin: 24px; text-align: {{ $align }}; direction: ltr; unicode-bidi: bidi-override; }
         h1 { font-size: 20px; margin: 0 0 4px; color: #134e4a; }
         h2 { font-size: 14px; margin: 18px 0 8px; color: #134e4a; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px; }
         .muted { color: #64748b; font-size: 11px; }
         .grid { width: 100%; border-collapse: collapse; margin-top: 8px; }
-        .grid td, .grid th { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: start; }
+        .grid td, .grid th { border: 1px solid #e2e8f0; padding: 6px 8px; text-align: {{ $align }}; }
         .grid th { background: #f1f5f9; }
         .kpi { display: inline-block; width: 30%; margin: 0 1% 8px 0; border: 1px solid #e2e8f0; padding: 8px; vertical-align: top; }
         .kpi b { display: block; font-size: 16px; color: #134e4a; }

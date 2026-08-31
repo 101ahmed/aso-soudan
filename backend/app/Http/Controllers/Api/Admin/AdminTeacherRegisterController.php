@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\DailyStudentAttendance;
 use App\Models\Level;
 use App\Models\Student;
+use App\Support\ArabicPdfGlyphs;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -37,6 +38,7 @@ class AdminTeacherRegisterController extends Controller
             'days' => $days,
             'levelName' => $levelName,
         ])->render();
+        $html = ArabicPdfGlyphs::shapeHtml($html);
         $filename = 'attendance-'.$payload['from'].'-'.$payload['to'].'.pdf';
 
         if (class_exists(\Dompdf\Dompdf::class)) {
@@ -44,6 +46,7 @@ class AdminTeacherRegisterController extends Controller
             $options->set('isRemoteEnabled', false);
             $options->set('isHtml5ParserEnabled', true);
             $options->set('defaultFont', 'DejaVu Sans');
+            $options->set('isFontSubsettingEnabled', true);
             $dompdf = new \Dompdf\Dompdf($options);
             $dompdf->loadHtml($html, 'UTF-8');
             $dompdf->setPaper('A4', 'landscape');
@@ -166,6 +169,8 @@ class AdminTeacherRegisterController extends Controller
         while ($cursor->lte($end)) {
             $days[] = [
                 'iso' => $cursor->toDateString(),
+                'weekday' => $weekdays[$cursor->dayOfWeek] ?? '',
+                'date' => $cursor->format('d/m'),
                 'label' => ($weekdays[$cursor->dayOfWeek] ?? '').' '.$cursor->format('d/m'),
             ];
             $cursor->addDay();
