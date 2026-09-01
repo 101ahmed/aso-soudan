@@ -61,6 +61,8 @@ fi
 php artisan config:clear || true
 php artisan config:cache
 php artisan migrate --force
+# Move officer/deputy photos off the ephemeral container disk into Postgres.
+php artisan rdp:ingest-officer-photos || true
 
 # Always ensure roles + Super Admin exist (fixes empty prod DB / missed first seed)
 if [[ "${SKIP_SEEDERS:-false}" != "true" ]]; then

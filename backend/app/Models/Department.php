@@ -82,6 +82,11 @@ class Department extends Model
         return $this->hasMany(PresidentialDirective::class);
     }
 
+    public function cardPhotos(): HasMany
+    {
+        return $this->hasMany(DepartmentCardPhoto::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

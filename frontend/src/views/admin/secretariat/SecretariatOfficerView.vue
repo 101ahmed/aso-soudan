@@ -75,6 +75,12 @@ async function onPhotoPick(event) {
   }
 }
 
+function onPhotoError() {
+  if (!photoFile.value) {
+    photoPreview.value = null
+  }
+}
+
 function clearPhoto() {
   photoFile.value = null
   form.remove_photo = true
@@ -135,6 +141,7 @@ watch(() => [code.value, role.value, route.fullPath], load, { immediate: true })
           :src="photoPreview"
           alt=""
           class="h-24 w-24 rounded-2xl object-cover object-top ring-2 ring-[var(--rdp-forest)]/20"
+          @error="onPhotoError"
         />
         <div
           v-else
@@ -175,6 +182,7 @@ watch(() => [code.value, role.value, route.fullPath], load, { immediate: true })
             :src="photoPreview"
             alt=""
             class="h-16 w-16 rounded-full object-cover object-top"
+            @error="onPhotoError"
           />
           <div v-else class="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-lg font-bold text-white">
             {{ (form.name_ar || form.name_fr || '?').slice(0, 1) }}

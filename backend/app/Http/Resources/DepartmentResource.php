@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources;
 
-use App\Support\MediaUrl;
+use App\Support\DepartmentCardPhotoStore;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -49,7 +49,7 @@ class DepartmentResource extends JsonResource
             'email' => $this->{"{$prefix}_email"},
             'phone' => $this->when($authenticated, $this->{"{$prefix}_phone"}),
             'photo_path' => $this->{"{$prefix}_photo_path"},
-            'photo_url' => MediaUrl::absolute($this->{"{$prefix}_photo_path"}),
+            'photo_url' => DepartmentCardPhotoStore::url($this->resource, $prefix),
             'is_public' => (bool) ($this->{"{$prefix}_is_public"} ?? true),
         ];
     }

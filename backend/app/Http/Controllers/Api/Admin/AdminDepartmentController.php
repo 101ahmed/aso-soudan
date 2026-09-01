@@ -5,13 +5,11 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
+use App\Support\DepartmentCardPhotoStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
-use Throwable;
 
 class AdminDepartmentController extends Controller
 {
@@ -85,17 +83,10 @@ class AdminDepartmentController extends Controller
             'remove_photo' => ['nullable', 'boolean'],
         ]);
 
-        if ($request->boolean('remove_photo') && $department->{$photoColumn}) {
-            $this->deletePublicFile($department->{$photoColumn});
+        if ($request->boolean('remove_photo') && ($department->{$photoColumn} || DepartmentCardPhotoStore::has($department, $prefix))) {
+            DepartmentCardPhotoStore::forget($department, $prefix);
+            $department->refresh();
             $data[$photoColumn] = null;
-        }
-
-        if ($request->hasFile('photo')) {
-            if ($department->{$photoColumn}) {
-                $this->deletePublicFile($department->{$photoColumn});
-            }
-            $folder = $prefix === 'deputy' ? 'deputies' : 'officers';
-            $data[$photoColumn] = $this->storePublicImage($request->file('photo'), $folder.'/'.$department->code);
         }
 
         unset($data['photo'], $data['remove_photo']);
@@ -105,6 +96,10 @@ class AdminDepartmentController extends Controller
         }
 
         $department->update($data);
+
+        if ($request->hasFile('photo')) {
+            DepartmentCardPhotoStore::store($department, $prefix, $request->file('photo'));
+        }
 
         return new DepartmentResource($department->fresh());
     }
@@ -129,56 +124,20 @@ class AdminDepartmentController extends Controller
                 $ext = strtolower($value->getClientOriginalExtension()
                     ?: pathinfo($value->getClientOriginalName(), PATHINFO_EXTENSION));
 
-                if (! in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
+                if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
+                    return;
+                }
+
+                $head = (string) @file_get_contents($value->getRealPath() ?: $value->getPathname(), false, null, 0, 16);
+                $looksLikeImage = str_starts_with($head, "\xFF\xD8\xFF")
+                    || str_starts_with($head, "\x89PNG")
+                    || str_starts_with($head, 'GIF8')
+                    || str_starts_with($head, 'RIFF');
+
+                if (! $looksLikeImage) {
                     $fail('The photo must be a jpg, jpeg, png, webp or gif image.');
                 }
             },
         ];
-    }
-
-    private function storePublicImage(UploadedFile $file, string $directory): string
-    {
-        $ext = strtolower($file->getClientOriginalExtension()
-            ?: pathinfo($file->getClientOriginalName(), PATHINFO_EXTENSION)
-            ?: 'jpg');
-        if (! in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
-            $ext = 'jpg';
-        }
-
-        $name = Str::random(40).'.'.$ext;
-        $relative = trim($directory, '/').'/'.$name;
-
-        try {
-            $stored = $file->storeAs($directory, $name, 'public');
-            if (is_string($stored) && $stored !== '') {
-                return $stored;
-            }
-        } catch (Throwable) {
-            // Native fallback when Flysystem still cannot boot without ext-fileinfo.
-        }
-
-        $destDir = storage_path('app/public/'.trim($directory, '/'));
-        if (! is_dir($destDir) && ! mkdir($destDir, 0755, true) && ! is_dir($destDir)) {
-            abort(500, 'Unable to store photo.');
-        }
-        $file->move($destDir, $name);
-
-        return $relative;
-    }
-
-    private function deletePublicFile(?string $path): void
-    {
-        if (blank($path)) {
-            return;
-        }
-
-        try {
-            Storage::disk('public')->delete($path);
-        } catch (Throwable) {
-            $full = storage_path('app/public/'.ltrim(str_replace('\\', '/', $path), '/'));
-            if (is_file($full)) {
-                @unlink($full);
-            }
-        }
     }
 }

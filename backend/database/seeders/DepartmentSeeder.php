@@ -139,6 +139,20 @@ class DepartmentSeeder extends Seeder
             $code = $item['code'];
             unset($item['code']);
 
+            $structure = [
+                'name_ar' => $item['name_ar'] ?? null,
+                'name_fr' => $item['name_fr'] ?? null,
+                'sort_order' => $item['sort_order'] ?? 0,
+                'is_active' => true,
+            ];
+
+            $existing = Department::query()->where('code', $code)->first();
+            if ($existing) {
+                // Never overwrite officer/deputy cards or photos on deploy/seed.
+                $existing->fill($structure)->save();
+                continue;
+            }
+
             $deputyTitles = [
                 'general' => ['نائب أمين الأمانة العامة', 'Vice-secrétaire général', 'general@acs-rennes.fr'],
                 'academic' => ['نائب أمين الأمانة الأكاديمية', 'Vice-secrétaire académique', 'academic@acs-rennes.fr'],
@@ -152,7 +166,6 @@ class DepartmentSeeder extends Seeder
             ];
 
             $extra = [
-                'is_active' => true,
                 'officer_is_public' => true,
             ];
 
@@ -170,10 +183,9 @@ class DepartmentSeeder extends Seeder
                 ]);
             }
 
-            Department::query()->updateOrCreate(
-                ['code' => $code],
-                array_merge($item, $extra)
-            );
+            Department::query()->create(array_merge($item, $extra, $structure, [
+                'code' => $code,
+            ]));
         }
     }
 }
