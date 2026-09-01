@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Sudanese Community Association of Rennes",
+    "name": "Sudanese Association of Rennes",
     "tagline": "Brotherhood | Solidarity | Love",
     "motto": "One community, one heart."
   },
@@ -42,7 +42,7 @@
     "ctaStudent": "Register a student",
     "ctaMember": "Request membership",
     "aboutTitle": "The Rabta at a glance",
-    "aboutText": "The Sudanese Community Association of Rennes brings together families and community actors around educational, social and cultural goals.",
+    "aboutText": "The Sudanese Association of Rennes brings together families and community actors around educational, social and cultural goals.",
     "readMore": "Read more",
     "orgTitle": "Organisation",
     "orgSubtitle": "The main bodies of the Rabta",
@@ -80,7 +80,7 @@
     "footerPlace": "Rennes, Brittany — France",
     "footerContact": "Write to the Rabta",
     "footerNote": "Public website open to all · internal area reserved for authorised accounts.",
-    "title": "Sudanese Community Association of Rennes",
+    "title": "Sudanese Association of Rennes",
     "subtitle": "Digital platform for the administrative and academic management of the Rabta.",
     "cta": "Check API connection"
   },

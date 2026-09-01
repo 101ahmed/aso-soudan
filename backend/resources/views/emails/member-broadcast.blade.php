@@ -3,5 +3,5 @@
 {{ $mailBody }}
 
 —
-رابطة الجالية السودانية برين
-Association de la Communauté Soudanaise de Rennes
+الرابطة السودانية برين
+Association soudanaise de Rennes

@@ -12,7 +12,7 @@
     $t = [
         'ar' => [
             'title' => 'تقرير الأمانة',
-            'org' => 'رابطة الجالية السودانية برين',
+            'org' => 'الرابطة السودانية برين',
             'year' => 'السنة',
             'generated' => 'تاريخ الإصدار',
             'officer' => 'الأمين',
@@ -53,11 +53,11 @@
             'documents' => 'الوثائق',
             'contacts' => 'طلبات التواصل',
             'empty' => 'لا توجد بيانات لهذه السنة.',
-            'footer' => 'وثيقة داخلية — رابطة الجالية السودانية برين',
+            'footer' => 'وثيقة داخلية — الرابطة السودانية برين',
         ],
         'fr' => [
             'title' => 'Rapport du secrétariat',
-            'org' => 'Association de la communauté soudanaise de Rennes',
+            'org' => 'Association soudanaise de Rennes',
             'year' => 'Année',
             'generated' => 'Émis le',
             'officer' => 'Secrétaire',
@@ -98,11 +98,11 @@
             'documents' => 'Documents',
             'contacts' => 'Demandes de contact',
             'empty' => 'Aucune donnée pour cette année.',
-            'footer' => 'Document interne — Association de la communauté soudanaise de Rennes',
+            'footer' => 'Document interne — Association soudanaise de Rennes',
         ],
         'en' => [
             'title' => 'Secretariat report',
-            'org' => 'Sudanese community association of Rennes',
+            'org' => 'Sudanese Association of Rennes',
             'year' => 'Year',
             'generated' => 'Issued on',
             'officer' => 'Officer',
@@ -143,7 +143,7 @@
             'documents' => 'Documents',
             'contacts' => 'Contact requests',
             'empty' => 'No data for this year.',
-            'footer' => 'Internal document — Sudanese community association of Rennes',
+            'footer' => 'Internal document — Sudanese Association of Rennes',
         ],
     ][$locale ?? 'ar'] ?? [];
     $label = fn ($key) => $t[$key] ?? $key;

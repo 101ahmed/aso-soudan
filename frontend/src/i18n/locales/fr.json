@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Association de la Communauté Soudanaise de Rennes",
+    "name": "Association soudanaise de Rennes",
     "tagline": "Fraternité | Solidarité | Amour",
     "motto": "Une seule communauté, un seul cœur."
   },
@@ -42,7 +42,7 @@
     "ctaStudent": "Inscrire un élève",
     "ctaMember": "Demander l’adhésion",
     "aboutTitle": "La Rabta en bref",
-    "aboutText": "L’Association de la Communauté Soudanaise de Rennes regroupe les familles et les acteurs associatifs autour d’objectifs éducatifs, sociaux et culturels.",
+    "aboutText": "L’Association soudanaise de Rennes regroupe les familles et les acteurs associatifs autour d’objectifs éducatifs, sociaux et culturels.",
     "readMore": "Lire la suite",
     "orgTitle": "Organisation",
     "orgSubtitle": "Les principaux organes de la Rabta",
@@ -80,7 +80,7 @@
     "footerPlace": "Rennes, Bretagne — France",
     "footerContact": "Écrire à la Rabta",
     "footerNote": "Site public ouvert à tous · espace interne réservé aux comptes autorisés.",
-    "title": "Association de la Communauté Soudanaise de Rennes",
+    "title": "Association soudanaise de Rennes",
     "subtitle": "Plateforme numérique pour la gestion administrative et académique de la Rabta.",
     "cta": "Vérifier la connexion API"
   },

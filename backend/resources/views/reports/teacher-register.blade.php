@@ -6,7 +6,7 @@
     $align = $isAr ? 'right' : 'left';
     $t = [
         'ar' => [
-            'org' => 'رابطة الجالية السودانية برين',
+            'org' => 'الرابطة السودانية برين',
             'title' => 'جدول الحضور والغياب',
             'period' => 'الفترة',
             'level' => 'المستوى',
@@ -16,12 +16,12 @@
             'totals' => 'المجموع حاضر / غائب',
             'present' => 'حاضر',
             'absent' => 'غائب',
-            'footer' => 'وثيقة داخلية — رابطة الجالية السودانية برين',
+            'footer' => 'وثيقة داخلية — الرابطة السودانية برين',
             'generated' => 'تاريخ الإصدار',
             'marks' => ['present' => 'ح', 'absent' => 'غ', 'late' => 'ت', 'excused' => 'ع'],
         ],
         'fr' => [
-            'org' => 'Association de la communauté soudanaise de Rennes',
+            'org' => 'Association soudanaise de Rennes',
             'title' => 'Tableau des présences',
             'period' => 'Période',
             'level' => 'Niveau',
@@ -31,12 +31,12 @@
             'totals' => 'Total présents / absents',
             'present' => 'Présent',
             'absent' => 'Absent',
-            'footer' => 'Document interne — Association de la communauté soudanaise de Rennes',
+            'footer' => 'Document interne — Association soudanaise de Rennes',
             'generated' => 'Émis le',
             'marks' => ['present' => 'P', 'absent' => 'A', 'late' => 'R', 'excused' => 'E'],
         ],
         'en' => [
-            'org' => 'Sudanese Community Association of Rennes',
+            'org' => 'Sudanese Association of Rennes',
             'title' => 'Attendance register',
             'period' => 'Period',
             'level' => 'Level',
@@ -46,7 +46,7 @@
             'totals' => 'Total present / absent',
             'present' => 'Present',
             'absent' => 'Absent',
-            'footer' => 'Internal document — Sudanese Community Association of Rennes',
+            'footer' => 'Internal document — Sudanese Association of Rennes',
             'generated' => 'Issued',
             'marks' => ['present' => 'P', 'absent' => 'A', 'late' => 'R', 'excused' => 'E'],
         ],

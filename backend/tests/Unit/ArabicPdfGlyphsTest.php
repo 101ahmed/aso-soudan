@@ -25,9 +25,9 @@ class ArabicPdfGlyphsTest extends TestCase
 
     public function test_association_name_is_shaped_and_keeps_rennes(): void
     {
-        $logical = 'رابطة الجالية السودانية برين';
+        $logical = 'الرابطة السودانية برين';
         $shaped = ArabicPdfGlyphs::shape($logical);
-        $berlin = ArabicPdfGlyphs::shape('رابطة الجالية السودانية برلين');
+        $berlin = ArabicPdfGlyphs::shape('الرابطة السودانية برلين');
 
         $this->assertNotSame($logical, $shaped);
         $this->assertNotSame($berlin, $shaped);

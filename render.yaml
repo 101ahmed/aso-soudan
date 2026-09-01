@@ -19,7 +19,7 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: APP_NAME
-        value: رابطة الجالية السودانية برين
+        value: الرابطة السودانية برين
       - key: APP_ENV
         value: production
       - key: APP_DEBUG

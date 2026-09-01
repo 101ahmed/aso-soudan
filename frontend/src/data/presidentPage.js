@@ -39,14 +39,14 @@ export const presidentPage = {
   message: {
     ar: `السلام عليكم ورحمة الله وبركاته،
 
-يسعدني أن أرحب بكم في الموقع الرسمي لرابطة الجالية السودانية برين. هذه المنصة مساحة مشتركة للتواصل والشفافية وخدمة أبناء الجالية والطلاب وأولياء الأمور والمتطوعين والشركاء.
+يسعدني أن أرحب بكم في الموقع الرسمي للرابطة السودانية برين. هذه المنصة مساحة مشتركة للتواصل والشفافية وخدمة أبناء الجالية والطلاب وأولياء الأمور والمتطوعين والشركاء.
 
 نؤمن بأن قوة الرابطة تقوم على العمل الجماعي، ودعم التعليم، ومرافقة الأسرة، وتشجيع التطوع، وتعزيز العلاقات مع المؤسسات المحلية. ومع التحول الرقمي، نسعى إلى تطوير أنظمة الرابطة لتكون أقرب وأوضح وأكثر فاعلية للجميع.
 
 معاً نبني رابطة منظمة، مسؤولة، ومنفتحة على خدمة المجتمع.`,
     fr: `Chères et chers membres de la communauté,
 
-Je suis heureux de vous accueillir sur le site officiel de l’Association de la Communauté Soudanaise de Rennes. Cette plateforme est un espace commun de lien, de transparence et de service — pour les membres, les élèves, les parents, les bénévoles et les partenaires.
+Je suis heureux de vous accueillir sur le site officiel de l’Association soudanaise de Rennes. Cette plateforme est un espace commun de lien, de transparence et de service — pour les membres, les élèves, les parents, les bénévoles et les partenaires.
 
 Nous croyons à la force du travail collectif, à l’importance de l’éducation, au soutien aux familles, à l’engagement bénévole et aux relations avec les institutions locales. Avec la transformation numérique, nous développons les outils de la Rabta pour les rendre plus accessibles, plus clairs et plus efficaces.
 
