@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\MediaCenterItemResource;
 use App\Models\MediaCenterItem;
+use App\Support\StoredFileStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class AdminMediaCenterController extends Controller
@@ -38,7 +39,7 @@ class AdminMediaCenterController extends Controller
             $data['published_at'] = $data['published_at'] ?? now();
         }
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('media-center', 'public');
+            $data['image_path'] = StoredFileStore::store($request->file('image'), 'media_center')['path'];
         }
 
         $item = MediaCenterItem::query()->create($data);
@@ -56,10 +57,7 @@ class AdminMediaCenterController extends Controller
             $data['published_at'] = $data['published_at'] ?? $mediaCenterItem->published_at ?? now();
         }
         if ($request->hasFile('image')) {
-            if ($mediaCenterItem->image_path) {
-                Storage::disk('public')->delete($mediaCenterItem->image_path);
-            }
-            $data['image_path'] = $request->file('image')->store('media-center', 'public');
+            $data['image_path'] = StoredFileStore::replace($mediaCenterItem->image_path, $request->file('image'), 'media_center')['path'];
         }
 
         $mediaCenterItem->update($data);
@@ -71,9 +69,7 @@ class AdminMediaCenterController extends Controller
     {
         $this->assertMedia($code);
         $this->authorizePermission($request, 'press.delete');
-        if ($mediaCenterItem->image_path) {
-            Storage::disk('public')->delete($mediaCenterItem->image_path);
-        }
+        StoredFileStore::forget($mediaCenterItem->image_path);
         $mediaCenterItem->delete();
 
         return response()->json(['message' => 'Deleted.']);
@@ -119,7 +115,7 @@ class AdminMediaCenterController extends Controller
                 MediaCenterItem::STATUS_PUBLISHED,
                 MediaCenterItem::STATUS_ARCHIVED,
             ])],
-            'image' => ['nullable', 'image', 'max:8192'],
+            'image' => UploadRules::image(8192),
         ]);
 
         unset($data['image']);

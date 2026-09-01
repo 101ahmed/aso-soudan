@@ -5,10 +5,11 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ExternalDocumentResource;
 use App\Models\ExternalDocument;
+use App\Support\StoredFileStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class AdminExternalDocumentController extends Controller
@@ -34,10 +35,11 @@ class AdminExternalDocumentController extends Controller
 
         $data = $this->validated($request, true);
         $file = $request->file('file');
-        $data['file_path'] = $file->store('external/documents', 'public');
-        $data['original_name'] = $file->getClientOriginalName();
-        $data['mime'] = $file->getClientMimeType();
-        $data['size'] = $file->getSize();
+        $stored = StoredFileStore::store($file, 'external_documents');
+        $data['file_path'] = $stored['path'];
+        $data['original_name'] = $file->getClientOriginalName() ?: $stored['original_name'];
+        $data['mime'] = $stored['mime'];
+        $data['size'] = $stored['size'];
         $data['uploaded_by'] = $request->user()?->id;
         unset($data['file']);
 
@@ -53,12 +55,12 @@ class AdminExternalDocumentController extends Controller
 
         $data = $this->validated($request, false);
         if ($request->hasFile('file')) {
-            Storage::disk('public')->delete($externalDocument->file_path);
             $file = $request->file('file');
-            $data['file_path'] = $file->store('external/documents', 'public');
-            $data['original_name'] = $file->getClientOriginalName();
-            $data['mime'] = $file->getClientMimeType();
-            $data['size'] = $file->getSize();
+            $stored = StoredFileStore::replace($externalDocument->file_path, $file, 'external_documents');
+            $data['file_path'] = $stored['path'];
+            $data['original_name'] = $file->getClientOriginalName() ?: $stored['original_name'];
+            $data['mime'] = $stored['mime'];
+            $data['size'] = $stored['size'];
         }
         unset($data['file']);
         $externalDocument->update($data);
@@ -70,9 +72,7 @@ class AdminExternalDocumentController extends Controller
     {
         $this->assertExternal($code);
         $this->authorizePermission($request, 'partner.delete');
-        if ($externalDocument->file_path) {
-            Storage::disk('public')->delete($externalDocument->file_path);
-        }
+        StoredFileStore::forget($externalDocument->file_path);
         $externalDocument->delete();
 
         return response()->json(['message' => 'Deleted.']);
@@ -86,7 +86,7 @@ class AdminExternalDocumentController extends Controller
             'category' => ['nullable', Rule::in(ExternalDocument::CATEGORIES)],
             'partner_id' => ['nullable', 'integer', Rule::exists('external_partners', 'id')],
             'is_public' => ['nullable', 'boolean'],
-            'file' => [$creating ? 'required' : 'nullable', 'file', 'max:12288', 'mimes:pdf,doc,docx,jpg,jpeg,png,webp,xls,xlsx'],
+            'file' => UploadRules::document(12288, $creating),
         ]);
 
         if (array_key_exists('is_public', $data)) {

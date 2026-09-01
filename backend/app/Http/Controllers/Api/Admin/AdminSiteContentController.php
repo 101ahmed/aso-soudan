@@ -8,10 +8,11 @@ use App\Http\Resources\NewsResource;
 use App\Models\Announcement;
 use App\Models\Department;
 use App\Models\News;
+use App\Support\StoredFileStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -42,7 +43,7 @@ class AdminSiteContentController extends Controller
         $data['status'] = $this->resolveCreateStatus($request, $data['status'] ?? 'draft', 'news.publish');
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('news', 'public');
+            $data['image_path'] = StoredFileStore::store($request->file('image'), 'news')['path'];
         }
         if (($data['status'] ?? '') === 'published') {
             $data['published_at'] = $data['published_at'] ?? now();
@@ -64,10 +65,7 @@ class AdminSiteContentController extends Controller
             $data['published_at'] = $data['published_at'] ?? $news->published_at ?? now();
         }
         if ($request->hasFile('image')) {
-            if ($news->image_path) {
-                Storage::disk('public')->delete($news->image_path);
-            }
-            $data['image_path'] = $request->file('image')->store('news', 'public');
+            $data['image_path'] = StoredFileStore::replace($news->image_path, $request->file('image'), 'news')['path'];
         }
 
         $news->update($data);
@@ -78,9 +76,7 @@ class AdminSiteContentController extends Controller
     public function newsDestroy(Request $request, News $news): JsonResponse
     {
         $this->authorizePermission($request, 'news.delete');
-        if ($news->image_path) {
-            Storage::disk('public')->delete($news->image_path);
-        }
+        StoredFileStore::forget($news->image_path);
         $news->delete();
 
         return response()->json(['message' => 'Deleted.']);
@@ -127,7 +123,7 @@ class AdminSiteContentController extends Controller
         $data['status'] = $this->resolveCreateStatus($request, $data['status'] ?? 'draft', 'announcement.publish');
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('announcements', 'public');
+            $data['image_path'] = StoredFileStore::store($request->file('image'), 'announcements')['path'];
         }
 
         $item = Announcement::query()->create($data);
@@ -145,10 +141,7 @@ class AdminSiteContentController extends Controller
             $this->authorizePermission($request, 'announcement.publish');
         }
         if ($request->hasFile('image')) {
-            if ($announcement->image_path) {
-                Storage::disk('public')->delete($announcement->image_path);
-            }
-            $data['image_path'] = $request->file('image')->store('announcements', 'public');
+            $data['image_path'] = StoredFileStore::replace($announcement->image_path, $request->file('image'), 'announcements')['path'];
         }
 
         $announcement->update($data);
@@ -159,9 +152,7 @@ class AdminSiteContentController extends Controller
     public function announcementsDestroy(Request $request, Announcement $announcement): JsonResponse
     {
         $this->authorizePermission($request, 'announcement.delete');
-        if ($announcement->image_path) {
-            Storage::disk('public')->delete($announcement->image_path);
-        }
+        StoredFileStore::forget($announcement->image_path);
         $announcement->delete();
 
         return response()->json(['message' => 'Deleted.']);
@@ -187,7 +178,7 @@ class AdminSiteContentController extends Controller
             'is_featured' => ['sometimes', 'boolean'],
             'show_on_home' => ['sometimes', 'boolean'],
             'published_at' => ['nullable', 'date'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'image' => UploadRules::image(5120),
         ]);
 
         if (isset($data['title_fr']) && blank($data['slug'] ?? null) && ! $news) {
@@ -204,11 +195,7 @@ class AdminSiteContentController extends Controller
             'title_fr' => [$item ? 'sometimes' : 'required', 'string', 'max:255'],
             'content_ar' => ['nullable', 'string'],
             'content_fr' => ['nullable', 'string'],
-            'image' => [
-                $item && filled($item->image_path) ? 'nullable' : 'required',
-                'image',
-                'max:5120',
-            ],
+            'image' => UploadRules::image(5120, ! ($item && filled($item->image_path))),
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'show_on_secretariat' => ['sometimes', 'boolean'],

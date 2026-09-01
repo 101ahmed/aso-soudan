@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AnnouncementResource;
 use App\Models\Announcement;
 use App\Models\Department;
+use App\Support\StoredFileStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class AdminAnnouncementController extends Controller
@@ -39,7 +40,7 @@ class AdminAnnouncementController extends Controller
         $data['status'] = $this->resolveCreateStatus($request, $data['status'] ?? 'draft');
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('announcements', 'public');
+            $data['image_path'] = StoredFileStore::store($request->file('image'), 'announcements')['path'];
         }
 
         $item = Announcement::query()->create($data);
@@ -66,10 +67,7 @@ class AdminAnnouncementController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            if ($announcement->image_path) {
-                Storage::disk('public')->delete($announcement->image_path);
-            }
-            $data['image_path'] = $request->file('image')->store('announcements', 'public');
+            $data['image_path'] = StoredFileStore::replace($announcement->image_path, $request->file('image'), 'announcements')['path'];
         }
 
         $announcement->update($data);
@@ -81,9 +79,7 @@ class AdminAnnouncementController extends Controller
     {
         $this->authorizePermission($request, 'announcement.delete');
         $this->assertSameDepartment($request, $announcement->department_id);
-        if ($announcement->image_path) {
-            Storage::disk('public')->delete($announcement->image_path);
-        }
+        StoredFileStore::forget($announcement->image_path);
         $announcement->delete();
 
         return response()->json(['message' => 'Deleted.']);
@@ -123,11 +119,7 @@ class AdminAnnouncementController extends Controller
             'title_fr' => [$item ? 'sometimes' : 'required', 'string', 'max:255'],
             'content_ar' => ['nullable', 'string'],
             'content_fr' => ['nullable', 'string'],
-            'image' => [
-                $item && filled($item->image_path) ? 'nullable' : 'required',
-                'image',
-                'max:5120',
-            ],
+            'image' => UploadRules::image(5120, ! ($item && filled($item->image_path))),
             'starts_at' => ['nullable', 'date'],
             'ends_at' => ['nullable', 'date', 'after_or_equal:starts_at'],
             'show_on_secretariat' => ['sometimes', 'boolean'],

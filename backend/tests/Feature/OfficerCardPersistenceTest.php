@@ -19,11 +19,11 @@ class OfficerCardPersistenceTest extends TestCase
 
     protected function setUp(): void
     {
-        parent::setUp();
-
         if (! extension_loaded('pdo_sqlite')) {
             $this->markTestSkipped('pdo_sqlite is not available in this PHP build.');
         }
+
+        parent::setUp();
 
         $this->seed(RolePermissionSeeder::class);
         $this->seed(DepartmentSeeder::class);

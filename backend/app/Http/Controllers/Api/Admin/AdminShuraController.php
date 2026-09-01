@@ -8,10 +8,11 @@ use App\Http\Resources\CouncilMemberResource;
 use App\Models\CouncilMeeting;
 use App\Models\CouncilMeetingAttendance;
 use App\Models\CouncilMember;
+use App\Support\StoredFileStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class AdminShuraController extends Controller
@@ -48,10 +49,11 @@ class AdminShuraController extends Controller
     {
         $this->authorizePermission($request, 'shura.member.manage');
         $data = $this->validatedMember($request);
+        unset($data['photo']);
         $data['council_code'] = 'shura';
 
         if ($request->hasFile('photo')) {
-            $data['photo_path'] = $request->file('photo')->store('council/shura', 'public');
+            $data['photo_path'] = StoredFileStore::store($request->file('photo'), 'shura')['path'];
         }
 
         $member = CouncilMember::query()->create($data);
@@ -64,12 +66,10 @@ class AdminShuraController extends Controller
         $this->authorizePermission($request, 'shura.member.manage');
         abort_unless($member->council_code === 'shura', 404);
         $data = $this->validatedMember($request, $member);
+        unset($data['photo']);
 
         if ($request->hasFile('photo')) {
-            if ($member->photo_path) {
-                Storage::disk('public')->delete($member->photo_path);
-            }
-            $data['photo_path'] = $request->file('photo')->store('council/shura', 'public');
+            $data['photo_path'] = StoredFileStore::replace($member->photo_path, $request->file('photo'), 'shura')['path'];
         }
 
         $member->update($data);
@@ -81,6 +81,7 @@ class AdminShuraController extends Controller
     {
         $this->authorizePermission($request, 'shura.member.manage');
         abort_unless($member->council_code === 'shura', 404);
+        StoredFileStore::forget($member->photo_path);
         $member->delete();
 
         return response()->json(['message' => 'Deleted.']);
@@ -174,7 +175,7 @@ class AdminShuraController extends Controller
             'is_public' => ['sometimes', 'boolean'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
             'user_id' => ['nullable', 'integer', 'exists:users,id'],
-            'photo' => ['nullable', 'image', 'max:5120'],
+            'photo' => UploadRules::image(5120),
         ]);
     }
 

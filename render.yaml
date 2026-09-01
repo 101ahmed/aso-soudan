@@ -53,9 +53,11 @@ services:
       - key: FILESYSTEM_DISK
         value: local
       # Seeders are additive: they MUST NOT overwrite officer/deputy cards.
-      # Photos of amin/deputy live in Postgres (department_card_photos), not the
-      # container disk — Render free has no persistent disk, so /storage is wiped
-      # on every deploy. Do not add AWS/S3 unless already configured.
+      # All user uploads (officer cards, news, albums, events, announcements,
+      # media-center, shura photos, external docs) live in Postgres
+      # (department_card_photos + stored_files), not the container disk.
+      # Render free has no persistent disk, so /storage is wiped on every deploy.
+      # Do not add AWS/S3 unless already configured.
       # true = skip rdp:ensure-admin (roles + Super Admin) after a stable prod.
       - key: SKIP_SEEDERS
         value: "false"

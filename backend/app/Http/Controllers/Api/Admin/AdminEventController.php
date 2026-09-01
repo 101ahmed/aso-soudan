@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\EventResource;
 use App\Models\Department;
 use App\Models\Event;
+use App\Support\StoredFileStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -37,12 +38,13 @@ class AdminEventController extends Controller
         $this->authorizePermission($request, 'event.create');
         $department = $this->department($request);
         $data = $this->validated($request);
+        unset($data['image']);
         $data['department_id'] = $department->id;
         $data['created_by'] = $request->user()->id;
         $data['status'] = $this->resolveCreateStatus($request, $data['status'] ?? 'draft');
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('events', 'public');
+            $data['image_path'] = StoredFileStore::store($request->file('image'), 'events')['path'];
         }
 
         if (($data['status'] ?? '') === 'published') {
@@ -66,6 +68,7 @@ class AdminEventController extends Controller
         $this->authorizePermission($request, 'event.update');
         $this->assertSameDepartment($request, $event->department_id);
         $data = $this->validated($request, $event);
+        unset($data['image']);
 
         if (isset($data['status']) && $data['status'] === 'published') {
             $this->authorizePermission($request, 'event.publish');
@@ -73,10 +76,7 @@ class AdminEventController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            if ($event->image_path) {
-                Storage::disk('public')->delete($event->image_path);
-            }
-            $data['image_path'] = $request->file('image')->store('events', 'public');
+            $data['image_path'] = StoredFileStore::replace($event->image_path, $request->file('image'), 'events')['path'];
         }
 
         $event->update($data);
@@ -88,6 +88,7 @@ class AdminEventController extends Controller
     {
         $this->authorizePermission($request, 'event.delete');
         $this->assertSameDepartment($request, $event->department_id);
+        StoredFileStore::forget($event->image_path);
         $event->delete();
 
         return response()->json(['message' => 'Deleted.']);
@@ -128,7 +129,7 @@ class AdminEventController extends Controller
             'show_on_secretariat' => ['sometimes', 'boolean'],
             'show_on_home' => ['sometimes', 'boolean'],
             'published_at' => ['nullable', 'date'],
-            'image' => ['nullable', 'image', 'max:12288'],
+            'image' => UploadRules::image(12288),
         ]);
 
         if (isset($data['title_fr']) && blank($data['slug'] ?? null) && ! $event) {

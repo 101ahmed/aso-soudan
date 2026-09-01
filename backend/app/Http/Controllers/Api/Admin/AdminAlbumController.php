@@ -8,10 +8,11 @@ use App\Http\Resources\MediaResource;
 use App\Models\Album;
 use App\Models\Department;
 use App\Models\Media;
+use App\Support\StoredFileStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class AdminAlbumController extends Controller
@@ -35,12 +36,13 @@ class AdminAlbumController extends Controller
         $this->authorizePermission($request, 'gallery.manage');
         $department = $this->department($request);
         $data = $this->validated($request);
+        unset($data['cover']);
         $data['department_id'] = $department->id;
         $data['created_by'] = $request->user()->id;
         $data['status'] = $this->resolveCreateStatus($request, $data['status'] ?? 'draft');
 
         if ($request->hasFile('cover')) {
-            $data['cover_path'] = $request->file('cover')->store('albums', 'public');
+            $data['cover_path'] = StoredFileStore::store($request->file('cover'), 'albums')['path'];
         }
 
         $album = Album::query()->create($data);
@@ -60,16 +62,14 @@ class AdminAlbumController extends Controller
         $this->authorizePermission($request, 'gallery.manage');
         $this->assertSameDepartment($request, $album->department_id);
         $data = $this->validated($request, $album);
+        unset($data['cover']);
 
         if (($data['status'] ?? null) === 'published') {
             $this->authorizePermission($request, 'gallery.publish');
         }
 
         if ($request->hasFile('cover')) {
-            if ($album->cover_path) {
-                Storage::disk('public')->delete($album->cover_path);
-            }
-            $data['cover_path'] = $request->file('cover')->store('albums', 'public');
+            $data['cover_path'] = StoredFileStore::replace($album->cover_path, $request->file('cover'), 'albums')['path'];
         }
 
         $album->update($data);
@@ -81,6 +81,11 @@ class AdminAlbumController extends Controller
     {
         $this->authorizePermission($request, 'gallery.manage');
         $this->assertSameDepartment($request, $album->department_id);
+        $album->loadMissing('media');
+        foreach ($album->media as $media) {
+            StoredFileStore::forget($media->path);
+        }
+        StoredFileStore::forget($album->cover_path);
         $album->delete();
 
         return response()->json(['message' => 'Deleted.']);
@@ -110,9 +115,9 @@ class AdminAlbumController extends Controller
         $this->assertSameDepartment($request, $album->department_id);
 
         $request->validate([
-            'image' => ['nullable', 'image', 'max:8192'],
+            'image' => UploadRules::image(8192),
             'images' => ['nullable', 'array'],
-            'images.*' => ['nullable', 'image', 'max:8192'],
+            'images.*' => UploadRules::image(8192),
             'caption_ar' => ['nullable', 'string', 'max:255'],
             'caption_fr' => ['nullable', 'string', 'max:255'],
             'sort_order' => ['nullable', 'integer', 'min:0'],
@@ -136,13 +141,14 @@ class AdminAlbumController extends Controller
             }
 
             $sort++;
-            $path = $file->store('albums/'.$album->id, 'public');
+            $stored = StoredFileStore::store($file, 'album_media');
+            $path = $stored['path'];
 
             $created[] = Media::query()->create([
                 'album_id' => $album->id,
                 'path' => $path,
-                'disk' => 'public',
-                'mime_type' => $file->getMimeType(),
+                'disk' => 'db',
+                'mime_type' => $stored['mime'],
                 'type' => 'image',
                 'caption_ar' => $request->input('caption_ar'),
                 'caption_fr' => $request->input('caption_fr'),
@@ -176,13 +182,19 @@ class AdminAlbumController extends Controller
         abort_unless($media->album_id === $album->id, 404);
 
         $wasCover = $album->cover_path && $album->cover_path === $media->path;
-
-        Storage::disk($media->disk ?: 'public')->delete($media->path);
+        $mediaPath = $media->path;
         $media->delete();
 
         if ($wasCover) {
             $next = $album->media()->orderBy('sort_order')->orderBy('id')->first();
             $album->update(['cover_path' => $next?->path]);
+        }
+
+        $album->refresh();
+        $stillUsed = $album->media()->where('path', $mediaPath)->exists()
+            || $album->cover_path === $mediaPath;
+        if (! $stillUsed) {
+            StoredFileStore::forget($mediaPath);
         }
 
         return response()->json([
@@ -218,7 +230,7 @@ class AdminAlbumController extends Controller
             'status' => ['nullable', Rule::in(['draft', 'pending_review', 'published', 'archived'])],
             'show_on_home' => ['nullable', 'boolean'],
             'show_on_gallery' => ['nullable', 'boolean'],
-            'cover' => ['nullable', 'image', 'max:8192'],
+            'cover' => UploadRules::image(8192),
         ]);
     }
 

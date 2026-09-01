@@ -30,6 +30,7 @@ use App\Http\Controllers\Api\PermissionController;
 use App\Http\Controllers\Api\Public\PublicContactController;
 use App\Http\Controllers\Api\Public\PublicContentController;
 use App\Http\Controllers\Api\Public\PublicDepartmentPhotoController;
+use App\Http\Controllers\Api\Public\PublicStoredFileController;
 use App\Http\Controllers\Api\Public\PublicExternalController;
 use App\Http\Controllers\Api\Public\PublicHelpRequestController;
 use App\Http\Controllers\Api\Public\PublicMemberController;
@@ -46,6 +47,8 @@ Route::prefix('public')->group(function () {
     Route::get('/departments', [PublicContentController::class, 'departments']);
     Route::get('/departments/{code}/{role}-photo', [PublicDepartmentPhotoController::class, 'show'])
         ->where('role', 'officer|deputy');
+    Route::get('/files/{uuid}', [PublicStoredFileController::class, 'show'])
+        ->where('uuid', '[0-9a-fA-F-]{36}');
     Route::get('/secretariats/{code}/feed', [PublicContentController::class, 'secretariatFeed']);
     Route::post('/secretariats/{code}/messages', [PublicSecretariatMessageController::class, 'store']);
     Route::get('/news', [PublicContentController::class, 'news']);

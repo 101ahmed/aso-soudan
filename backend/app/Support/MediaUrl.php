@@ -14,6 +14,11 @@ class MediaUrl
             return $path;
         }
 
+        $uuid = StoredFileStore::uuidFromPath($path);
+        if ($uuid !== null) {
+            return '/api/public/files/'.$uuid;
+        }
+
         $relative = ltrim(str_replace('\\', '/', $path), '/');
         $base = rtrim((string) config("filesystems.disks.{$disk}.url", ''), '/');
 

@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\DepartmentResource;
 use App\Models\Department;
 use App\Support\DepartmentCardPhotoStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Http\UploadedFile;
 
 class AdminDepartmentController extends Controller
 {
@@ -79,7 +79,7 @@ class AdminDepartmentController extends Controller
             "{$prefix}_email" => ['nullable', 'email', 'max:190'],
             "{$prefix}_phone" => ['nullable', 'string', 'max:50'],
             $publicColumn => ['nullable', 'boolean'],
-            'photo' => $this->photoRules(),
+            'photo' => UploadRules::image(12288),
             'remove_photo' => ['nullable', 'boolean'],
         ]);
 
@@ -102,42 +102,5 @@ class AdminDepartmentController extends Controller
         }
 
         return new DepartmentResource($department->fresh());
-    }
-
-    /**
-     * Avoid Laravel image/mimes rules: they call guessExtension() via ext-fileinfo
-     * on the temp upload path, which has no extension and crashes WAMP without fileinfo.
-     *
-     * @return list<mixed>
-     */
-    private function photoRules(): array
-    {
-        return [
-            'nullable',
-            'file',
-            'max:12288',
-            function (string $attribute, mixed $value, \Closure $fail): void {
-                if (! $value instanceof UploadedFile) {
-                    return;
-                }
-
-                $ext = strtolower($value->getClientOriginalExtension()
-                    ?: pathinfo($value->getClientOriginalName(), PATHINFO_EXTENSION));
-
-                if (in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif'], true)) {
-                    return;
-                }
-
-                $head = (string) @file_get_contents($value->getRealPath() ?: $value->getPathname(), false, null, 0, 16);
-                $looksLikeImage = str_starts_with($head, "\xFF\xD8\xFF")
-                    || str_starts_with($head, "\x89PNG")
-                    || str_starts_with($head, 'GIF8')
-                    || str_starts_with($head, 'RIFF');
-
-                if (! $looksLikeImage) {
-                    $fail('The photo must be a jpg, jpeg, png, webp or gif image.');
-                }
-            },
-        ];
     }
 }

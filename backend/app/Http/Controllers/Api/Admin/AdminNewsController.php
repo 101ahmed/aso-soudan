@@ -6,10 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\NewsResource;
 use App\Models\Department;
 use App\Models\News;
+use App\Support\StoredFileStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -34,12 +35,13 @@ class AdminNewsController extends Controller
         $this->authorizePermission($request, 'news.create');
         $department = $this->department($request);
         $data = $this->validated($request);
+        unset($data['image']);
         $data['department_id'] = $department->id;
         $data['author_id'] = $request->user()->id;
         $data['status'] = $this->resolveCreateStatus($request, $data['status'] ?? 'draft', 'news.publish');
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('news', 'public');
+            $data['image_path'] = StoredFileStore::store($request->file('image'), 'news')['path'];
         }
 
         if (($data['status'] ?? '') === 'published') {
@@ -63,6 +65,7 @@ class AdminNewsController extends Controller
         $this->authorizePermission($request, 'news.update');
         $this->assertSameDepartment($request, $news->department_id);
         $data = $this->validated($request, $news);
+        unset($data['image']);
 
         if (isset($data['status']) && $data['status'] === 'published') {
             $this->authorizePermission($request, 'news.publish');
@@ -70,10 +73,7 @@ class AdminNewsController extends Controller
         }
 
         if ($request->hasFile('image')) {
-            if ($news->image_path) {
-                Storage::disk('public')->delete($news->image_path);
-            }
-            $data['image_path'] = $request->file('image')->store('news', 'public');
+            $data['image_path'] = StoredFileStore::replace($news->image_path, $request->file('image'), 'news')['path'];
         }
 
         $news->update($data);
@@ -85,6 +85,7 @@ class AdminNewsController extends Controller
     {
         $this->authorizePermission($request, 'news.delete');
         $this->assertSameDepartment($request, $news->department_id);
+        StoredFileStore::forget($news->image_path);
         $news->delete();
 
         return response()->json(['message' => 'Deleted.']);
@@ -129,7 +130,7 @@ class AdminNewsController extends Controller
             'is_featured' => ['sometimes', 'boolean'],
             'show_on_home' => ['sometimes', 'boolean'],
             'published_at' => ['nullable', 'date'],
-            'image' => ['nullable', 'image', 'max:5120'],
+            'image' => UploadRules::image(5120),
         ]);
 
         if (isset($data['title_fr']) && blank($data['slug'] ?? null) && ! $news) {
