@@ -28,6 +28,10 @@ class DepartmentResource extends JsonResource
                 isset($this->unread_messages_count),
                 (int) $this->unread_messages_count
             ),
+            'unread_directives_count' => $this->when(
+                isset($this->unread_directives_count),
+                (int) $this->unread_directives_count
+            ),
             'officer' => $this->when($showOfficer, fn () => $this->personCard('officer', $authenticated)),
             'deputy' => $this->when($showDeputy, fn () => $this->personCard('deputy', $authenticated)),
         ];

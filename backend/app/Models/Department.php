@@ -77,6 +77,11 @@ class Department extends Model
         return $this->hasMany(SecretariatMessage::class);
     }
 
+    public function presidentialDirectives(): HasMany
+    {
+        return $this->hasMany(PresidentialDirective::class);
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);

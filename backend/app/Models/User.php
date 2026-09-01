@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -57,6 +58,16 @@ class User extends Authenticatable
     public function teacher(): HasOne
     {
         return $this->hasOne(Teacher::class);
+    }
+
+    public function sentPresidentialDirectives(): HasMany
+    {
+        return $this->hasMany(PresidentialDirective::class, 'sender_id');
+    }
+
+    public function assignedPresidentialDirectives(): HasMany
+    {
+        return $this->hasMany(PresidentialDirective::class, 'assigned_to_user_id');
     }
 
     public function belongsToDepartment(Department|string|int $department): bool

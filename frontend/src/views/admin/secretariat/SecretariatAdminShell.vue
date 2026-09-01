@@ -34,6 +34,13 @@ const links = computed(() => {
   if (auth.hasPermission('inbox.view')) {
     items.push({ to: `${base.value}/messages`, label: t('secretariatAdmin.messages') })
   }
+  if (
+    auth.hasPermission('president.directive.inbox')
+    || auth.hasPermission('inbox.view')
+    || auth.user?.roles?.some((r) => ['SUPER_ADMIN', 'PRESIDENT'].includes(r.code))
+  ) {
+    items.push({ to: `${base.value}/presidential-directives`, label: t('secretariatAdmin.presidentialDirectives') })
+  }
   items.push(
     { to: `${base.value}/officer`, label: t('secretariatAdmin.officer') },
     { to: `${base.value}/deputy`, label: t('secretariatAdmin.deputy') },
@@ -100,6 +107,11 @@ const title = computed(() => {
   return SECRETARIAT_NAME_KEYS[props.code] ? t(SECRETARIAT_NAME_KEYS[props.code]) : props.code
 })
 
+const unreadDirectives = computed(() => {
+  const dept = departments.value.find((d) => d.code === props.code)
+  return Number(dept?.unread_directives_count || 0)
+})
+
 onMounted(async () => {
   try {
     departments.value = await fetchMyDepartments()
@@ -147,6 +159,12 @@ onMounted(async () => {
         :class="isActive(link) ? 'bg-teal-800 text-white' : 'bg-white text-slate-700 hover:bg-slate-100'"
       >
         {{ link.label }}
+        <span
+          v-if="link.to.endsWith('/presidential-directives') && unreadDirectives > 0"
+          class="ms-1 rounded-full bg-amber-200 px-1.5 text-[10px] font-semibold text-amber-900"
+        >
+          {{ unreadDirectives }}
+        </span>
       </RouterLink>
     </nav>
 

@@ -135,6 +135,13 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'parents.meeting.manage', 'module' => 'parents', 'name_fr' => 'Gérer réunions parents', 'name_ar' => 'إدارة اجتماعات مجلس الآباء'],
             ['code' => 'parents.survey.view', 'module' => 'parents', 'name_fr' => 'Voir enquêtes parents', 'name_ar' => 'عرض استبيانات مجلس الآباء'],
             ['code' => 'parents.survey.manage', 'module' => 'parents', 'name_fr' => 'Publier enquêtes parents', 'name_ar' => 'نشر استبيانات مجلس الآباء'],
+            ['code' => 'president.meeting.view', 'module' => 'president', 'name_fr' => 'Voir réunions présidentielles', 'name_ar' => 'عرض اجتماعات الرئيس'],
+            ['code' => 'president.meeting.manage', 'module' => 'president', 'name_fr' => 'Gérer réunions présidentielles', 'name_ar' => 'إدارة اجتماعات الرئيس'],
+            ['code' => 'president.directive.view', 'module' => 'president', 'name_fr' => 'Voir directives présidentielles', 'name_ar' => 'عرض التوجيهات الرئاسية'],
+            ['code' => 'president.directive.manage', 'module' => 'president', 'name_fr' => 'Envoyer des directives présidentielles', 'name_ar' => 'إرسال التوجيهات الرئاسية'],
+            ['code' => 'president.archive.view', 'module' => 'president', 'name_fr' => 'Voir l’archive présidentielle', 'name_ar' => 'عرض الأرشيف الرئاسي'],
+            ['code' => 'president.archive.manage', 'module' => 'president', 'name_fr' => 'Gérer l’archive présidentielle', 'name_ar' => 'إدارة الأرشيف الرئاسي'],
+            ['code' => 'president.directive.inbox', 'module' => 'president', 'name_fr' => 'Boîte des directives présidentielles', 'name_ar' => 'صندوق توجيهات الرئيس'],
         ];
 
         foreach ($permissions as $permission) {
@@ -166,6 +173,10 @@ class RolePermissionSeeder extends Seeder
         Role::query()->where('code', 'PRESIDENT')->first()?->permissions()->sync(
             Permission::query()->whereIn('code', [
                 'news.view', 'announcement.view', 'gallery.view', 'report.view', 'report.export', 'statistics.view', 'member.view', 'help.view', 'partner.view', 'extcontact.view', 'inbox.view', 'finance.view', 'decision.view', 'press.view',
+                'president.meeting.view', 'president.meeting.manage',
+                'president.directive.view', 'president.directive.manage',
+                'president.archive.view', 'president.archive.manage',
+                'president.directive.inbox',
             ])->pluck('id')
         );
 
@@ -173,6 +184,7 @@ class RolePermissionSeeder extends Seeder
             'user.view',
             'report.view', 'report.export',
             'inbox.view', 'inbox.create', 'inbox.update', 'inbox.delete',
+            'president.directive.inbox',
         ]);
 
         $managerRoleMap = [
@@ -200,6 +212,7 @@ class RolePermissionSeeder extends Seeder
                 'member.view', 'member.create', 'member.update', 'member.delete', 'member.message',
                 'student.view', 'teacher.view', 'attendance.view',
                 'inbox.view', 'inbox.create', 'inbox.update', 'inbox.delete',
+                'president.directive.inbox',
             ]),
             'EXTERNAL_RELATIONS' => array_merge($secretariatManagerCodes, [
                 'partner.view', 'partner.create', 'partner.update', 'partner.delete',

@@ -20,12 +20,17 @@ class AdminDepartmentController extends Controller
         $user = $request->user();
 
         $unreadCount = fn ($query) => $query->where('status', 'new');
+        $unreadDirectives = fn ($query) => $query->where('status', 'sent');
+        $withCounts = [
+            'messages as unread_messages_count' => $unreadCount,
+            'presidentialDirectives as unread_directives_count' => $unreadDirectives,
+        ];
 
         if ($user->hasRole('SUPER_ADMIN') || $user->hasRole('PRESIDENT')) {
             return DepartmentResource::collection(
                 Department::query()
                     ->active()
-                    ->withCount(['messages as unread_messages_count' => $unreadCount])
+                    ->withCount($withCounts)
                     ->orderBy('sort_order')
                     ->get()
             );
@@ -34,7 +39,7 @@ class AdminDepartmentController extends Controller
         return DepartmentResource::collection(
             $user->departments()
                 ->where('is_active', true)
-                ->withCount(['messages as unread_messages_count' => $unreadCount])
+                ->withCount($withCounts)
                 ->orderBy('sort_order')
                 ->get()
         );

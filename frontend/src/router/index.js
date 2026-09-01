@@ -29,7 +29,10 @@ import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue'
 import ResetPasswordView from '@/views/auth/ResetPasswordView.vue'
 import AdminLayout from '@/layouts/AdminLayout.vue'
 import DashboardView from '@/views/admin/DashboardView.vue'
-import PresidentDashboardView from '@/views/admin/PresidentDashboardView.vue'
+import PresidentAdminShell from '@/views/admin/president/PresidentAdminShell.vue'
+import PresidentHomeView from '@/views/admin/president/PresidentHomeView.vue'
+import PresidentMeetingsView from '@/views/admin/president/PresidentMeetingsView.vue'
+import PresidentArchiveView from '@/views/admin/president/PresidentArchiveView.vue'
 import SecretariatAdminShell from '@/views/admin/secretariat/SecretariatAdminShell.vue'
 import SecretariatHomeView from '@/views/admin/secretariat/SecretariatHomeView.vue'
 import SecretariatReportView from '@/views/admin/secretariat/SecretariatReportView.vue'
@@ -57,6 +60,7 @@ import ExternalPartnersView from '@/views/admin/secretariat/ExternalPartnersView
 import ExternalDocumentsView from '@/views/admin/secretariat/ExternalDocumentsView.vue'
 import ExternalContactRequestsView from '@/views/admin/secretariat/ExternalContactRequestsView.vue'
 import SecretariatMessagesView from '@/views/admin/secretariat/SecretariatMessagesView.vue'
+import PresidentialDirectivesView from '@/views/admin/secretariat/PresidentialDirectivesView.vue'
 import TeacherAdminShell from '@/views/admin/teacher/TeacherAdminShell.vue'
 import TeacherHomeView from '@/views/admin/teacher/TeacherHomeView.vue'
 import TeacherAttendanceRegisterView from '@/views/admin/teacher/TeacherAttendanceRegisterView.vue'
@@ -200,9 +204,13 @@ const router = createRouter({
         },
         {
           path: 'president',
-          name: 'admin.president',
-          component: PresidentDashboardView,
+          component: PresidentAdminShell,
           meta: { roles: ['PRESIDENT', 'SUPER_ADMIN'] },
+          children: [
+            { path: '', name: 'admin.president', component: PresidentHomeView },
+            { path: 'meetings', name: 'admin.president.meetings', component: PresidentMeetingsView },
+            { path: 'archive', name: 'admin.president.archive', component: PresidentArchiveView },
+          ],
         },
         {
           path: 'secretariats/:code',
@@ -329,6 +337,11 @@ const router = createRouter({
               name: 'admin.secretariat.messages',
               component: SecretariatMessagesView,
               meta: { permission: 'inbox.view' },
+            },
+            {
+              path: 'presidential-directives',
+              name: 'admin.secretariat.presidentialDirectives',
+              component: PresidentialDirectivesView,
             },
           ],
         },

@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\Admin\AdminMediaCenterController;
 use App\Http\Controllers\Api\Admin\AdminMediaDecisionController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
 use App\Http\Controllers\Api\Admin\AdminParentsController;
+use App\Http\Controllers\Api\Admin\AdminPresidentController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatMessageController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatReportController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
@@ -129,6 +130,21 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/meetings/{meeting}', [AdminShuraController::class, 'meetingsUpdate']);
         Route::delete('/meetings/{meeting}', [AdminShuraController::class, 'meetingsDestroy']);
         Route::post('/meetings/{meeting}/attendance', [AdminShuraController::class, 'syncAttendance']);
+    });
+
+    Route::prefix('admin/president')->group(function () {
+        Route::get('/overview', [AdminPresidentController::class, 'overview']);
+        Route::get('/secretariats', [AdminPresidentController::class, 'secretariats']);
+        Route::get('/meetings', [AdminPresidentController::class, 'meetingsIndex']);
+        Route::post('/meetings', [AdminPresidentController::class, 'meetingsStore']);
+        Route::put('/meetings/{meeting}', [AdminPresidentController::class, 'meetingsUpdate']);
+        Route::delete('/meetings/{meeting}', [AdminPresidentController::class, 'meetingsDestroy']);
+        Route::get('/directives', [AdminPresidentController::class, 'directivesIndex']);
+        Route::post('/directives', [AdminPresidentController::class, 'directivesStore']);
+        Route::get('/archive', [AdminPresidentController::class, 'archiveIndex']);
+        Route::post('/archive', [AdminPresidentController::class, 'archiveStore']);
+        Route::put('/archive/{archiveItem}', [AdminPresidentController::class, 'archiveUpdate']);
+        Route::delete('/archive/{archiveItem}', [AdminPresidentController::class, 'archiveDestroy']);
     });
 
     Route::prefix('admin/parents')->group(function () {
@@ -298,5 +314,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/messages', [AdminSecretariatMessageController::class, 'store'])->middleware(['department:write']);
             Route::put('/messages/{secretariatMessage}', [AdminSecretariatMessageController::class, 'update'])->middleware(['department:write']);
             Route::delete('/messages/{secretariatMessage}', [AdminSecretariatMessageController::class, 'destroy'])->middleware(['department:write']);
+
+            Route::get('/presidential-directives', [AdminPresidentController::class, 'inboxIndex']);
+            Route::put('/presidential-directives/{directive}', [AdminPresidentController::class, 'inboxUpdate'])->middleware(['department:write']);
         });
 });

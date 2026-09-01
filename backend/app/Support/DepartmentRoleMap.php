@@ -30,6 +30,14 @@ class DepartmentRoleMap
         return self::ROLE_TO_CODE[$roleCode] ?? null;
     }
 
+    public static function secretariatCodes(): array
+    {
+        return array_values(array_unique(array_filter(
+            self::ROLE_TO_CODE,
+            fn (string $code) => $code !== 'shura'
+        )));
+    }
+
     public static function syncUserDepartmentsFromRoles(User $user): void
     {
         $user->loadMissing('roles');
