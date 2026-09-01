@@ -2,8 +2,6 @@
 
 namespace App\Support;
 
-use Illuminate\Support\Facades\Storage;
-
 class MediaUrl
 {
     public static function absolute(?string $path, string $disk = 'public'): ?string
@@ -16,12 +14,13 @@ class MediaUrl
             return $path;
         }
 
-        $relative = Storage::disk($disk)->url($path);
+        $relative = ltrim(str_replace('\\', '/', $path), '/');
+        $base = rtrim((string) config("filesystems.disks.{$disk}.url", ''), '/');
 
-        if (str_starts_with($relative, 'http://') || str_starts_with($relative, 'https://')) {
-            return $relative;
+        if ($base === '') {
+            $base = rtrim((string) config('app.url'), '/').'/storage';
         }
 
-        return url($relative);
+        return $base.'/'.$relative;
     }
 }

@@ -115,7 +115,7 @@ async function save() {
   }
 }
 
-watch([code, role], load, { immediate: true })
+watch(() => [code.value, role.value, route.fullPath], load, { immediate: true })
 </script>
 
 <template>

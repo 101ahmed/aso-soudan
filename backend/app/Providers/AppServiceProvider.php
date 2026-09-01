@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Support\ExtensionMimeTypeGuesser;
+use App\Support\FinfoSafeLocalDisk;
 use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\URL;
@@ -20,6 +21,16 @@ class AppServiceProvider extends ServiceProvider
         if (! extension_loaded('fileinfo') && class_exists(MimeTypes::class)) {
             MimeTypes::getDefault()->registerGuesser(new ExtensionMimeTypeGuesser);
         }
+
+        $this->app->afterResolving('filesystem', function ($manager) {
+            if (extension_loaded('fileinfo')) {
+                return;
+            }
+
+            $manager->extend('local', function ($app, array $config) {
+                return FinfoSafeLocalDisk::create($config);
+            });
+        });
     }
 
     /**

@@ -150,6 +150,6 @@ onMounted(async () => {
       </RouterLink>
     </nav>
 
-    <RouterView />
+    <RouterView :key="route.fullPath" />
   </section>
 </template>
