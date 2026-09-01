@@ -25,6 +25,11 @@ export async function upsertTeacherRegister(studentId, payload) {
   return data
 }
 
+export async function renameTeacherRegisterStudent(studentId, payload) {
+  const { data } = await api.patch(`/admin/academic/register/${studentId}`, payload)
+  return data
+}
+
 export async function fetchAttendanceOverview() {
   const { data } = await api.get('/admin/academic/attendance/overview')
   return {

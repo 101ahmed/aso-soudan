@@ -72,6 +72,7 @@
     };
     $fromLabel = \Carbon\Carbon::parse($payload['from'])->format('d/m/Y');
     $toLabel = \Carbon\Carbon::parse($payload['to'])->format('d/m/Y');
+    $periodText = $fromLabel === $toLabel ? $fromLabel : $fromLabel.' — '.$toLabel;
 @endphp
 <!DOCTYPE html>
 <html lang="{{ $locale }}" dir="{{ $dir }}">
@@ -99,7 +100,7 @@
     <h1>{{ $label('title') }}</h1>
     <p class="muted">
         <span>{{ $label('period') }}</span>
-        {{ $fromLabel }} — {{ $toLabel }}
+        {{ $periodText }}
         ·
         <span>{{ $label('level') }}</span>
         {{ $levelName ?: $label('allLevels') }}

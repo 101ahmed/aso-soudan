@@ -64,6 +64,29 @@ class AdminTeacherRegisterController extends Controller
         ]);
     }
 
+    public function rename(Request $request, Student $student): JsonResponse
+    {
+        $this->authorizeManage($request);
+
+        $data = $request->validate([
+            'first_name' => ['required', 'string', 'max:100'],
+            'last_name' => ['required', 'string', 'max:100'],
+        ]);
+
+        $student->update([
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+        ]);
+
+        return response()->json([
+            'id' => $student->id,
+            'first_name' => $student->first_name,
+            'last_name' => $student->last_name,
+            'full_name' => $student->full_name,
+            'level_id' => $student->level_id,
+        ]);
+    }
+
     public function upsert(Request $request, Student $student): JsonResponse
     {
         $this->authorizeManage($request);
@@ -98,8 +121,12 @@ class AdminTeacherRegisterController extends Controller
 
     private function registerPayload(Request $request): array
     {
-        $from = $request->date('from')?->toDateString() ?? now()->toDateString();
-        $to = $request->date('to')?->toDateString() ?? $from;
+        $fromInput = $request->date('from')?->toDateString()
+            ?? $this->sundayOfWeek(now())->toDateString();
+        $toInput = $request->date('to')?->toDateString() ?? $fromInput;
+        $sundayDays = $this->sundayDates($fromInput, $toInput, 'ar');
+        $from = $sundayDays[0]['iso'];
+        $to = $sundayDays[array_key_last($sundayDays)]['iso'];
 
         $students = Student::query()
             ->with('level')
@@ -120,7 +147,7 @@ class AdminTeacherRegisterController extends Controller
         $byStudent = $studentIds->isEmpty()
             ? collect()
             : DailyStudentAttendance::query()
-                ->whereBetween('attendance_date', [$from, $to])
+                ->whereIn('attendance_date', array_column($sundayDays, 'iso'))
                 ->whereIn('student_id', $studentIds)
                 ->get()
                 ->groupBy('student_id');
@@ -155,7 +182,12 @@ class AdminTeacherRegisterController extends Controller
         ];
     }
 
-    private function periodDays(string $from, string $to, string $locale): array
+    private function sundayOfWeek(Carbon $date): Carbon
+    {
+        return $date->copy()->startOfDay()->startOfWeek(Carbon::SUNDAY);
+    }
+
+    private function sundayDates(string $from, string $to, string $locale): array
     {
         $weekdays = [
             'ar' => [0 => 'الأحد', 1 => 'الإثنين', 2 => 'الثلاثاء', 3 => 'الأربعاء', 4 => 'الخميس', 5 => 'الجمعة', 6 => 'السبت'],
@@ -163,20 +195,40 @@ class AdminTeacherRegisterController extends Controller
             'en' => [0 => 'Sun', 1 => 'Mon', 2 => 'Tue', 3 => 'Wed', 4 => 'Thu', 5 => 'Fri', 6 => 'Sat'],
         ][$locale] ?? [];
 
-        $days = [];
         $cursor = Carbon::parse($from)->startOfDay();
         $end = Carbon::parse($to)->startOfDay();
+        if ($end->lt($cursor)) {
+            $end = $cursor->copy();
+        }
+
+        $days = [];
         while ($cursor->lte($end)) {
-            $days[] = [
-                'iso' => $cursor->toDateString(),
-                'weekday' => $weekdays[$cursor->dayOfWeek] ?? '',
-                'date' => $cursor->format('d/m'),
-                'label' => ($weekdays[$cursor->dayOfWeek] ?? '').' '.$cursor->format('d/m'),
-            ];
+            if ($cursor->dayOfWeek === Carbon::SUNDAY) {
+                $days[] = $this->formatSunday($cursor, $weekdays);
+            }
             $cursor->addDay();
         }
 
+        if ($days === []) {
+            $days[] = $this->formatSunday($this->sundayOfWeek(Carbon::parse($from)), $weekdays);
+        }
+
         return $days;
+    }
+
+    private function formatSunday(Carbon $date, array $weekdays): array
+    {
+        return [
+            'iso' => $date->toDateString(),
+            'weekday' => $weekdays[Carbon::SUNDAY] ?? '',
+            'date' => $date->format('d/m'),
+            'label' => ($weekdays[Carbon::SUNDAY] ?? '').' '.$date->format('d/m'),
+        ];
+    }
+
+    private function periodDays(string $from, string $to, string $locale): array
+    {
+        return $this->sundayDates($from, $to, $locale);
     }
 
     private function selectedLevelName(array $payload, Request $request, string $locale): string

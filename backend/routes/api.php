@@ -171,6 +171,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::prefix('admin/academic')->group(function () {
         Route::get('/register', [AdminTeacherRegisterController::class, 'index']);
         Route::get('/register/pdf', [AdminTeacherRegisterController::class, 'pdf']);
+        Route::patch('/register/{student}', [AdminTeacherRegisterController::class, 'rename']);
         Route::put('/register/{student}', [AdminTeacherRegisterController::class, 'upsert']);
         Route::get('/timetable', [AdminAcademicTimetableController::class, 'index']);
         Route::post('/timetable', [AdminAcademicTimetableController::class, 'store']);

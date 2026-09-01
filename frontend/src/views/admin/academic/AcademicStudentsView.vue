@@ -27,7 +27,7 @@ const form = reactive({
 })
 
 const isTeacher = computed(() => auth.user?.roles?.some((r) => r.code === 'TEACHER'))
-const canView = computed(() => auth.hasPermission('student.view'))
+const canView = computed(() => auth.hasPermission('student.view') || isTeacher.value)
 const canCreate = computed(() => auth.hasPermission('student.create') || isTeacher.value)
 const canUpdate = computed(() => auth.hasPermission('student.update') || isTeacher.value)
 const canDelete = computed(() => auth.hasPermission('student.delete') || auth.hasPermission('student.update') || isTeacher.value)

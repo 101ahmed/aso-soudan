@@ -7,7 +7,7 @@ import {
   deleteStudent,
   downloadTeacherRegisterPdf,
   fetchTeacherRegister,
-  updateStudent,
+  renameTeacherRegisterStudent,
   upsertTeacherRegister,
 } from '@/services/academic'
 import { pickName } from '@/utils/localized'
@@ -36,6 +36,10 @@ const form = reactive({
   last_name: '',
   level_id: '',
 })
+const nameForm = reactive({
+  first_name: '',
+  last_name: '',
+})
 
 function isoDate(date) {
   const year = date.getFullYear()
@@ -44,37 +48,30 @@ function isoDate(date) {
   return `${year}-${month}-${day}`
 }
 
-function startOfSaturdayWeek(date) {
+function sundayOfWeek(date) {
   const d = new Date(date)
   d.setHours(0, 0, 0, 0)
-  const offset = (d.getDay() + 1) % 7
-  d.setDate(d.getDate() - offset)
+  d.setDate(d.getDate() - d.getDay())
   return d
 }
 
-const weekStart = ref(startOfSaturdayWeek(new Date()))
+const selectedSunday = ref(sundayOfWeek(new Date()))
 
 const days = computed(() => {
-  return Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(weekStart.value)
-    date.setDate(weekStart.value.getDate() + index)
-    return {
-      iso: isoDate(date),
-      weekday: date.getDay(),
-      label: date.toLocaleDateString(
-        { ar: 'ar-SD', fr: 'fr-FR', en: 'en-GB' }[locale.value] || 'fr-FR',
-        { weekday: 'short', day: 'numeric', month: 'numeric' },
-      ),
-      today: isoDate(date) === isoDate(new Date()),
-    }
-  })
+  const date = new Date(selectedSunday.value)
+  return [{
+    iso: isoDate(date),
+    weekday: 0,
+    label: date.toLocaleDateString(
+      { ar: 'ar-SD', fr: 'fr-FR', en: 'en-GB' }[locale.value] || 'fr-FR',
+      { weekday: 'long', day: 'numeric', month: 'numeric' },
+    ),
+    today: isoDate(date) === isoDate(new Date()),
+  }]
 })
 
-const weekLabel = computed(() => {
-  const first = days.value[0]
-  const last = days.value[6]
-  return `${first.label} — ${last.label}`
-})
+const weekLabel = computed(() => days.value[0]?.label || '')
+const emptyColspan = computed(() => 3 + days.value.length + (canManage.value ? 1 : 0))
 
 const visibleStudents = computed(() => students.value)
 
@@ -96,9 +93,9 @@ function dayStatus(student, iso) {
 }
 
 function shiftWeek(delta) {
-  const next = new Date(weekStart.value)
-  next.setDate(next.getDate() + (delta * 7))
-  weekStart.value = next
+  const next = new Date(selectedSunday.value)
+  next.setDate(selectedSunday.value.getDate() + (delta * 7))
+  selectedSunday.value = next
 }
 
 function resetForm() {
@@ -106,6 +103,8 @@ function resetForm() {
   form.first_name = ''
   form.last_name = ''
   form.level_id = selectedLevelId.value
+  nameForm.first_name = ''
+  nameForm.last_name = ''
 }
 
 async function load() {
@@ -114,7 +113,7 @@ async function load() {
   try {
     const data = await fetchTeacherRegister({
       from: days.value[0].iso,
-      to: days.value[6].iso,
+      to: days.value[days.value.length - 1].iso,
       level_id: selectedLevelId.value || undefined,
     })
     students.value = data.students || []
@@ -147,23 +146,41 @@ async function mark(student, iso, status) {
 
 function startEdit(student) {
   editingId.value = student.id
-  form.first_name = student.first_name
-  form.last_name = student.last_name
-  form.level_id = student.level_id || ''
+  nameForm.first_name = student.first_name
+  nameForm.last_name = student.last_name
+}
+
+async function saveName(student) {
+  if (!canManage.value || !editingId.value) return
+  error.value = ''
+  savingId.value = `name-${student.id}`
+  try {
+    const updated = await renameTeacherRegisterStudent(student.id, {
+      first_name: nameForm.first_name.trim(),
+      last_name: nameForm.last_name.trim(),
+    })
+    student.first_name = updated.first_name
+    student.last_name = updated.last_name
+    student.full_name = updated.full_name
+    resetForm()
+  } catch (e) {
+    const errors = e.response?.data?.errors
+    error.value = errors ? Object.values(errors).flat().join(' ') : (e.response?.data?.message || e.message)
+  } finally {
+    savingId.value = null
+  }
 }
 
 async function saveStudent() {
   if (!canManage.value) return
   error.value = ''
   try {
-    const payload = {
+    await createStudent({
       first_name: form.first_name,
       last_name: form.last_name,
       level_id: form.level_id || null,
       status: 'active',
-    }
-    if (editingId.value) await updateStudent(editingId.value, payload)
-    else await createStudent(payload)
+    })
     resetForm()
     await load()
   } catch (e) {
@@ -193,7 +210,7 @@ async function downloadPdf() {
   try {
     const { blob, contentType } = await downloadTeacherRegisterPdf({
       from: days.value[0].iso,
-      to: days.value[6].iso,
+      to: days.value[days.value.length - 1].iso,
       level_id: selectedLevelId.value || undefined,
       locale: locale.value,
     })
@@ -205,7 +222,7 @@ async function downloadPdf() {
     const isPdf = String(contentType).includes('pdf') || blob.type.includes('pdf')
     const a = document.createElement('a')
     a.href = url
-    a.download = `attendance-${days.value[0].iso}-${days.value[6].iso}.${isPdf ? 'pdf' : 'html'}`
+    a.download = `attendance-${days.value[0].iso}.${isPdf ? 'pdf' : 'html'}`
     document.body.appendChild(a)
     a.click()
     a.remove()
@@ -227,7 +244,7 @@ async function downloadPdf() {
   }
 }
 
-watch([weekStart, selectedLevelId], load)
+watch([selectedSunday, selectedLevelId], load)
 onMounted(load)
 </script>
 
@@ -242,7 +259,7 @@ onMounted(load)
         <button type="button" class="rounded border px-3 py-1.5 text-sm" @click="shiftWeek(-1)">←</button>
         <p class="min-w-[10rem] text-center text-sm font-medium">{{ weekLabel }}</p>
         <button type="button" class="rounded border px-3 py-1.5 text-sm" @click="shiftWeek(1)">→</button>
-        <button type="button" class="rounded bg-teal-800 px-3 py-1.5 text-sm text-white" @click="weekStart = startOfSaturdayWeek(new Date())">
+        <button type="button" class="rounded bg-teal-800 px-3 py-1.5 text-sm text-white" @click="selectedSunday = sundayOfWeek(new Date())">
           {{ t('teacherRegister.thisWeek') }}
         </button>
         <button
@@ -289,10 +306,7 @@ onMounted(load)
         <option v-for="level in levels" :key="level.id" :value="level.id">{{ levelName(level) }}</option>
       </select>
       <button type="submit" class="rounded bg-teal-800 px-3 py-2 text-sm text-white">
-        {{ editingId ? t('teacherRegister.saveStudent') : t('teacherRegister.addStudent') }}
-      </button>
-      <button v-if="editingId" type="button" class="rounded border px-3 py-2 text-sm" @click="resetForm">
-        {{ t('forms.cancel') }}
+        {{ t('teacherRegister.addStudent') }}
       </button>
     </form>
 
@@ -315,7 +329,23 @@ onMounted(load)
         <tbody>
           <tr v-for="(student, index) in visibleStudents" :key="student.id" class="border-t">
             <td class="px-3 py-2 text-slate-400">{{ index + 1 }}</td>
-            <td class="px-3 py-2 font-medium">{{ student.full_name }}</td>
+            <td class="px-3 py-2 font-medium">
+              <form
+                v-if="editingId === student.id"
+                class="flex flex-wrap items-center gap-2"
+                @submit.prevent="saveName(student)"
+              >
+                <input v-model="nameForm.first_name" required class="w-28 rounded border px-2 py-1 text-sm" :placeholder="t('teacherRegister.firstName')" />
+                <input v-model="nameForm.last_name" required class="w-28 rounded border px-2 py-1 text-sm" :placeholder="t('teacherRegister.lastName')" />
+                <button type="submit" class="text-xs font-semibold text-teal-800 hover:underline" :disabled="savingId === `name-${student.id}`">
+                  {{ t('teacherRegister.saveName') }}
+                </button>
+                <button type="button" class="text-xs text-slate-500 hover:underline" @click="resetForm">
+                  {{ t('forms.cancel') }}
+                </button>
+              </form>
+              <span v-else>{{ student.full_name }}</span>
+            </td>
             <td class="px-3 py-2 text-slate-600">{{ levelName(student) }}</td>
             <td v-for="day in days" :key="`${student.id}-${day.iso}`" class="px-1 py-2">
               <div class="flex flex-wrap justify-center gap-0.5">
@@ -344,7 +374,7 @@ onMounted(load)
             </td>
           </tr>
           <tr v-if="!visibleStudents.length && !loading" class="border-t">
-            <td :colspan="canManage ? 11 : 10" class="px-4 py-8 text-center text-slate-500">
+            <td :colspan="emptyColspan" class="px-4 py-8 text-center text-slate-500">
               {{ t('teacherRegister.empty') }}
             </td>
           </tr>
