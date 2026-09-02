@@ -69,6 +69,7 @@ const links = computed(() => {
     items.push({ to: `${base.value}/accounts`, label: t('secretariatAdmin.financeOverview') })
     items.push({ to: `${base.value}/revenues`, label: t('secretariatAdmin.financeRevenues') })
     items.push({ to: `${base.value}/expenses`, label: t('secretariatAdmin.financeExpenses') })
+    items.push({ to: `${base.value}/documents`, label: t('secretariatAdmin.financeDocuments') })
   }
   if ((props.code === 'media' || props.code === 'general') && auth.hasPermission('decision.view')) {
     items.push({ to: `${base.value}/decisions`, label: props.code === 'general' ? t('secretariatAdmin.executiveDecisions') : t('secretariatAdmin.decisions') })

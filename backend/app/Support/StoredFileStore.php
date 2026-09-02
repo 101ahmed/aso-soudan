@@ -7,6 +7,7 @@ use App\Models\Announcement;
 use App\Models\CouncilMember;
 use App\Models\Event;
 use App\Models\ExternalDocument;
+use App\Models\FinanceDocument;
 use App\Models\Media;
 use App\Models\MediaCenterItem;
 use App\Models\News;
@@ -32,6 +33,7 @@ class StoredFileStore
         [MediaCenterItem::class, 'image_path', 'media_center'],
         [CouncilMember::class, 'photo_path', 'shura'],
         [ExternalDocument::class, 'file_path', 'external_documents'],
+        [FinanceDocument::class, 'file_path', 'finance_documents'],
     ];
 
     /**

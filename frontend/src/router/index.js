@@ -23,6 +23,7 @@ import ContactView from '@/views/public/ContactView.vue'
 import StudentRegisterView from '@/views/public/StudentRegisterView.vue'
 import MemberRegisterView from '@/views/public/MemberRegisterView.vue'
 import HelpRequestView from '@/views/public/HelpRequestView.vue'
+import SubscriptionsView from '@/views/public/SubscriptionsView.vue'
 import ExternalContactView from '@/views/public/ExternalContactView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
 import ForgotPasswordView from '@/views/auth/ForgotPasswordView.vue'
@@ -54,6 +55,7 @@ import SocialHelpRequestsView from '@/views/admin/secretariat/SocialHelpRequests
 import FinanceOverviewView from '@/views/admin/secretariat/FinanceOverviewView.vue'
 import FinanceRevenuesView from '@/views/admin/secretariat/FinanceRevenuesView.vue'
 import FinanceExpensesView from '@/views/admin/secretariat/FinanceExpensesView.vue'
+import FinanceDocumentsView from '@/views/admin/secretariat/FinanceDocumentsView.vue'
 import MediaDecisionsView from '@/views/admin/secretariat/MediaDecisionsView.vue'
 import MediaCenterView from '@/views/admin/secretariat/MediaCenterView.vue'
 import ExternalPartnersView from '@/views/admin/secretariat/ExternalPartnersView.vue'
@@ -149,6 +151,8 @@ const router = createRouter({
         { path: 'register/student', name: 'register.student', component: StudentRegisterView },
         { path: 'register/member', name: 'register.member', component: MemberRegisterView },
         { path: 'help-request', name: 'help.request', component: HelpRequestView },
+        { path: 'subscriptions', name: 'subscriptions', component: SubscriptionsView },
+        { path: 'cotisations', redirect: '/subscriptions' },
         { path: 'external-contact', name: 'external.contact', component: ExternalContactView },
       ],
     },
@@ -300,6 +304,12 @@ const router = createRouter({
               path: 'expenses',
               name: 'admin.secretariat.finance.expenses',
               component: FinanceExpensesView,
+              meta: { permission: 'finance.view' },
+            },
+            {
+              path: 'documents',
+              name: 'admin.secretariat.finance.documents',
+              component: FinanceDocumentsView,
               meta: { permission: 'finance.view' },
             },
             {

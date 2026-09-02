@@ -304,14 +304,8 @@ export const secretariats = [
       fr: ['Cotisations annuelles', 'Rapports financiers', 'Budget des programmes', 'Suivi des dépenses'],
     },
     documents: {
-      ar: [
-        { title: 'تقرير مالي عام', type: 'تقرير' },
-        { title: 'إعلان الاشتراكات', type: 'إعلان' },
-      ],
-      fr: [
-        { title: 'Rapport financier public', type: 'Rapport' },
-        { title: 'Annonce des cotisations', type: 'Annonce' },
-      ],
+      ar: [],
+      fr: [],
     },
     officer: {
       name: { ar: 'يُعلن لاحقاً', fr: 'À annoncer' },

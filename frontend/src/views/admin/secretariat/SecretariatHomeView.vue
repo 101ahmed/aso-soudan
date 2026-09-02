@@ -90,6 +90,16 @@ const cards = computed(() => {
         label: t('secretariatAdmin.financeExpenses'),
         hint: t('secretariatAdmin.financeExpensesHint'),
       },
+      {
+        to: `/admin/secretariats/finance/documents#general_report`,
+        label: t('secretariatAdmin.financeGeneralReport'),
+        hint: t('secretariatAdmin.financeGeneralReportHint'),
+      },
+      {
+        to: `/admin/secretariats/finance/documents#subscriptions_announcement`,
+        label: t('secretariatAdmin.financeSubscriptions'),
+        hint: t('secretariatAdmin.financeSubscriptionsHint'),
+      },
     )
   }
   if (code.value === 'general') {

@@ -71,6 +71,36 @@ export const REVENUE_SOURCES = [
   'other',
 ]
 
+export async function fetchFinanceDocuments(code) {
+  const { data } = await api.get(financePath(code, '/documents'))
+  return data.data || data || []
+}
+
+export async function updateFinanceDocument(code, kind, formData) {
+  const { data } = await api.post(financePath(code, `/documents/${kind}`), formData)
+  return data.data || data
+}
+
+export async function publishFinanceDocument(code, kind) {
+  const { data } = await api.post(financePath(code, `/documents/${kind}/publish`))
+  return data.data || data
+}
+
+export async function unpublishFinanceDocument(code, kind) {
+  const { data } = await api.post(financePath(code, `/documents/${kind}/unpublish`))
+  return data.data || data
+}
+
+export async function fetchPublicFinanceDocuments() {
+  const { data } = await api.get('/public/finance/documents')
+  return data.data || data || []
+}
+
+export async function fetchPublicFinanceDocument(kind) {
+  const { data } = await api.get(`/public/finance/documents/${kind}`)
+  return data.data || data
+}
+
 export const EXPENSE_CATEGORIES = [
   'education',
   'social',

@@ -9,6 +9,7 @@ import {
 } from '@/data/publicContent'
 import { fetchSecretariatFeed } from '@/services/content'
 import { fetchPublicDocuments, fetchPublicPartners } from '@/services/external'
+import { fetchPublicFinanceDocuments } from '@/services/finance'
 import { submitSecretariatMessage } from '@/services/secretariatMessages'
 import EventStarRating from '@/components/public/EventStarRating.vue'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
@@ -21,6 +22,7 @@ const contactError = ref('')
 const feed = ref({ news: [], announcements: [], albums: [], events: [], media_center: [], department: null })
 const publicPartners = ref([])
 const publicDocuments = ref([])
+const financeDocuments = ref([])
 
 const form = reactive({
   name: '',
@@ -132,6 +134,14 @@ const list = (value) => {
 
 const canRateEvents = computed(() => route.params.slug === 'women-children')
 const isExternal = computed(() => route.params.slug === 'external-relations')
+const isFinance = computed(() => route.params.slug === 'finance')
+
+const financeGeneralReport = computed(() =>
+  financeDocuments.value.find((item) => item.kind === 'general_report') || null,
+)
+const financeSubscriptions = computed(() =>
+  financeDocuments.value.find((item) => item.kind === 'subscriptions_announcement') || null,
+)
 
 const displayedPartners = computed(() => {
   if (isExternal.value && publicPartners.value.length) {
@@ -146,11 +156,23 @@ const displayedPartners = computed(() => {
 })
 
 const displayedDocuments = computed(() => {
+  if (isFinance.value) {
+    return financeDocuments.value.map((item) => ({
+      kind: item.kind,
+      title: locale.value === 'fr' ? (item.title_fr || item.title_ar) : (item.title_ar || item.title_fr),
+      type: item.kind === 'general_report' ? t('financeAdmin.kindReport') : t('financeAdmin.kindAnnouncement'),
+      url: item.file_url,
+      href: item.file_url,
+      to: item.kind === 'subscriptions_announcement' ? '/subscriptions' : null,
+      body: locale.value === 'fr' ? (item.body_fr || item.body_ar || '') : (item.body_ar || item.body_fr || ''),
+    }))
+  }
   if (isExternal.value && publicDocuments.value.length) {
     return publicDocuments.value.map((item) => ({
       title: locale.value === 'fr' ? (item.title_fr || item.title_ar) : (item.title_ar || item.title_fr),
       type: item.category ? t(`externalRel.categories.${item.category}`) : '',
       url: item.file_url,
+      href: item.file_url,
     }))
   }
   return list(secretariat.value?.documents)
@@ -197,6 +219,15 @@ async function loadFeed(slug) {
   } else {
     publicPartners.value = []
     publicDocuments.value = []
+  }
+  if (slug === 'finance') {
+    try {
+      financeDocuments.value = await fetchPublicFinanceDocuments()
+    } catch {
+      financeDocuments.value = []
+    }
+  } else {
+    financeDocuments.value = []
   }
 }
 
@@ -314,6 +345,43 @@ watch(
             {{ program }}
           </span>
         </div>
+      </section>
+
+      <!-- Finance public documents -->
+      <section v-if="isFinance && (financeGeneralReport || financeSubscriptions)" class="space-y-4">
+        <article v-if="financeGeneralReport" class="rounded-2xl border border-[var(--rdp-forest)]/15 bg-white p-6 shadow-sm">
+          <p class="text-xs font-semibold tracking-wide text-[var(--rdp-forest)] uppercase">{{ t('financeAdmin.kindReport') }}</p>
+          <h2 class="mt-2 text-2xl font-semibold text-[var(--rdp-forest)]">
+            {{ locale === 'fr' ? (financeGeneralReport.title_fr || financeGeneralReport.title_ar) : (financeGeneralReport.title_ar || financeGeneralReport.title_fr) }}
+          </h2>
+          <p
+            v-if="locale === 'fr' ? (financeGeneralReport.body_fr || financeGeneralReport.body_ar) : (financeGeneralReport.body_ar || financeGeneralReport.body_fr)"
+            class="mt-3 whitespace-pre-line text-slate-700"
+          >
+            {{ locale === 'fr' ? (financeGeneralReport.body_fr || financeGeneralReport.body_ar) : (financeGeneralReport.body_ar || financeGeneralReport.body_fr) }}
+          </p>
+          <a
+            v-if="financeGeneralReport.file_url"
+            :href="financeGeneralReport.file_url"
+            target="_blank"
+            rel="noreferrer"
+            class="mt-4 inline-flex rounded bg-[var(--rdp-forest)] px-4 py-2 text-sm font-semibold text-white"
+          >
+            {{ t('financePublic.viewDocument') }}
+          </a>
+        </article>
+        <article v-if="financeSubscriptions" class="rounded-2xl bg-white p-6 shadow-sm">
+          <p class="text-xs font-semibold tracking-wide text-[var(--rdp-forest)] uppercase">{{ t('financeAdmin.kindAnnouncement') }}</p>
+          <h3 class="mt-2 text-xl font-semibold text-[var(--rdp-forest)]">
+            {{ locale === 'fr' ? (financeSubscriptions.title_fr || financeSubscriptions.title_ar) : (financeSubscriptions.title_ar || financeSubscriptions.title_fr) }}
+          </h3>
+          <RouterLink
+            to="/subscriptions"
+            class="mt-4 inline-flex text-sm font-semibold text-[var(--rdp-forest)] hover:underline"
+          >
+            {{ t('financePublic.openSubscriptions') }}
+          </RouterLink>
+        </article>
       </section>
 
       <!-- Academic extras -->
@@ -460,13 +528,26 @@ watch(
         <ul class="mt-4 space-y-2">
           <li
             v-for="(doc, index) in displayedDocuments"
-            :key="index"
+            :key="doc.kind || index"
             class="rounded-lg bg-white px-4 py-3 text-sm shadow-sm"
           >
-            <a v-if="doc.url" :href="doc.url" target="_blank" rel="noreferrer" class="font-medium text-[var(--rdp-forest)] hover:underline">
+            <RouterLink
+              v-if="doc.to"
+              :to="doc.to"
+              class="font-medium text-[var(--rdp-forest)] hover:underline"
+            >
+              {{ doc.title }}
+            </RouterLink>
+            <a
+              v-else-if="doc.href"
+              :href="doc.href"
+              target="_blank"
+              rel="noreferrer"
+              class="font-medium text-[var(--rdp-forest)] hover:underline"
+            >
               {{ doc.title }}
             </a>
-            <span v-else class="font-medium">{{ doc.title }}</span>
+            <span v-else class="font-medium text-[var(--rdp-forest)]">{{ doc.title }}</span>
             <span v-if="doc.type" class="text-slate-500"> — {{ doc.type }}</span>
           </li>
         </ul>

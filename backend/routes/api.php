@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Admin\AdminExternalContactRequestController;
 use App\Http\Controllers\Api\Admin\AdminExternalDocumentController;
 use App\Http\Controllers\Api\Admin\AdminExternalPartnerController;
 use App\Http\Controllers\Api\Admin\AdminFinanceController;
+use App\Http\Controllers\Api\Admin\AdminFinanceDocumentController;
 use App\Http\Controllers\Api\Admin\AdminMediaCenterController;
 use App\Http\Controllers\Api\Admin\AdminMediaDecisionController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
@@ -32,6 +33,7 @@ use App\Http\Controllers\Api\Public\PublicContentController;
 use App\Http\Controllers\Api\Public\PublicDepartmentPhotoController;
 use App\Http\Controllers\Api\Public\PublicStoredFileController;
 use App\Http\Controllers\Api\Public\PublicExternalController;
+use App\Http\Controllers\Api\Public\PublicFinanceController;
 use App\Http\Controllers\Api\Public\PublicHelpRequestController;
 use App\Http\Controllers\Api\Public\PublicMemberController;
 use App\Http\Controllers\Api\Public\PublicSecretariatMessageController;
@@ -74,6 +76,9 @@ Route::prefix('public')->group(function () {
     Route::post('/help-requests', [PublicHelpRequestController::class, 'store']);
     Route::get('/external/partners', [PublicExternalController::class, 'partners']);
     Route::get('/external/documents', [PublicExternalController::class, 'documents']);
+    Route::get('/finance/documents', [PublicFinanceController::class, 'documents']);
+    Route::get('/finance/documents/{kind}', [PublicFinanceController::class, 'document'])
+        ->where('kind', 'general_report|subscriptions_announcement');
     Route::post('/external/contact-requests', [PublicExternalController::class, 'storeContact']);
     Route::get('/member-cities', [PublicMemberController::class, 'cities']);
 });
@@ -280,6 +285,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/finance/expenses', [AdminFinanceController::class, 'expensesStore'])->middleware(['department:write']);
             Route::put('/finance/expenses/{financeExpense}', [AdminFinanceController::class, 'expensesUpdate'])->middleware(['department:write']);
             Route::delete('/finance/expenses/{financeExpense}', [AdminFinanceController::class, 'expensesDestroy'])->middleware(['department:write']);
+            Route::get('/finance/documents', [AdminFinanceDocumentController::class, 'index']);
+            Route::post('/finance/documents/{kind}/publish', [AdminFinanceDocumentController::class, 'publish'])
+                ->where('kind', 'general_report|subscriptions_announcement')
+                ->middleware(['department:write']);
+            Route::post('/finance/documents/{kind}/unpublish', [AdminFinanceDocumentController::class, 'unpublish'])
+                ->where('kind', 'general_report|subscriptions_announcement')
+                ->middleware(['department:write']);
+            Route::post('/finance/documents/{kind}', [AdminFinanceDocumentController::class, 'update'])
+                ->where('kind', 'general_report|subscriptions_announcement')
+                ->middleware(['department:write']);
 
             Route::get('/decisions', [AdminMediaDecisionController::class, 'index']);
             Route::post('/decisions', [AdminMediaDecisionController::class, 'store'])->middleware(['department:write']);
