@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use App\Models\Subject;
+use App\Support\MediaUrl;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -17,9 +18,12 @@ class StudentResource extends JsonResource
             'last_name' => $this->last_name,
             'full_name' => $this->full_name,
             'birth_date' => $this->birth_date?->toDateString(),
+            'age' => $this->age,
             'gender' => $this->gender,
             'status' => $this->status,
             'notes' => $this->notes,
+            'photo_path' => $this->photo_path,
+            'photo_url' => MediaUrl::absolute($this->photo_path),
             'academic_year_id' => $this->academic_year_id,
             'education_stage_id' => $this->education_stage_id,
             'level_id' => $this->level_id,

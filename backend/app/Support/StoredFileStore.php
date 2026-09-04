@@ -12,6 +12,7 @@ use App\Models\Media;
 use App\Models\MediaCenterItem;
 use App\Models\News;
 use App\Models\StoredFile;
+use App\Models\Student;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Schema;
@@ -34,6 +35,7 @@ class StoredFileStore
         [CouncilMember::class, 'photo_path', 'shura'],
         [ExternalDocument::class, 'file_path', 'external_documents'],
         [FinanceDocument::class, 'file_path', 'finance_documents'],
+        [Student::class, 'photo_path', 'students'],
     ];
 
     /**

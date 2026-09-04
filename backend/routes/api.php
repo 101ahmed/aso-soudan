@@ -203,6 +203,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/catalog', [AdminAcademicStudentController::class, 'catalog']);
         Route::get('/students', [AdminAcademicStudentController::class, 'index']);
         Route::post('/students', [AdminAcademicStudentController::class, 'store']);
+        Route::get('/students/{student}/pdf', [AdminAcademicStudentController::class, 'dossierPdf']);
         Route::get('/students/{student}', [AdminAcademicStudentController::class, 'show']);
         Route::put('/students/{student}', [AdminAcademicStudentController::class, 'update']);
         Route::delete('/students/{student}', [AdminAcademicStudentController::class, 'destroy']);

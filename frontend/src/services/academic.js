@@ -174,15 +174,67 @@ export async function fetchStudents(params = {}) {
 }
 
 export async function createStudent(payload) {
-  const { data } = await api.post('/admin/academic/students', payload)
+  const body = studentPayload(payload)
+  const { data } = await api.post('/admin/academic/students', body)
   return data.data || data
 }
 
 export async function updateStudent(id, payload) {
-  const { data } = await api.put(`/admin/academic/students/${id}`, payload)
+  const body = studentPayload(payload)
+  if (body instanceof FormData) {
+    body.append('_method', 'PUT')
+    const { data } = await api.post(`/admin/academic/students/${id}`, body)
+    return data.data || data
+  }
+  const { data } = await api.put(`/admin/academic/students/${id}`, body)
   return data.data || data
 }
 
 export async function deleteStudent(id) {
   await api.delete(`/admin/academic/students/${id}`)
+}
+
+export async function downloadStudentDossierPdf(id, params = {}) {
+  const { data, headers } = await api.get(`/admin/academic/students/${id}/pdf`, {
+    params,
+    responseType: 'blob',
+  })
+  return { blob: data, contentType: headers['content-type'] || data.type }
+}
+
+function studentPayload(payload) {
+  const hasFile = payload?.photo instanceof File || payload?.photo instanceof Blob
+  const removePhoto = Boolean(payload?.remove_photo)
+  if (!hasFile && !removePhoto) {
+    const { photo, remove_photo, ...json } = payload || {}
+    return json
+  }
+  const body = new FormData()
+  Object.entries(payload || {}).forEach(([key, value]) => {
+    if (value === undefined || value === null) return
+    if (key === 'photo' && !(value instanceof File) && !(value instanceof Blob)) return
+    if (key === 'subject_ids') {
+      const ids = Array.isArray(value) ? value : []
+      if (!ids.length) {
+        body.append('subject_ids', '')
+        return
+      }
+      ids.forEach((id) => body.append('subject_ids[]', String(id)))
+      return
+    }
+    if (typeof value === 'boolean') {
+      body.append(key, value ? '1' : '0')
+      return
+    }
+    if (value instanceof File) {
+      body.append(key, value, value.name)
+      return
+    }
+    if (value instanceof Blob) {
+      body.append(key, value, 'photo.jpg')
+      return
+    }
+    body.append(key, value)
+  })
+  return body
 }

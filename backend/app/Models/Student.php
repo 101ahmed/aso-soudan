@@ -25,6 +25,7 @@ class Student extends Model
         'level_id',
         'status',
         'notes',
+        'photo_path',
         'reviewed_by',
         'reviewed_at',
         'registered_at',
@@ -42,6 +43,17 @@ class Student extends Model
     public function getFullNameAttribute(): string
     {
         return trim($this->first_name.' '.$this->last_name);
+    }
+
+    public function getAgeAttribute(): ?int
+    {
+        if (! $this->birth_date) {
+            return null;
+        }
+
+        $years = $this->birth_date->age;
+
+        return $years >= 0 ? $years : null;
     }
 
     public function level(): BelongsTo
