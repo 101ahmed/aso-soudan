@@ -173,6 +173,11 @@ export async function fetchStudents(params = {}) {
   return data
 }
 
+export async function fetchStudent(id) {
+  const { data } = await api.get(`/admin/academic/students/${id}`)
+  return data.data || data
+}
+
 export async function createStudent(payload) {
   const body = studentPayload(payload)
   const { data } = await api.post('/admin/academic/students', body)

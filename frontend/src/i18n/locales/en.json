@@ -604,6 +604,16 @@
       "female": "Girl"
     }
   },
+  "academicStudentFile": {
+    "title": "Student file",
+    "subtitle": "Pick a student to view age, level, class counselor notes and photo, then download the PDF.",
+    "search": "Search for a student by name",
+    "pickStudent": "Choose a student",
+    "chooseHint": "Choose a student from the list to open their file.",
+    "fileOf": "File of",
+    "loading": "Loading…",
+    "saved": "Student file saved."
+  },
   "statisticsMembers": {
     "title": "Members database",
     "subtitle": "Search and classify by age, gender, city and membership type, then send a message.",
@@ -989,6 +999,8 @@
     "teachersHint": "Group teachers by subject and level, with login accounts.",
     "students": "Students",
     "studentsHint": "Add, edit or delete students.",
+    "studentFile": "The student",
+    "studentFileHint": "Student file: age, level, class counselor notes and photo, with PDF download.",
     "members": "Members database",
     "membersHint": "Search, filter members and send them a message.",
     "helpRequests": "Help requests",

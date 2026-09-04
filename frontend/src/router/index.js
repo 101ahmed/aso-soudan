@@ -49,6 +49,7 @@ import AcademicLevelAttendanceView from '@/views/admin/academic/AcademicLevelAtt
 import AcademicAttendanceSheetView from '@/views/admin/academic/AcademicAttendanceSheetView.vue'
 import AcademicTeachersView from '@/views/admin/academic/AcademicTeachersView.vue'
 import AcademicStudentsView from '@/views/admin/academic/AcademicStudentsView.vue'
+import AcademicStudentFileView from '@/views/admin/academic/AcademicStudentFileView.vue'
 import AcademicTimetableView from '@/views/admin/academic/AcademicTimetableView.vue'
 import StatisticsMembersView from '@/views/admin/statistics/StatisticsMembersView.vue'
 import SocialHelpRequestsView from '@/views/admin/secretariat/SocialHelpRequestsView.vue'
@@ -274,6 +275,12 @@ const router = createRouter({
               path: 'students',
               name: 'admin.secretariat.students',
               component: AcademicStudentsView,
+              meta: { permission: 'student.view' },
+            },
+            {
+              path: 'student-file',
+              name: 'admin.secretariat.studentFile',
+              component: AcademicStudentFileView,
               meta: { permission: 'student.view' },
             },
             {

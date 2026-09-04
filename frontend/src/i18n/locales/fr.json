@@ -604,6 +604,16 @@
       "female": "Fille"
     }
   },
+  "academicStudentFile": {
+    "title": "Dossier de l’élève",
+    "subtitle": "Choisissez un élève pour voir l’âge, le niveau, les observations du conseiller et la photo, puis téléchargez le PDF.",
+    "search": "Rechercher un élève par nom",
+    "pickStudent": "Choisir l’élève",
+    "chooseHint": "Choisissez un élève dans la liste pour ouvrir son dossier.",
+    "fileOf": "Dossier de",
+    "loading": "Chargement…",
+    "saved": "Dossier de l’élève enregistré."
+  },
   "statisticsMembers": {
     "title": "Base des adhérents",
     "subtitle": "Recherche et classification par âge, genre, ville et type d’adhésion, puis envoi d’un message.",
@@ -989,6 +999,8 @@
     "teachersHint": "Classer les enseignants par matière et par niveau, avec les comptes d’accès.",
     "students": "Élèves",
     "studentsHint": "Ajouter, modifier ou supprimer les élèves.",
+    "studentFile": "L’élève",
+    "studentFileHint": "Dossier de l’élève : âge, niveau, observations du conseiller et photo, avec téléchargement PDF.",
     "members": "Base des adhérents",
     "membersHint": "Rechercher, filtrer les adhérents et leur envoyer un message.",
     "helpRequests": "Demandes d’aide",

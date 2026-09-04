@@ -1,17 +1,15 @@
 <script setup>
-import { computed, onMounted, reactive, ref, shallowRef, watch } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import {
   createStudent,
   deleteStudent,
-  downloadStudentDossierPdf,
   fetchStudentCatalog,
   fetchStudents,
   updateStudent,
 } from '@/services/academic'
 import { pickName } from '@/utils/localized'
-import { prepareUploadImage } from '@/utils/prepareUploadImage'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
@@ -22,15 +20,10 @@ const items = ref([])
 const meta = ref(null)
 const catalog = ref({ academic_years: [], stages: [], subjects: [], level_counts: {} })
 const editingId = ref(null)
-const downloadingId = ref(null)
-const photoFile = shallowRef(null)
-const photoPreview = ref(null)
-const photoInput = ref(null)
 const filters = reactive({ search: '', status: '', level_id: '', page: 1 })
 const form = reactive({
   first_name: '', last_name: '', birth_date: '', gender: '', academic_year_id: '',
   education_stage_id: '', level_id: '', status: 'active', notes: '', subject_ids: [],
-  remove_photo: false,
 })
 
 const isTeacher = computed(() => auth.user?.roles?.some((r) => r.code === 'TEACHER'))
@@ -52,7 +45,6 @@ const groupedItems = computed(() => {
   }))
 })
 const unassignedItems = computed(() => items.value.filter((item) => !item.level_id))
-const formAge = computed(() => yearsFromBirthDate(form.birth_date))
 
 function levelCount(id) {
   const counts = catalog.value.level_counts || {}
@@ -70,30 +62,6 @@ function label(item) {
   return pickName(item, locale.value)
 }
 
-function yearsFromBirthDate(value) {
-  if (!value) return null
-  const birth = new Date(`${value}T00:00:00`)
-  if (Number.isNaN(birth.getTime())) return null
-  const now = new Date()
-  let years = now.getFullYear() - birth.getFullYear()
-  const monthDiff = now.getMonth() - birth.getMonth()
-  if (monthDiff < 0 || (monthDiff === 0 && now.getDate() < birth.getDate())) years -= 1
-  return years >= 0 ? years : null
-}
-
-function ageLabel(item) {
-  const years = item?.age ?? yearsFromBirthDate(item?.birth_date)
-  if (years == null) return '—'
-  return `${years} ${t('academicStudents.years')}`
-}
-
-function resetPhoto() {
-  photoFile.value = null
-  photoPreview.value = null
-  form.remove_photo = false
-  if (photoInput.value) photoInput.value.value = ''
-}
-
 function resetForm() {
   editingId.value = null
   const currentYear = (catalog.value.academic_years || []).find((year) => year.is_current)
@@ -102,9 +70,7 @@ function resetForm() {
     first_name: '', last_name: '', birth_date: '', gender: '',
     academic_year_id: currentYear?.id || catalog.value.academic_years?.[0]?.id || '',
     education_stage_id: defaultStage?.id || '', level_id: '', status: 'active', notes: '', subject_ids: [],
-    remove_photo: false,
   })
-  resetPhoto()
 }
 
 function toggleSubject(id) {
@@ -142,50 +108,15 @@ function edit(item) {
     education_stage_id: item.education_stage_id || '', level_id: item.level_id || '',
     status: item.status || 'active', notes: item.notes || '',
     subject_ids: (item.subjects || []).map((subject) => subject.id),
-    remove_photo: false,
   })
-  photoFile.value = null
-  photoPreview.value = item.photo_url || null
-  if (photoInput.value) photoInput.value.value = ''
-}
-
-async function onPhotoPick(event) {
-  const file = event.target.files?.[0] || null
-  form.remove_photo = false
-  if (!file) {
-    photoFile.value = null
-    return
-  }
-  try {
-    photoFile.value = await prepareUploadImage(file)
-    photoPreview.value = URL.createObjectURL(photoFile.value)
-  } catch {
-    photoFile.value = file
-    photoPreview.value = URL.createObjectURL(file)
-  }
-}
-
-function clearPhoto() {
-  photoFile.value = null
-  form.remove_photo = true
-  photoPreview.value = null
-  if (photoInput.value) photoInput.value.value = ''
 }
 
 function payload() {
   return {
-    first_name: form.first_name,
-    last_name: form.last_name,
-    birth_date: form.birth_date || null,
-    gender: form.gender || null,
-    academic_year_id: form.academic_year_id || null,
-    education_stage_id: form.education_stage_id || null,
-    level_id: form.level_id || null,
-    status: form.status,
-    notes: form.notes || '',
-    subject_ids: form.subject_ids,
-    photo: photoFile.value || undefined,
-    remove_photo: form.remove_photo || undefined,
+    first_name: form.first_name, last_name: form.last_name, birth_date: form.birth_date || null,
+    gender: form.gender || null, academic_year_id: form.academic_year_id || null,
+    education_stage_id: form.education_stage_id || null, level_id: form.level_id || null,
+    status: form.status, notes: form.notes || null, subject_ids: form.subject_ids,
   }
 }
 
@@ -216,42 +147,6 @@ async function remove(item) {
     await load()
   } catch (e) {
     error.value = e.response?.data?.message || e.message
-  }
-}
-
-async function downloadPdf(item) {
-  if (!item?.id) return
-  downloadingId.value = item.id
-  error.value = ''
-  try {
-    const { blob, contentType } = await downloadStudentDossierPdf(item.id, { locale: locale.value })
-    if (blob.type.includes('json') || String(contentType).includes('json')) {
-      const payloadJson = JSON.parse(await blob.text())
-      throw new Error(payloadJson.message || t('academicStudents.downloadFailed'))
-    }
-    const url = URL.createObjectURL(blob)
-    const isPdf = String(contentType).includes('pdf') || blob.type.includes('pdf')
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `dossier-${item.id}.${isPdf ? 'pdf' : 'html'}`
-    document.body.appendChild(a)
-    a.click()
-    a.remove()
-    setTimeout(() => URL.revokeObjectURL(url), 1500)
-  } catch (e) {
-    const data = e.response?.data
-    if (data instanceof Blob) {
-      try {
-        const payloadJson = JSON.parse(await data.text())
-        error.value = payloadJson.message || t('academicStudents.downloadFailed')
-      } catch {
-        error.value = t('academicStudents.downloadFailed')
-      }
-    } else {
-      error.value = e.message || e.response?.data?.message || t('academicStudents.downloadFailed')
-    }
-  } finally {
-    downloadingId.value = null
   }
 }
 
@@ -325,7 +220,6 @@ onMounted(async () => {
                 <thead class="bg-slate-50 text-start text-xs text-slate-500">
                   <tr>
                     <th class="px-4 py-3 font-medium">{{ t('academicStudents.name') }}</th>
-                    <th class="px-4 py-3 font-medium">{{ t('academicStudents.age') }}</th>
                     <th class="px-4 py-3 font-medium">{{ t('academicStudents.subjects') }}</th>
                     <th class="px-4 py-3 font-medium">{{ t('academicStudents.status') }}</th>
                     <th class="px-4 py-3"></th>
@@ -333,22 +227,13 @@ onMounted(async () => {
                 </thead>
                 <tbody>
                   <tr v-if="!loading && !group.items.length">
-                    <td colspan="5" class="px-4 py-6 text-center text-slate-500">{{ t('academicStudents.emptyLevel') }}</td>
+                    <td colspan="4" class="px-4 py-6 text-center text-slate-500">{{ t('academicStudents.emptyLevel') }}</td>
                   </tr>
                   <tr v-for="item in group.items" :key="item.id" class="border-t">
-                    <td class="px-4 py-3">
-                      <div class="flex items-center gap-2">
-                        <img v-if="item.photo_url" :src="item.photo_url" alt="" class="h-9 w-9 rounded-full object-cover object-top" />
-                        <span class="font-medium">{{ item.full_name }}</span>
-                      </div>
-                    </td>
-                    <td class="px-4 py-3">{{ ageLabel(item) }}</td>
+                    <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
                     <td class="px-4 py-3">{{ (item.subjects || []).map(label).join(' · ') || '—' }}</td>
                     <td class="px-4 py-3">{{ t(`academicStudents.statuses.${item.status}`) }}</td>
-                    <td class="px-4 py-3 flex flex-wrap gap-2">
-                      <button type="button" class="text-teal-800 hover:underline" :disabled="downloadingId === item.id" @click="downloadPdf(item)">
-                        {{ downloadingId === item.id ? t('academicStudents.downloading') : t('academicStudents.downloadPdf') }}
-                      </button>
+                    <td class="px-4 py-3 flex gap-2">
                       <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
                       <button v-if="canDelete" type="button" class="text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
                     </td>
@@ -363,18 +248,9 @@ onMounted(async () => {
               <table class="min-w-full text-sm">
                 <tbody>
                   <tr v-for="item in unassignedItems" :key="item.id" class="border-t">
-                    <td class="px-4 py-3">
-                      <div class="flex items-center gap-2">
-                        <img v-if="item.photo_url" :src="item.photo_url" alt="" class="h-9 w-9 rounded-full object-cover object-top" />
-                        <span class="font-medium">{{ item.full_name }}</span>
-                      </div>
-                    </td>
-                    <td class="px-4 py-3">{{ ageLabel(item) }}</td>
+                    <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
                     <td class="px-4 py-3">{{ (item.subjects || []).map(label).join(' · ') || '—' }}</td>
-                    <td class="px-4 py-3 flex flex-wrap gap-2">
-                      <button type="button" class="text-teal-800 hover:underline" :disabled="downloadingId === item.id" @click="downloadPdf(item)">
-                        {{ downloadingId === item.id ? t('academicStudents.downloading') : t('academicStudents.downloadPdf') }}
-                      </button>
+                    <td class="px-4 py-3 flex gap-2">
                       <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
                     </td>
                   </tr>
@@ -387,7 +263,6 @@ onMounted(async () => {
             <thead class="bg-slate-50 text-start text-xs text-slate-500">
               <tr>
                 <th class="px-4 py-3 font-medium">{{ t('academicStudents.name') }}</th>
-                <th class="px-4 py-3 font-medium">{{ t('academicStudents.age') }}</th>
                 <th class="px-4 py-3 font-medium">{{ t('academicStudents.level') }}</th>
                 <th class="px-4 py-3 font-medium">{{ t('academicStudents.subjects') }}</th>
                 <th class="px-4 py-3 font-medium">{{ t('academicStudents.status') }}</th>
@@ -395,22 +270,13 @@ onMounted(async () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!loading && !items.length"><td colspan="6" class="px-4 py-6 text-center text-slate-500">{{ t('academicStudents.empty') }}</td></tr>
+              <tr v-if="!loading && !items.length"><td colspan="5" class="px-4 py-6 text-center text-slate-500">{{ t('academicStudents.empty') }}</td></tr>
               <tr v-for="item in items" :key="item.id" class="border-t">
-                <td class="px-4 py-3">
-                  <div class="flex items-center gap-2">
-                    <img v-if="item.photo_url" :src="item.photo_url" alt="" class="h-9 w-9 rounded-full object-cover object-top" />
-                    <span class="font-medium">{{ item.full_name }}</span>
-                  </div>
-                </td>
-                <td class="px-4 py-3">{{ ageLabel(item) }}</td>
+                <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
                 <td class="px-4 py-3">{{ label(item.level) || '—' }}</td>
                 <td class="px-4 py-3">{{ (item.subjects || []).map(label).join(' · ') || '—' }}</td>
                 <td class="px-4 py-3">{{ t(`academicStudents.statuses.${item.status}`) }}</td>
-                <td class="px-4 py-3 flex flex-wrap gap-2">
-                  <button type="button" class="text-teal-800 hover:underline" :disabled="downloadingId === item.id" @click="downloadPdf(item)">
-                    {{ downloadingId === item.id ? t('academicStudents.downloading') : t('academicStudents.downloadPdf') }}
-                  </button>
+                <td class="px-4 py-3 flex gap-2">
                   <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
                   <button v-if="canDelete" type="button" class="text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
                 </td>
@@ -421,28 +287,11 @@ onMounted(async () => {
         </div>
         <form v-if="canCreate || canUpdate" class="space-y-3 rounded-xl border bg-white p-5" @submit.prevent="save">
           <h3 class="font-semibold">{{ editingId ? t('academicStudents.editStudent') : t('academicStudents.newStudent') }}</h3>
-          <div class="flex flex-wrap items-center gap-3">
-            <img v-if="photoPreview" :src="photoPreview" alt="" class="h-20 w-20 rounded-xl object-cover object-top ring-2 ring-teal-800/20" />
-            <div v-else class="flex h-20 w-20 items-center justify-center rounded-xl bg-teal-800 text-lg font-bold text-white">
-              {{ (form.first_name || '?').slice(0, 1) }}
-            </div>
-            <div class="space-y-1 text-sm">
-              <p class="text-xs text-slate-500">{{ t('academicStudents.photo') }}</p>
-              <input ref="photoInput" type="file" accept="image/*" class="w-full text-xs" @change="onPhotoPick" />
-              <button v-if="photoPreview" type="button" class="text-xs text-rose-700 hover:underline" @click="clearPhoto">
-                {{ t('academicStudents.removePhoto') }}
-              </button>
-            </div>
-          </div>
           <div class="grid grid-cols-2 gap-2">
             <input v-model="form.first_name" required class="rounded border px-3 py-2 text-sm" :placeholder="t('forms.firstName')" />
             <input v-model="form.last_name" required class="rounded border px-3 py-2 text-sm" :placeholder="t('forms.lastName')" />
           </div>
-          <label class="block text-xs text-slate-500">
-            {{ t('academicStudents.birthDate') }}
-            <input v-model="form.birth_date" type="date" class="mt-1 w-full rounded border px-3 py-2 text-sm text-slate-800" />
-          </label>
-          <p v-if="formAge != null" class="text-xs text-slate-500">{{ t('academicStudents.age') }}: {{ formAge }} {{ t('academicStudents.years') }}</p>
+          <input v-model="form.birth_date" type="date" class="w-full rounded border px-3 py-2 text-sm" />
           <select v-model="form.gender" class="w-full rounded border px-3 py-2 text-sm">
             <option value="">{{ t('academicStudents.gender') }}</option>
             <option value="male">{{ t('academicStudents.genders.male') }}</option>
@@ -467,21 +316,8 @@ onMounted(async () => {
               {{ label(subject) }}
             </label>
           </fieldset>
-          <label class="block text-xs text-slate-500">
-            {{ t('academicStudents.counselorNotes') }}
-            <textarea v-model="form.notes" rows="4" class="mt-1 w-full rounded border px-3 py-2 text-sm text-slate-800"></textarea>
-          </label>
-          <div class="flex flex-wrap gap-2">
+          <div class="flex gap-2">
             <button type="submit" class="rounded bg-teal-800 px-4 py-2 text-sm text-white" :disabled="saving">{{ t('forms.save') }}</button>
-            <button
-              v-if="editingId"
-              type="button"
-              class="rounded border border-teal-800 px-4 py-2 text-sm font-semibold text-teal-800 disabled:opacity-60"
-              :disabled="downloadingId === editingId"
-              @click="downloadPdf({ id: editingId, full_name: `${form.first_name} ${form.last_name}`.trim() })"
-            >
-              {{ downloadingId === editingId ? t('academicStudents.downloading') : t('academicStudents.downloadPdf') }}
-            </button>
             <button v-if="editingId" type="button" class="rounded border px-4 py-2 text-sm" @click="resetForm">{{ t('forms.cancel') }}</button>
           </div>
         </form>
