@@ -27,8 +27,9 @@ class AdminDepartmentController extends Controller
 
         if ($user->hasRole('SUPER_ADMIN') || $user->hasRole('PRESIDENT') || $user->hasRole('VICE_PRESIDENT')) {
             return DepartmentResource::collection(
-                Department::query()
-                    ->active()
+                DepartmentCardPhotoStore::eagerLoadCardPhotos(
+                    Department::query()->active()
+                )
                     ->withCount($withCounts)
                     ->orderBy('sort_order')
                     ->get()
@@ -36,8 +37,9 @@ class AdminDepartmentController extends Controller
         }
 
         return DepartmentResource::collection(
-            $user->departments()
-                ->where('is_active', true)
+            DepartmentCardPhotoStore::eagerLoadCardPhotos(
+                $user->departments()->where('is_active', true)
+            )
                 ->withCount($withCounts)
                 ->orderBy('sort_order')
                 ->get()
@@ -48,6 +50,9 @@ class AdminDepartmentController extends Controller
     {
         $department = $request->attributes->get('department')
             ?? Department::query()->where('code', $code)->firstOrFail();
+        $department->loadMissing(['cardPhotos' => function ($photos) {
+            $photos->select(['id', 'department_id', 'role', 'mime', 'updated_at']);
+        }]);
 
         return new DepartmentResource($department);
     }
@@ -69,6 +74,17 @@ class AdminDepartmentController extends Controller
 
         $photoColumn = "{$prefix}_photo_path";
         $publicColumn = "{$prefix}_is_public";
+
+        if ($request->exists('remove_photo')) {
+            $request->merge([
+                'remove_photo' => filter_var($request->input('remove_photo'), FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+        if ($request->exists($publicColumn)) {
+            $request->merge([
+                $publicColumn => filter_var($request->input($publicColumn), FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
 
         $data = $request->validate([
             "{$prefix}_name_ar" => ['nullable', 'string', 'max:120'],
@@ -99,9 +115,9 @@ class AdminDepartmentController extends Controller
         $department->update($data);
 
         if ($request->hasFile('photo')) {
-            DepartmentCardPhotoStore::store($department, $prefix, $request->file('photo'));
+            DepartmentCardPhotoStore::store($department->fresh(), $prefix, $request->file('photo'));
         }
 
-        return new DepartmentResource($department->fresh());
+        return new DepartmentResource($department->fresh()->load('cardPhotos'));
     }
 }

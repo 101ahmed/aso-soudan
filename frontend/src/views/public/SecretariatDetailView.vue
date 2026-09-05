@@ -55,7 +55,7 @@ function mergePerson(apiPerson, fallback) {
       fr: apiPerson.bio_fr || fallback?.bio?.fr,
     },
     email: apiPerson.email || fallback?.email,
-    photo: apiPerson.photo_url || fallback?.photo || null,
+    photo: apiPerson.photo_url || null,
   }
 }
 

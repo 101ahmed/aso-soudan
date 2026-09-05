@@ -19,7 +19,7 @@ class DepartmentCardPhotoStore
             abort(500, 'Unable to store photo.');
         }
 
-        DepartmentCardPhoto::query()->updateOrCreate(
+        $row = DepartmentCardPhoto::query()->updateOrCreate(
             [
                 'department_id' => $department->id,
                 'role' => $role,
@@ -29,10 +29,11 @@ class DepartmentCardPhotoStore
                 'payload' => base64_encode($bytes),
             ]
         );
+        $row->forceFill(['updated_at' => now()])->save();
 
         $oldPath = $department->{"{$role}_photo_path"};
         $department->forceFill([
-            "{$role}_photo_path" => "db:{$role}",
+            "{$role}_photo_path" => self::marker($role),
         ])->save();
 
         self::deleteDiskFile($oldPath);
@@ -60,21 +61,17 @@ class DepartmentCardPhotoStore
         self::assertRole($role);
 
         $path = (string) ($department->{"{$role}_photo_path"} ?? '');
-        if ($path === '') {
-            return false;
-        }
-        if (str_starts_with($path, 'db:')) {
-            return true;
-        }
-
         if (self::diskFile($path) !== null) {
             return true;
         }
 
-        return DepartmentCardPhoto::query()
-            ->where('department_id', $department->id)
-            ->where('role', $role)
-            ->exists();
+        if (self::photoMeta($department, $role) !== null) {
+            return true;
+        }
+
+        return $path !== ''
+            && ! str_starts_with($path, 'db:')
+            && (str_starts_with($path, 'http://') || str_starts_with($path, 'https://'));
     }
 
     public static function url(Department $department, string $role): ?string
@@ -83,7 +80,7 @@ class DepartmentCardPhotoStore
             return null;
         }
 
-        $version = optional($department->updated_at)->getTimestamp() ?: time();
+        $version = self::version($department, $role);
 
         return '/api/public/departments/'.$department->code.'/'.$role.'-photo?v='.$version;
     }
@@ -135,6 +132,7 @@ class DepartmentCardPhotoStore
                 $department->forceFill([
                     "{$role}_photo_path" => null,
                 ])->save();
+
                 continue;
             }
 
@@ -155,7 +153,7 @@ class DepartmentCardPhotoStore
             );
 
             $department->forceFill([
-                "{$role}_photo_path" => "db:{$role}",
+                "{$role}_photo_path" => self::marker($role),
             ])->save();
 
             $ingested++;
@@ -246,6 +244,48 @@ class DepartmentCardPhotoStore
         }
 
         return '';
+    }
+
+    public static function eagerLoadCardPhotos($query)
+    {
+        return $query->with(['cardPhotos' => function ($photos) {
+            $photos->select(['id', 'department_id', 'role', 'mime', 'updated_at']);
+        }]);
+    }
+
+    private static function marker(string $role): string
+    {
+        return 'db:'.$role.':'.(int) round(microtime(true) * 1000);
+    }
+
+    private static function version(Department $department, string $role): string
+    {
+        $path = (string) ($department->{"{$role}_photo_path"} ?? '');
+        if (preg_match('/^db:(?:officer|deputy):(\d+)$/', $path, $matches) === 1) {
+            return $matches[1];
+        }
+
+        $meta = self::photoMeta($department, $role);
+        $stamp = optional($meta?->updated_at)->getTimestamp()
+            ?: optional($department->updated_at)->getTimestamp()
+            ?: time();
+
+        return (string) $stamp.($meta?->id ? '.'.$meta->id : '');
+    }
+
+    private static function photoMeta(Department $department, string $role): ?DepartmentCardPhoto
+    {
+        if ($department->relationLoaded('cardPhotos')) {
+            $row = $department->cardPhotos->firstWhere('role', $role);
+
+            return $row instanceof DepartmentCardPhoto ? $row : null;
+        }
+
+        return DepartmentCardPhoto::query()
+            ->select(['id', 'department_id', 'role', 'mime', 'updated_at'])
+            ->where('department_id', $department->id)
+            ->where('role', $role)
+            ->first();
     }
 
     private static function assertRole(string $role): void
