@@ -377,10 +377,14 @@ const router = createRouter({
               meta: { permission: 'extcontact.view' },
             },
             {
-              path: 'messages',
-              name: 'admin.secretariat.messages',
+              path: 'inbox',
+              name: 'admin.secretariat.inbox',
               component: SecretariatMessagesView,
               meta: { permission: 'inbox.view' },
+            },
+            {
+              path: 'messages',
+              redirect: (to) => `/admin/secretariats/${to.params.code}/inbox`,
             },
             {
               path: 'presidential-directives',

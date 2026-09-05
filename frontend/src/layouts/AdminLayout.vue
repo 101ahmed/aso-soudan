@@ -114,7 +114,7 @@ function isActive(to, exact = false) {
             <RouterLink
               v-for="code in secretariatCodes"
               :key="code"
-              :to="`/admin/secretariats/${code}/messages`"
+              :to="`/admin/secretariats/${code}/inbox`"
               class="rounded-md px-3 py-1.5 text-sm text-slate-200 transition hover:bg-slate-800"
               :class="isActive(`/admin/secretariats/${code}`) ? 'bg-teal-800 text-white hover:bg-teal-800' : ''"
             >

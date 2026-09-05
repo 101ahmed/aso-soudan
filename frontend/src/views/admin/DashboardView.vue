@@ -112,7 +112,7 @@ onMounted(async () => {
           <p v-else class="mt-1 text-xs text-slate-500">{{ t('admin.dashboard.noUnread') }}</p>
           <div class="mt-3 flex flex-wrap gap-2">
             <RouterLink
-              :to="`/admin/secretariats/${dept.code}/messages`"
+              :to="`/admin/secretariats/${dept.code}/inbox`"
               class="rounded bg-teal-800 px-3 py-1.5 text-xs font-semibold text-white"
             >
               {{ t('secretariatAdmin.messages') }}

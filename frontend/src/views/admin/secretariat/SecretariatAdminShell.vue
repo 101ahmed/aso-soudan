@@ -32,7 +32,7 @@ const links = computed(() => {
     { to: base.value, label: t('secretariatAdmin.home'), exact: true },
   ]
   if (auth.hasPermission('inbox.view')) {
-    items.push({ to: `${base.value}/messages`, label: t('secretariatAdmin.messages') })
+    items.push({ to: `${base.value}/inbox`, label: t('secretariatAdmin.messages') })
   }
   if (
     auth.hasPermission('president.directive.inbox')
@@ -112,10 +112,9 @@ const title = computed(() => {
   return SECRETARIAT_NAME_KEYS[props.code] ? t(SECRETARIAT_NAME_KEYS[props.code]) : props.code
 })
 
-const unreadDirectives = computed(() => {
-  const dept = departments.value.find((d) => d.code === props.code)
-  return Number(dept?.unread_directives_count || 0)
-})
+const currentDepartment = computed(() => departments.value.find((d) => d.code === props.code))
+const unreadDirectives = computed(() => Number(currentDepartment.value?.unread_directives_count || 0))
+const unreadInbox = computed(() => Number(currentDepartment.value?.unread_messages_count || 0))
 
 onMounted(async () => {
   try {
@@ -164,6 +163,12 @@ onMounted(async () => {
         :class="isActive(link) ? 'bg-teal-800 text-white' : 'bg-white text-slate-700 hover:bg-slate-100'"
       >
         {{ link.label }}
+        <span
+          v-if="link.to.endsWith('/inbox') && unreadInbox > 0"
+          class="ms-1 rounded-full bg-amber-200 px-1.5 text-[10px] font-semibold text-amber-900"
+        >
+          {{ unreadInbox }}
+        </span>
         <span
           v-if="link.to.endsWith('/presidential-directives') && unreadDirectives > 0"
           class="ms-1 rounded-full bg-amber-200 px-1.5 text-[10px] font-semibold text-amber-900"

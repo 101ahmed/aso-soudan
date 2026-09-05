@@ -10,12 +10,15 @@ const auth = useAuthStore()
 const code = computed(() => route.params.code)
 
 const cards = computed(() => {
-  const items = [
-    {
-      to: `/admin/secretariats/${code.value}/messages`,
+  const items = []
+  if (auth.hasPermission('inbox.view')) {
+    items.push({
+      to: `/admin/secretariats/${code.value}/inbox`,
       label: t('secretariatAdmin.messages'),
       hint: t('secretariatAdmin.messagesHint'),
-    },
+    })
+  }
+  items.push(
     {
       to: `/admin/secretariats/${code.value}/officer`,
       label: t('secretariatAdmin.officer'),
@@ -34,7 +37,7 @@ const cards = computed(() => {
     },
     { to: `/admin/secretariats/${code.value}/announcements`, label: t('secretariatAdmin.announcements'), hint: t('secretariatAdmin.announcementsHint') },
     { to: `/admin/secretariats/${code.value}/albums`, label: t('secretariatAdmin.albums'), hint: t('secretariatAdmin.albumsHint') },
-  ]
+  )
   if (auth.hasPermission('report.view')) {
     items.push({
       to: `/admin/secretariats/${code.value}/reports`,

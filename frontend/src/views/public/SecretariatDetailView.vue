@@ -748,7 +748,7 @@ watch(
         </h2>
         <p class="mt-2 text-sm text-slate-600">{{ t('secretariat.contactHint') }}</p>
 
-        <p v-if="sent" class="mt-4 text-sm text-teal-800">{{ t('pages.contact.success') }}</p>
+        <p v-if="sent" class="mt-4 text-sm text-teal-800">{{ t('secretariat.contactSuccess') }}</p>
         <form v-else class="mt-4 grid gap-3 md:grid-cols-2" @submit.prevent="submitContact">
           <p v-if="contactError" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700 md:col-span-2">{{ contactError }}</p>
           <input v-model="form.name" required :placeholder="t('forms.name')" class="rounded border border-slate-300 px-3 py-2" />
