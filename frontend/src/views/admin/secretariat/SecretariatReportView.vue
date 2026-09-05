@@ -19,7 +19,7 @@ const report = ref(null)
 const canExport = computed(
   () =>
     auth.hasPermission('report.export') ||
-    auth.user?.roles?.some((r) => ['SUPER_ADMIN', 'PRESIDENT'].includes(r.code)),
+    auth.user?.roles?.some((r) => ['SUPER_ADMIN', 'PRESIDENT', 'VICE_PRESIDENT'].includes(r.code)),
 )
 
 const years = computed(() => {

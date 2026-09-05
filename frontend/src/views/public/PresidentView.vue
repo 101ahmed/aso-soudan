@@ -5,11 +5,13 @@ import { useI18n } from 'vue-i18n'
 import { presidentPage as page } from '@/data/presidentPage'
 import { galleryAlbums } from '@/data/publicContent'
 import { fetchPublicAlbums } from '@/services/content'
+import { fetchPublicPresidentCard } from '@/services/president'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
 
 const { t, locale } = useI18n()
 const contactSent = ref(false)
 const apiAlbums = ref([])
+const offices = ref({ president: null, vice_president: null })
 const form = reactive({
   name: '',
   email: '',
@@ -18,6 +20,16 @@ const form = reactive({
 })
 
 const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
+function officeName(card, fallback) {
+  if (!card) return fallback
+  if (locale.value === 'ar') return card.name_ar || card.name_fr || fallback
+  return card.name_fr || card.name_ar || fallback
+}
+const profileName = computed(() => officeName(offices.value.president, localized(page.profile.name)))
+const profilePhoto = computed(() => offices.value.president?.photo_url || page.profile.photo)
+const viceName = computed(() => officeName(offices.value.vice_president, ''))
+const vicePhoto = computed(() => offices.value.vice_president?.photo_url || '')
+const viceVisible = computed(() => Boolean(viceName.value || vicePhoto.value))
 const list = (value) => {
   const items = value?.[locale.value] || value?.en || value?.fr || value?.ar || []
   return Array.isArray(items) ? items : []
@@ -44,6 +56,11 @@ function submitContact() {
 }
 
 onMounted(async () => {
+  try {
+    offices.value = await fetchPublicPresidentCard()
+  } catch {
+    offices.value = { president: null, vice_president: null }
+  }
   try {
     const data = await fetchPublicAlbums({ home: 1, per_page: 8 })
     apiAlbums.value = data.data?.length ? data.data : (await fetchPublicAlbums({ per_page: 8 })).data || []
@@ -78,12 +95,12 @@ onMounted(async () => {
       <section class="grid items-start gap-8 md:grid-cols-[220px_1fr]">
         <div class="mx-auto w-full max-w-[220px]">
           <div
-            v-if="page.profile.photo"
+            v-if="profilePhoto"
             class="aspect-[3/4] overflow-hidden rounded-2xl bg-[var(--rdp-forest)]/10"
           >
             <img
-              :src="page.profile.photo"
-              :alt="localized(page.profile.name)"
+              :src="profilePhoto"
+              :alt="profileName"
               class="h-full w-full object-cover"
             />
           </div>
@@ -100,12 +117,37 @@ onMounted(async () => {
             {{ localized(page.profile.title) }}
           </p>
           <h2 class="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold text-[var(--rdp-ink)]">
-            {{ localized(page.profile.name) }}
+            {{ profileName }}
           </h2>
           <p class="mt-2 text-sm text-slate-500">{{ localized(page.profile.mandate) }}</p>
           <p class="mt-5 max-w-3xl leading-relaxed text-slate-700">
             {{ localized(page.profile.bio) }}
           </p>
+        </div>
+      </section>
+
+      <section v-if="viceVisible" class="grid items-start gap-8 md:grid-cols-[220px_1fr]">
+        <div class="mx-auto w-full max-w-[220px]">
+          <div
+            v-if="vicePhoto"
+            class="aspect-[3/4] overflow-hidden rounded-2xl bg-[var(--rdp-forest)]/10"
+          >
+            <img :src="vicePhoto" :alt="viceName" class="h-full w-full object-cover" />
+          </div>
+          <div
+            v-else
+            class="flex aspect-[3/4] items-center justify-center rounded-2xl bg-[var(--rdp-forest)] text-4xl font-bold text-white"
+          >
+            {{ viceName.slice(0, 1) }}
+          </div>
+        </div>
+        <div>
+          <p class="text-sm font-semibold tracking-wide text-[var(--rdp-forest)] uppercase">
+            {{ t('org.vicePresident') }}
+          </p>
+          <h2 class="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold text-[var(--rdp-ink)]">
+            {{ viceName }}
+          </h2>
         </div>
       </section>
 

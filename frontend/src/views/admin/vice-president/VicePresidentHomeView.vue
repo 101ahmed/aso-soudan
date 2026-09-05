@@ -2,7 +2,7 @@
 import { computed, inject, onMounted, ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { fetchPresidentOverview } from '@/services/president'
+import { fetchVicePresidentOverview } from '@/services/president'
 
 const { t } = useI18n()
 const openDirective = inject('openPresidentDirective', () => {})
@@ -24,17 +24,17 @@ const cardName = computed(() => stats.value.card?.name_ar || stats.value.card?.n
 const cardPhoto = computed(() => stats.value.card?.photo_url || '')
 
 const cards = computed(() => [
-  { to: '/admin/president/meetings?scope=upcoming', label: t('presidentAdmin.upcoming'), value: stats.value.upcoming_meetings, hint: t('presidentAdmin.upcomingHint') },
-  { to: '/admin/president/meetings?classification=urgent', label: t('presidentAdmin.classifications.urgent'), value: stats.value.urgent_meetings, hint: t('presidentAdmin.urgentHint') },
-  { to: '/admin/president/meetings?classification=follow_up', label: t('presidentAdmin.classifications.follow_up'), value: stats.value.follow_up_meetings, hint: t('presidentAdmin.followUpHint') },
-  { to: '/admin/president/archive', label: t('presidentAdmin.archive'), value: stats.value.archive_count, hint: t('presidentAdmin.archiveHint') },
+  { to: '/admin/vice-president/meetings?scope=upcoming', label: t('presidentAdmin.upcoming'), value: stats.value.upcoming_meetings, hint: t('presidentAdmin.upcomingHint') },
+  { to: '/admin/vice-president/meetings?classification=urgent', label: t('presidentAdmin.classifications.urgent'), value: stats.value.urgent_meetings, hint: t('presidentAdmin.urgentHint') },
+  { to: '/admin/vice-president/meetings?classification=follow_up', label: t('presidentAdmin.classifications.follow_up'), value: stats.value.follow_up_meetings, hint: t('presidentAdmin.followUpHint') },
+  { to: '/admin/vice-president/archive', label: t('presidentAdmin.archive'), value: stats.value.archive_count, hint: t('presidentAdmin.archiveHint') },
 ])
 
 async function load() {
   loading.value = true
   error.value = ''
   try {
-    stats.value = await fetchPresidentOverview()
+    stats.value = await fetchVicePresidentOverview()
   } catch (e) {
     error.value = e.response?.data?.message || e.message
   } finally {
@@ -48,12 +48,12 @@ onMounted(load)
 
 <template>
   <div class="space-y-6">
-    <p class="text-sm text-slate-600">{{ t('presidentAdmin.homeHint') }}</p>
+    <p class="text-sm text-slate-600">{{ t('vicePresidentAdmin.homeHint') }}</p>
     <p v-if="error" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ error }}</p>
     <p v-if="loading" class="text-sm text-slate-500">{{ t('admin.loading') }}</p>
 
     <RouterLink
-      to="/admin/president/card"
+      to="/admin/vice-president/card"
       class="flex items-center gap-4 rounded-xl border bg-white p-5 hover:border-teal-700"
     >
       <img
@@ -69,9 +69,9 @@ onMounted(load)
         {{ (cardName || '?').slice(0, 1) }}
       </div>
       <div>
-        <p class="text-sm text-slate-500">{{ t('presidentAdmin.card') }}</p>
-        <p class="mt-1 text-xl font-semibold text-[var(--rdp-forest)]">{{ cardName || t('org.president') }}</p>
-        <p class="mt-1 text-sm font-semibold text-teal-800">{{ t('presidentAdmin.openCard') }}</p>
+        <p class="text-sm text-slate-500">{{ t('vicePresidentAdmin.card') }}</p>
+        <p class="mt-1 text-xl font-semibold text-[var(--rdp-forest)]">{{ cardName || t('org.vicePresident') }}</p>
+        <p class="mt-1 text-sm font-semibold text-teal-800">{{ t('vicePresidentAdmin.openCard') }}</p>
       </div>
     </RouterLink>
 
@@ -92,7 +92,7 @@ onMounted(load)
       <article class="rounded-xl border bg-white p-5">
         <h2 class="font-semibold text-[var(--rdp-forest)]">{{ t('presidentAdmin.meetings') }} 🗓️</h2>
         <p class="mt-2 text-sm text-slate-600">{{ t('presidentAdmin.meetingsHint') }}</p>
-        <RouterLink to="/admin/president/meetings" class="mt-3 inline-flex text-sm font-semibold text-teal-800 hover:underline">
+        <RouterLink to="/admin/vice-president/meetings" class="mt-3 inline-flex text-sm font-semibold text-teal-800 hover:underline">
           {{ t('presidentAdmin.openMeetings') }}
         </RouterLink>
       </article>

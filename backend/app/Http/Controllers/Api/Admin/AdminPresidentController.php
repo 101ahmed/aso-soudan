@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\PresidentProfileResource;
 use App\Http\Resources\PresidentialArchiveItemResource;
 use App\Http\Resources\PresidentialDirectiveResource;
 use App\Http\Resources\PresidentialMeetingResource;
@@ -10,8 +11,11 @@ use App\Models\Department;
 use App\Models\PresidentialArchiveItem;
 use App\Models\PresidentialDirective;
 use App\Models\PresidentialMeeting;
+use App\Models\PresidentProfile;
 use App\Support\DepartmentRoleMap;
 use App\Support\PresidentialWorkspace;
+use App\Support\StoredFileStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -30,7 +34,77 @@ class AdminPresidentController extends Controller
             'sent_directives' => PresidentialDirective::query()->count(),
             'unread_directives' => PresidentialDirective::query()->unread()->count(),
             'archive_count' => PresidentialArchiveItem::query()->count(),
+            'card' => (new PresidentProfileResource(PresidentProfile::current()))->resolve($request),
         ]);
+    }
+
+    public function viceOverview(Request $request): JsonResponse
+    {
+        $this->authorizePresident($request);
+
+        return response()->json([
+            'upcoming_meetings' => PresidentialMeeting::query()->upcoming()->count(),
+            'follow_up_meetings' => PresidentialMeeting::query()->where('classification', 'follow_up')->count(),
+            'urgent_meetings' => PresidentialMeeting::query()->where('classification', 'urgent')->count(),
+            'sent_directives' => PresidentialDirective::query()->count(),
+            'unread_directives' => PresidentialDirective::query()->unread()->count(),
+            'archive_count' => PresidentialArchiveItem::query()->count(),
+            'card' => (new PresidentProfileResource(
+                PresidentProfile::current(PresidentProfile::OFFICE_VICE_PRESIDENT)
+            ))->resolve($request),
+        ]);
+    }
+
+    public function cardShow(Request $request): PresidentProfileResource
+    {
+        $this->authorizePresident($request);
+
+        return new PresidentProfileResource(PresidentProfile::current($this->officeFromRequest($request)));
+    }
+
+    public function cardUpdate(Request $request): PresidentProfileResource
+    {
+        $this->authorizePresident($request);
+
+        if ($request->exists('remove_photo')) {
+            $request->merge([
+                'remove_photo' => filter_var($request->input('remove_photo'), FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+        if ($request->exists('is_public')) {
+            $request->merge([
+                'is_public' => filter_var($request->input('is_public'), FILTER_VALIDATE_BOOLEAN),
+            ]);
+        }
+
+        $data = $request->validate([
+            'name_ar' => ['nullable', 'string', 'max:120'],
+            'name_fr' => ['nullable', 'string', 'max:120'],
+            'is_public' => ['nullable', 'boolean'],
+            'photo' => UploadRules::image(12288),
+            'remove_photo' => ['nullable', 'boolean'],
+        ]);
+
+        $office = $this->officeFromRequest($request);
+        $profile = PresidentProfile::current($office);
+        $photoPath = $profile->photo_path;
+        $collection = $office === PresidentProfile::OFFICE_VICE_PRESIDENT ? 'vice_president' : 'president';
+
+        if ($request->hasFile('photo')) {
+            $photoPath = StoredFileStore::replace($photoPath, $request->file('photo'), $collection)['path'];
+        } elseif ($request->boolean('remove_photo')) {
+            StoredFileStore::forget($photoPath);
+            $photoPath = null;
+        }
+
+        $profile->fill([
+            'name_ar' => $data['name_ar'] ?? $profile->name_ar,
+            'name_fr' => $data['name_fr'] ?? $profile->name_fr,
+            'is_public' => array_key_exists('is_public', $data) ? (bool) $data['is_public'] : $profile->is_public,
+            'photo_path' => $photoPath,
+        ])->save();
+
+        return new PresidentProfileResource($profile->fresh());
     }
 
     public function secretariats(Request $request): JsonResponse
@@ -299,7 +373,18 @@ class AdminPresidentController extends Controller
     private function authorizePresident(Request $request): void
     {
         $user = $request->user();
-        abort_unless($user && ($user->hasRole('PRESIDENT') || $user->hasRole('SUPER_ADMIN')), 403);
+        abort_unless($user && (
+            $user->hasRole('PRESIDENT')
+            || $user->hasRole('VICE_PRESIDENT')
+            || $user->hasRole('SUPER_ADMIN')
+        ), 403);
+    }
+
+    private function officeFromRequest(Request $request): string
+    {
+        return str_contains($request->path(), 'vice-president')
+            ? PresidentProfile::OFFICE_VICE_PRESIDENT
+            : PresidentProfile::OFFICE_PRESIDENT;
     }
 
     private function authorizeInbox(Request $request, bool $write = false): void
@@ -307,7 +392,7 @@ class AdminPresidentController extends Controller
         $user = $request->user();
         abort_unless($user, 403);
 
-        if ($user->hasRole('SUPER_ADMIN') || $user->hasRole('PRESIDENT')) {
+        if ($user->hasRole('SUPER_ADMIN') || $user->hasRole('PRESIDENT') || $user->hasRole('VICE_PRESIDENT')) {
             return;
         }
 

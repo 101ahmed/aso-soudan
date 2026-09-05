@@ -19,7 +19,8 @@ const route = useRoute()
 const isTeacher = computed(() => auth.user?.roles?.some((r) => r.code === 'TEACHER'))
 const isSuperAdmin = computed(() => auth.user?.roles?.some((r) => r.code === 'SUPER_ADMIN'))
 const isPresident = computed(() => auth.user?.roles?.some((r) => r.code === 'PRESIDENT'))
-const canBrowseAllSecretariats = computed(() => isSuperAdmin.value || isPresident.value)
+const isVicePresident = computed(() => auth.user?.roles?.some((r) => r.code === 'VICE_PRESIDENT'))
+const canBrowseAllSecretariats = computed(() => isSuperAdmin.value || isPresident.value || isVicePresident.value)
 
 const secretariatCodes = computed(() => {
   if (canBrowseAllSecretariats.value) return SECRETARIAT_CODES
@@ -43,7 +44,12 @@ const links = computed(() => [
   {
     to: '/admin/president',
     label: t('admin.nav.president'),
-    show: isPresident.value || isSuperAdmin.value,
+    show: isPresident.value || isVicePresident.value || isSuperAdmin.value,
+  },
+  {
+    to: '/admin/vice-president',
+    label: t('admin.nav.vicePresident'),
+    show: isVicePresident.value || isPresident.value || isSuperAdmin.value,
   },
   {
     to: '/admin/content',

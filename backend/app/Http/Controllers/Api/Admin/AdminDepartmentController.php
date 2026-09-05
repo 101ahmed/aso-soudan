@@ -24,7 +24,7 @@ class AdminDepartmentController extends Controller
             'presidentialDirectives as unread_directives_count' => $unreadDirectives,
         ];
 
-        if ($user->hasRole('SUPER_ADMIN') || $user->hasRole('PRESIDENT')) {
+        if ($user->hasRole('SUPER_ADMIN') || $user->hasRole('PRESIDENT') || $user->hasRole('VICE_PRESIDENT')) {
             return DepartmentResource::collection(
                 Department::query()
                     ->active()

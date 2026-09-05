@@ -48,7 +48,7 @@ export function primaryDepartmentCode(user) {
 export function canAccessDepartment(user, code, { write = false } = {}) {
   if (!user || !code) return false
   if (user.roles?.some((r) => r.code === 'SUPER_ADMIN')) return true
-  if (!write && user.roles?.some((r) => r.code === 'PRESIDENT')) return true
+  if (!write && user.roles?.some((r) => ['PRESIDENT', 'VICE_PRESIDENT'].includes(r.code))) return true
   if (user.roles?.some((r) => r.code === 'CONTENT_EDITOR')) return true
   return departmentCodesForUser(user).includes(code)
 }

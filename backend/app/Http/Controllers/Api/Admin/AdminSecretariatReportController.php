@@ -41,7 +41,8 @@ class AdminSecretariatReportController extends Controller
         abort_unless(
             $request->user()?->hasPermission('report.export')
             || $request->user()?->hasRole('SUPER_ADMIN')
-            || $request->user()?->hasRole('PRESIDENT'),
+            || $request->user()?->hasRole('PRESIDENT')
+            || $request->user()?->hasRole('VICE_PRESIDENT'),
             403
         );
 
@@ -96,7 +97,7 @@ class AdminSecretariatReportController extends Controller
         ];
         $query = Department::query()->active()->whereIn('code', $codes)->orderBy('sort_order');
 
-        if ($user->hasRole('SUPER_ADMIN') || $user->hasRole('PRESIDENT')) {
+        if ($user->hasRole('SUPER_ADMIN') || $user->hasRole('PRESIDENT') || $user->hasRole('VICE_PRESIDENT')) {
             return $query->get();
         }
 

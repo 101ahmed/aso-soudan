@@ -32,8 +32,11 @@ import AdminLayout from '@/layouts/AdminLayout.vue'
 import DashboardView from '@/views/admin/DashboardView.vue'
 import PresidentAdminShell from '@/views/admin/president/PresidentAdminShell.vue'
 import PresidentHomeView from '@/views/admin/president/PresidentHomeView.vue'
+import PresidentCardView from '@/views/admin/president/PresidentCardView.vue'
 import PresidentMeetingsView from '@/views/admin/president/PresidentMeetingsView.vue'
 import PresidentArchiveView from '@/views/admin/president/PresidentArchiveView.vue'
+import VicePresidentAdminShell from '@/views/admin/vice-president/VicePresidentAdminShell.vue'
+import VicePresidentHomeView from '@/views/admin/vice-president/VicePresidentHomeView.vue'
 import SecretariatAdminShell from '@/views/admin/secretariat/SecretariatAdminShell.vue'
 import SecretariatHomeView from '@/views/admin/secretariat/SecretariatHomeView.vue'
 import SecretariatReportView from '@/views/admin/secretariat/SecretariatReportView.vue'
@@ -58,6 +61,7 @@ import FinanceRevenuesView from '@/views/admin/secretariat/FinanceRevenuesView.v
 import FinanceExpensesView from '@/views/admin/secretariat/FinanceExpensesView.vue'
 import FinanceDocumentsView from '@/views/admin/secretariat/FinanceDocumentsView.vue'
 import MediaDecisionsView from '@/views/admin/secretariat/MediaDecisionsView.vue'
+import SecretariatMeetingOutputsView from '@/views/admin/secretariat/SecretariatMeetingOutputsView.vue'
 import MediaCenterView from '@/views/admin/secretariat/MediaCenterView.vue'
 import ExternalPartnersView from '@/views/admin/secretariat/ExternalPartnersView.vue'
 import ExternalDocumentsView from '@/views/admin/secretariat/ExternalDocumentsView.vue'
@@ -210,11 +214,28 @@ const router = createRouter({
         {
           path: 'president',
           component: PresidentAdminShell,
-          meta: { roles: ['PRESIDENT', 'SUPER_ADMIN'] },
+          meta: { roles: ['PRESIDENT', 'VICE_PRESIDENT', 'SUPER_ADMIN'] },
           children: [
             { path: '', name: 'admin.president', component: PresidentHomeView },
+            { path: 'card', name: 'admin.president.card', component: PresidentCardView },
             { path: 'meetings', name: 'admin.president.meetings', component: PresidentMeetingsView },
             { path: 'archive', name: 'admin.president.archive', component: PresidentArchiveView },
+          ],
+        },
+        {
+          path: 'vice-president',
+          component: VicePresidentAdminShell,
+          meta: { roles: ['VICE_PRESIDENT', 'PRESIDENT', 'SUPER_ADMIN'] },
+          children: [
+            { path: '', name: 'admin.vicePresident', component: VicePresidentHomeView },
+            {
+              path: 'card',
+              name: 'admin.vicePresident.card',
+              component: PresidentCardView,
+              props: { office: 'vice_president' },
+            },
+            { path: 'meetings', name: 'admin.vicePresident.meetings', component: PresidentMeetingsView },
+            { path: 'archive', name: 'admin.vicePresident.archive', component: PresidentArchiveView },
           ],
         },
         {
@@ -323,6 +344,12 @@ const router = createRouter({
               path: 'decisions',
               name: 'admin.secretariat.decisions',
               component: MediaDecisionsView,
+              meta: { permission: 'decision.view' },
+            },
+            {
+              path: 'meeting-outputs',
+              name: 'admin.secretariat.meetingOutputs',
+              component: SecretariatMeetingOutputsView,
               meta: { permission: 'decision.view' },
             },
             {

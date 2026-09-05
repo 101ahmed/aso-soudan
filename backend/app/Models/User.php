@@ -100,7 +100,7 @@ class User extends Authenticatable
             return true;
         }
 
-        if ($this->hasRole('PRESIDENT') && ! $write) {
+        if (($this->hasRole('PRESIDENT') || $this->hasRole('VICE_PRESIDENT')) && ! $write) {
             return true;
         }
 

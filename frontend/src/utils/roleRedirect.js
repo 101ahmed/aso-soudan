@@ -3,6 +3,7 @@ import { primaryDepartmentCode, ROLE_TO_DEPARTMENT } from '@/utils/departmentAcc
 const ROLE_HOME = {
   SUPER_ADMIN: '/admin',
   PRESIDENT: '/admin/president',
+  VICE_PRESIDENT: '/admin/vice-president',
   GENERAL_SECRETARIAT: '/admin/secretariats/general',
   ACADEMIC_SECRETARIAT: '/admin/secretariats/academic',
   SOCIAL_SECRETARIAT: '/admin/secretariats/social',
@@ -31,6 +32,9 @@ export function resolvePostLoginPath(user) {
 
   if (codes.includes('PRESIDENT') && !codes.includes('SUPER_ADMIN')) {
     return ROLE_HOME.PRESIDENT
+  }
+  if (codes.includes('VICE_PRESIDENT') && !codes.includes('SUPER_ADMIN')) {
+    return ROLE_HOME.VICE_PRESIDENT
   }
   if (codes.includes('SUPER_ADMIN')) {
     return ROLE_HOME.SUPER_ADMIN

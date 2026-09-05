@@ -11,6 +11,7 @@ use App\Models\FinanceDocument;
 use App\Models\Media;
 use App\Models\MediaCenterItem;
 use App\Models\News;
+use App\Models\PresidentProfile;
 use App\Models\StoredFile;
 use App\Models\Student;
 use Illuminate\Database\Eloquent\Model;
@@ -36,6 +37,7 @@ class StoredFileStore
         [ExternalDocument::class, 'file_path', 'external_documents'],
         [FinanceDocument::class, 'file_path', 'finance_documents'],
         [Student::class, 'photo_path', 'students'],
+        [PresidentProfile::class, 'photo_path', 'president'],
     ];
 
     /**

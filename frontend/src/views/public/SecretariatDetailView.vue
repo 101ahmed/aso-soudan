@@ -10,6 +10,7 @@ import {
 import { fetchSecretariatFeed } from '@/services/content'
 import { fetchPublicDocuments, fetchPublicPartners } from '@/services/external'
 import { fetchPublicFinanceDocuments } from '@/services/finance'
+import { fetchPublicMeetingOutputs } from '@/services/meetingOutputs'
 import { submitSecretariatMessage } from '@/services/secretariatMessages'
 import EventStarRating from '@/components/public/EventStarRating.vue'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
@@ -23,6 +24,7 @@ const feed = ref({ news: [], announcements: [], albums: [], events: [], media_ce
 const publicPartners = ref([])
 const publicDocuments = ref([])
 const financeDocuments = ref([])
+const meetingOutputs = ref([])
 
 const form = reactive({
   name: '',
@@ -135,6 +137,7 @@ const list = (value) => {
 const canRateEvents = computed(() => route.params.slug === 'women-children')
 const isExternal = computed(() => route.params.slug === 'external-relations')
 const isFinance = computed(() => route.params.slug === 'finance')
+const isGeneral = computed(() => route.params.slug === 'general')
 
 const financeGeneralReport = computed(() =>
   financeDocuments.value.find((item) => item.kind === 'general_report') || null,
@@ -228,6 +231,15 @@ async function loadFeed(slug) {
     }
   } else {
     financeDocuments.value = []
+  }
+  if (slug === 'general') {
+    try {
+      meetingOutputs.value = await fetchPublicMeetingOutputs('general')
+    } catch {
+      meetingOutputs.value = []
+    }
+  } else {
+    meetingOutputs.value = []
   }
 }
 
@@ -345,6 +357,49 @@ watch(
             {{ program }}
           </span>
         </div>
+      </section>
+
+      <!-- Meeting outputs (amanah générale) -->
+      <section v-if="isGeneral && meetingOutputs.length" class="space-y-4">
+        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('secretariat.meetingOutputs') }}</h2>
+        <article
+          v-for="item in meetingOutputs"
+          :key="item.id"
+          class="rounded-2xl border border-[var(--rdp-forest)]/15 bg-white p-5 shadow-sm"
+        >
+          <p class="text-xs text-slate-500">{{ item.meeting_on }}<span v-if="item.location"> · {{ item.location }}</span></p>
+          <h3 class="mt-1 text-lg font-semibold text-[var(--rdp-ink)]">
+            {{ locale === 'fr' ? (item.title_fr || item.title_ar) : (item.title_ar || item.title_fr) }}
+          </h3>
+          <p
+            v-if="locale === 'fr' ? (item.attendees_fr || item.attendees_ar) : (item.attendees_ar || item.attendees_fr)"
+            class="mt-3 whitespace-pre-line text-sm text-slate-700"
+          >
+            <span class="font-medium text-[var(--rdp-forest)]">{{ t('secretariat.meetingAttendees') }}: </span>
+            {{ locale === 'fr' ? (item.attendees_fr || item.attendees_ar) : (item.attendees_ar || item.attendees_fr) }}
+          </p>
+          <p
+            v-if="locale === 'fr' ? (item.agenda_fr || item.agenda_ar) : (item.agenda_ar || item.agenda_fr)"
+            class="mt-2 whitespace-pre-line text-sm text-slate-700"
+          >
+            <span class="font-medium text-[var(--rdp-forest)]">{{ t('secretariat.meetingAgenda') }}: </span>
+            {{ locale === 'fr' ? (item.agenda_fr || item.agenda_ar) : (item.agenda_ar || item.agenda_fr) }}
+          </p>
+          <p
+            v-if="locale === 'fr' ? (item.outputs_fr || item.outputs_ar) : (item.outputs_ar || item.outputs_fr)"
+            class="mt-2 whitespace-pre-line text-sm text-slate-700"
+          >
+            <span class="font-medium text-[var(--rdp-forest)]">{{ t('secretariat.meetingConclusions') }}: </span>
+            {{ locale === 'fr' ? (item.outputs_fr || item.outputs_ar) : (item.outputs_ar || item.outputs_fr) }}
+          </p>
+          <p
+            v-if="locale === 'fr' ? (item.follow_up_fr || item.follow_up_ar) : (item.follow_up_ar || item.follow_up_fr)"
+            class="mt-2 whitespace-pre-line text-sm text-slate-700"
+          >
+            <span class="font-medium text-[var(--rdp-forest)]">{{ t('secretariat.meetingFollowUp') }}: </span>
+            {{ locale === 'fr' ? (item.follow_up_fr || item.follow_up_ar) : (item.follow_up_ar || item.follow_up_fr) }}
+          </p>
+        </article>
       </section>
 
       <!-- Finance public documents -->

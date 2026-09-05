@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\Admin\AdminMediaDecisionController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
 use App\Http\Controllers\Api\Admin\AdminParentsController;
 use App\Http\Controllers\Api\Admin\AdminPresidentController;
+use App\Http\Controllers\Api\Admin\AdminSecretariatMeetingOutputController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatMessageController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatReportController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
@@ -36,8 +37,10 @@ use App\Http\Controllers\Api\Public\PublicExternalController;
 use App\Http\Controllers\Api\Public\PublicFinanceController;
 use App\Http\Controllers\Api\Public\PublicHelpRequestController;
 use App\Http\Controllers\Api\Public\PublicMemberController;
+use App\Http\Controllers\Api\Public\PublicSecretariatMeetingOutputController;
 use App\Http\Controllers\Api\Public\PublicSecretariatMessageController;
 use App\Http\Controllers\Api\Public\PublicParentsController;
+use App\Http\Controllers\Api\Public\PublicPresidentController;
 use App\Http\Controllers\Api\Public\PublicShuraController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
@@ -52,6 +55,7 @@ Route::prefix('public')->group(function () {
     Route::get('/files/{uuid}', [PublicStoredFileController::class, 'show'])
         ->where('uuid', '[0-9a-fA-F-]{36}');
     Route::get('/secretariats/{code}/feed', [PublicContentController::class, 'secretariatFeed']);
+    Route::get('/secretariats/{code}/meeting-outputs', [PublicSecretariatMeetingOutputController::class, 'index']);
     Route::post('/secretariats/{code}/messages', [PublicSecretariatMessageController::class, 'store']);
     Route::get('/news', [PublicContentController::class, 'news']);
     Route::get('/news/{slug}', [PublicContentController::class, 'newsShow']);
@@ -76,6 +80,7 @@ Route::prefix('public')->group(function () {
     Route::post('/help-requests', [PublicHelpRequestController::class, 'store']);
     Route::get('/external/partners', [PublicExternalController::class, 'partners']);
     Route::get('/external/documents', [PublicExternalController::class, 'documents']);
+    Route::get('/president', [PublicPresidentController::class, 'show']);
     Route::get('/finance/documents', [PublicFinanceController::class, 'documents']);
     Route::get('/finance/documents/{kind}', [PublicFinanceController::class, 'document'])
         ->where('kind', 'general_report|subscriptions_announcement');
@@ -145,6 +150,8 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::prefix('admin/president')->group(function () {
         Route::get('/overview', [AdminPresidentController::class, 'overview']);
+        Route::get('/card', [AdminPresidentController::class, 'cardShow']);
+        Route::post('/card', [AdminPresidentController::class, 'cardUpdate']);
         Route::get('/secretariats', [AdminPresidentController::class, 'secretariats']);
         Route::get('/meetings', [AdminPresidentController::class, 'meetingsIndex']);
         Route::post('/meetings', [AdminPresidentController::class, 'meetingsStore']);
@@ -156,6 +163,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::post('/archive', [AdminPresidentController::class, 'archiveStore']);
         Route::put('/archive/{archiveItem}', [AdminPresidentController::class, 'archiveUpdate']);
         Route::delete('/archive/{archiveItem}', [AdminPresidentController::class, 'archiveDestroy']);
+    });
+
+    Route::prefix('admin/vice-president')->group(function () {
+        Route::get('/overview', [AdminPresidentController::class, 'viceOverview']);
+        Route::get('/card', [AdminPresidentController::class, 'cardShow']);
+        Route::post('/card', [AdminPresidentController::class, 'cardUpdate']);
     });
 
     Route::prefix('admin/parents')->group(function () {
@@ -301,6 +314,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::post('/decisions', [AdminMediaDecisionController::class, 'store'])->middleware(['department:write']);
             Route::put('/decisions/{mediaDecision}', [AdminMediaDecisionController::class, 'update'])->middleware(['department:write']);
             Route::delete('/decisions/{mediaDecision}', [AdminMediaDecisionController::class, 'destroy'])->middleware(['department:write']);
+
+            Route::get('/meeting-outputs', [AdminSecretariatMeetingOutputController::class, 'index']);
+            Route::post('/meeting-outputs', [AdminSecretariatMeetingOutputController::class, 'store'])->middleware(['department:write']);
+            Route::get('/meeting-outputs/{meetingOutput}', [AdminSecretariatMeetingOutputController::class, 'show']);
+            Route::put('/meeting-outputs/{meetingOutput}', [AdminSecretariatMeetingOutputController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/meeting-outputs/{meetingOutput}', [AdminSecretariatMeetingOutputController::class, 'destroy'])->middleware(['department:write']);
 
             Route::get('/media-center', [AdminMediaCenterController::class, 'index']);
             Route::post('/media-center', [AdminMediaCenterController::class, 'store'])->middleware(['department:write']);

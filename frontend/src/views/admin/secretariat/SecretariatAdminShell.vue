@@ -37,7 +37,7 @@ const links = computed(() => {
   if (
     auth.hasPermission('president.directive.inbox')
     || auth.hasPermission('inbox.view')
-    || auth.user?.roles?.some((r) => ['SUPER_ADMIN', 'PRESIDENT'].includes(r.code))
+    || auth.user?.roles?.some((r) => ['SUPER_ADMIN', 'PRESIDENT', 'VICE_PRESIDENT'].includes(r.code))
   ) {
     items.push({ to: `${base.value}/presidential-directives`, label: t('secretariatAdmin.presidentialDirectives') })
   }
@@ -74,6 +74,9 @@ const links = computed(() => {
   }
   if ((props.code === 'media' || props.code === 'general') && auth.hasPermission('decision.view')) {
     items.push({ to: `${base.value}/decisions`, label: props.code === 'general' ? t('secretariatAdmin.executiveDecisions') : t('secretariatAdmin.decisions') })
+  }
+  if (props.code === 'general' && auth.hasPermission('decision.view')) {
+    items.push({ to: `${base.value}/meeting-outputs`, label: t('secretariatAdmin.meetingOutputs') })
   }
   if (props.code === 'media' && auth.hasPermission('press.view')) {
     items.push({ to: `${base.value}/media-center`, label: t('secretariatAdmin.mediaCenter') })

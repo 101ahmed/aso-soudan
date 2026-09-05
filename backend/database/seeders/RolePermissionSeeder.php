@@ -13,6 +13,7 @@ class RolePermissionSeeder extends Seeder
         $roles = [
             ['code' => 'SUPER_ADMIN', 'name_fr' => 'Super Admin', 'name_ar' => 'مشرف عام'],
             ['code' => 'PRESIDENT', 'name_fr' => 'Président', 'name_ar' => 'رئيس الرابطة'],
+            ['code' => 'VICE_PRESIDENT', 'name_fr' => 'Vice-président', 'name_ar' => 'نائب رئيس الرابطة'],
             ['code' => 'GENERAL_SECRETARIAT', 'name_fr' => 'Secrétariat général', 'name_ar' => 'الأمانة العامة'],
             ['code' => 'ACADEMIC_SECRETARIAT', 'name_fr' => 'Secrétariat académique', 'name_ar' => 'الأمانة الأكاديمية'],
             ['code' => 'SOCIAL_SECRETARIAT', 'name_fr' => 'Secrétariat social', 'name_ar' => 'الأمانة الاجتماعية'],
@@ -170,15 +171,16 @@ class RolePermissionSeeder extends Seeder
 
         Role::query()->where('code', 'CONTENT_EDITOR')->first()?->permissions()->sync($contentOnlyIds);
 
-        Role::query()->where('code', 'PRESIDENT')->first()?->permissions()->sync(
-            Permission::query()->whereIn('code', [
-                'news.view', 'announcement.view', 'gallery.view', 'report.view', 'report.export', 'statistics.view', 'member.view', 'help.view', 'partner.view', 'extcontact.view', 'inbox.view', 'finance.view', 'decision.view', 'press.view',
-                'president.meeting.view', 'president.meeting.manage',
-                'president.directive.view', 'president.directive.manage',
-                'president.archive.view', 'president.archive.manage',
-                'president.directive.inbox',
-            ])->pluck('id')
-        );
+        $presidencyPermissions = Permission::query()->whereIn('code', [
+            'news.view', 'announcement.view', 'gallery.view', 'report.view', 'report.export', 'statistics.view', 'member.view', 'help.view', 'partner.view', 'extcontact.view', 'inbox.view', 'finance.view', 'decision.view', 'press.view',
+            'president.meeting.view', 'president.meeting.manage',
+            'president.directive.view', 'president.directive.manage',
+            'president.archive.view', 'president.archive.manage',
+            'president.directive.inbox',
+        ])->pluck('id');
+
+        Role::query()->where('code', 'PRESIDENT')->first()?->permissions()->sync($presidencyPermissions);
+        Role::query()->where('code', 'VICE_PRESIDENT')->first()?->permissions()->sync($presidencyPermissions);
 
         $secretariatManagerCodes = array_merge($contentCodes, [
             'user.view',

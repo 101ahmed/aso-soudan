@@ -5,6 +5,61 @@ export async function fetchPresidentOverview() {
   return data
 }
 
+function toCardFormData(payload) {
+  const body = new FormData()
+  Object.entries(payload || {}).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') return
+    if (typeof value === 'boolean') {
+      body.append(key, value ? '1' : '0')
+      return
+    }
+    if (value instanceof File) {
+      body.append(key, value, value.name)
+      return
+    }
+    if (value instanceof Blob) {
+      body.append(key, value)
+      return
+    }
+    body.append(key, value)
+  })
+  return body
+}
+
+export async function fetchPresidentCard() {
+  const { data } = await api.get('/admin/president/card')
+  return data.data || data
+}
+
+export async function updatePresidentCard(payload) {
+  const { data } = await api.post('/admin/president/card', toCardFormData(payload))
+  return data.data || data
+}
+
+export async function fetchVicePresidentOverview() {
+  const { data } = await api.get('/admin/vice-president/overview')
+  return data
+}
+
+export async function fetchVicePresidentCard() {
+  const { data } = await api.get('/admin/vice-president/card')
+  return data.data || data
+}
+
+export async function updateVicePresidentCard(payload) {
+  const { data } = await api.post('/admin/vice-president/card', toCardFormData(payload))
+  return data.data || data
+}
+
+export async function fetchPublicPresidentCard() {
+  const { data } = await api.get('/public/president')
+  const payload = data.data || data
+  if (payload?.president || payload?.vice_president) {
+    return payload
+  }
+  return { president: payload, vice_president: null }
+}
+
 export async function fetchPresidentSecretariats() {
   const { data } = await api.get('/admin/president/secretariats')
   return data.data || data || []

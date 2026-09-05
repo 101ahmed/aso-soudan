@@ -23,7 +23,7 @@ const statuses = ['sent', 'read', 'in_progress', 'done']
 const canUpdate = computed(() =>
   auth.hasPermission('president.directive.inbox')
   || auth.hasPermission('inbox.update')
-  || auth.user?.roles?.some((r) => ['SUPER_ADMIN', 'PRESIDENT'].includes(r.code)),
+  || auth.user?.roles?.some((r) => ['SUPER_ADMIN', 'PRESIDENT', 'VICE_PRESIDENT'].includes(r.code)),
 )
 
 const filters = reactive({ search: '', status: '', classification: '', page: 1 })

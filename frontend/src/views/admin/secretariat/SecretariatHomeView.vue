@@ -108,11 +108,18 @@ const cards = computed(() => {
     )
   }
   if (code.value === 'general') {
-    items.unshift({
-      to: `/admin/secretariats/general/decisions`,
-      label: t('secretariatAdmin.executiveDecisions'),
-      hint: t('secretariatAdmin.executiveDecisionsHint'),
-    })
+    items.unshift(
+      {
+        to: `/admin/secretariats/general/decisions`,
+        label: t('secretariatAdmin.executiveDecisions'),
+        hint: t('secretariatAdmin.executiveDecisionsHint'),
+      },
+      {
+        to: `/admin/secretariats/general/meeting-outputs`,
+        label: t('secretariatAdmin.meetingOutputs'),
+        hint: t('secretariatAdmin.meetingOutputsHint'),
+      },
+    )
   }
   if (code.value === 'media') {
     items.unshift(
