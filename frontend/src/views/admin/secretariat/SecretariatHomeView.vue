@@ -18,6 +18,18 @@ const cards = computed(() => {
       hint: t('secretariatAdmin.messagesHint'),
     })
   }
+  if (
+    auth.hasPermission('secretariat.directive.view')
+    || auth.hasPermission('inbox.view')
+    || auth.hasPermission('secretariat.directive.send')
+    || auth.hasPermission('inbox.create')
+  ) {
+    items.push({
+      to: `/admin/secretariats/${code.value}/directives`,
+      label: t('secretariatAdmin.directives'),
+      hint: t('secretariatAdmin.directivesHint'),
+    })
+  }
   items.push(
     {
       to: `/admin/secretariats/${code.value}/officer`,

@@ -82,6 +82,16 @@ class Department extends Model
         return $this->hasMany(PresidentialDirective::class);
     }
 
+    public function receivedSecretariatDirectives(): HasMany
+    {
+        return $this->hasMany(SecretariatDirective::class, 'recipient_department_id');
+    }
+
+    public function sentSecretariatDirectives(): HasMany
+    {
+        return $this->hasMany(SecretariatDirective::class, 'sender_department_id');
+    }
+
     public function cardPhotos(): HasMany
     {
         return $this->hasMany(DepartmentCardPhoto::class);

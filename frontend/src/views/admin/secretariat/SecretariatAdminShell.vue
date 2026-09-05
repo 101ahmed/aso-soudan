@@ -35,6 +35,13 @@ const links = computed(() => {
     items.push({ to: `${base.value}/inbox`, label: t('secretariatAdmin.messages') })
   }
   if (
+    auth.hasPermission('secretariat.directive.view')
+    || auth.hasPermission('inbox.view')
+    || auth.user?.roles?.some((r) => ['SUPER_ADMIN', 'PRESIDENT', 'VICE_PRESIDENT'].includes(r.code))
+  ) {
+    items.push({ to: `${base.value}/directives`, label: t('secretariatAdmin.directives') })
+  }
+  if (
     auth.hasPermission('president.directive.inbox')
     || auth.hasPermission('inbox.view')
     || auth.user?.roles?.some((r) => ['SUPER_ADMIN', 'PRESIDENT', 'VICE_PRESIDENT'].includes(r.code))
@@ -114,6 +121,7 @@ const title = computed(() => {
 
 const currentDepartment = computed(() => departments.value.find((d) => d.code === props.code))
 const unreadDirectives = computed(() => Number(currentDepartment.value?.unread_directives_count || 0))
+const unreadSecretariatDirectives = computed(() => Number(currentDepartment.value?.unread_secretariat_directives_count || 0))
 const unreadInbox = computed(() => Number(currentDepartment.value?.unread_messages_count || 0))
 
 onMounted(async () => {
@@ -168,6 +176,12 @@ onMounted(async () => {
           class="ms-1 rounded-full bg-amber-200 px-1.5 text-[10px] font-semibold text-amber-900"
         >
           {{ unreadInbox }}
+        </span>
+        <span
+          v-if="link.to.endsWith('/directives') && unreadSecretariatDirectives > 0"
+          class="ms-1 rounded-full bg-amber-200 px-1.5 text-[10px] font-semibold text-amber-900"
+        >
+          {{ unreadSecretariatDirectives }}
         </span>
         <span
           v-if="link.to.endsWith('/presidential-directives') && unreadDirectives > 0"

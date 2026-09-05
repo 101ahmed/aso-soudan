@@ -68,6 +68,7 @@ import ExternalDocumentsView from '@/views/admin/secretariat/ExternalDocumentsVi
 import ExternalContactRequestsView from '@/views/admin/secretariat/ExternalContactRequestsView.vue'
 import SecretariatMessagesView from '@/views/admin/secretariat/SecretariatMessagesView.vue'
 import PresidentialDirectivesView from '@/views/admin/secretariat/PresidentialDirectivesView.vue'
+import SecretariatDirectivesView from '@/views/admin/secretariat/SecretariatDirectivesView.vue'
 import TeacherAdminShell from '@/views/admin/teacher/TeacherAdminShell.vue'
 import TeacherHomeView from '@/views/admin/teacher/TeacherHomeView.vue'
 import TeacherAttendanceRegisterView from '@/views/admin/teacher/TeacherAttendanceRegisterView.vue'
@@ -390,6 +391,11 @@ const router = createRouter({
               path: 'presidential-directives',
               name: 'admin.secretariat.presidentialDirectives',
               component: PresidentialDirectivesView,
+            },
+            {
+              path: 'directives',
+              name: 'admin.secretariat.directives',
+              component: SecretariatDirectivesView,
             },
           ],
         },

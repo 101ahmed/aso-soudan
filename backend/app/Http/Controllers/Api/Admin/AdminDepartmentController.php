@@ -22,6 +22,7 @@ class AdminDepartmentController extends Controller
         $withCounts = [
             'messages as unread_messages_count' => $unreadCount,
             'presidentialDirectives as unread_directives_count' => $unreadDirectives,
+            'receivedSecretariatDirectives as unread_secretariat_directives_count' => $unreadDirectives,
         ];
 
         if ($user->hasRole('SUPER_ADMIN') || $user->hasRole('PRESIDENT') || $user->hasRole('VICE_PRESIDENT')) {

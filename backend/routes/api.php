@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\Admin\AdminMediaDecisionController;
 use App\Http\Controllers\Api\Admin\AdminNewsController;
 use App\Http\Controllers\Api\Admin\AdminParentsController;
 use App\Http\Controllers\Api\Admin\AdminPresidentController;
+use App\Http\Controllers\Api\Admin\AdminSecretariatDirectiveController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatMeetingOutputController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatMessageController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatReportController;
@@ -359,5 +360,10 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
             Route::get('/presidential-directives', [AdminPresidentController::class, 'inboxIndex']);
             Route::put('/presidential-directives/{directive}', [AdminPresidentController::class, 'inboxUpdate'])->middleware(['department:write']);
+
+            Route::get('/secretariat-directives/targets', [AdminSecretariatDirectiveController::class, 'targets']);
+            Route::get('/secretariat-directives', [AdminSecretariatDirectiveController::class, 'index']);
+            Route::post('/secretariat-directives', [AdminSecretariatDirectiveController::class, 'store'])->middleware(['department:write']);
+            Route::put('/secretariat-directives/{secretariatDirective}', [AdminSecretariatDirectiveController::class, 'update'])->middleware(['department:write']);
         });
 });
