@@ -33,6 +33,12 @@ const cards = computed(() => [
     hint: t('teacherAdmin.timetableHint'),
     show: auth.hasPermission('attendance.view'),
   },
+  {
+    to: '/admin/teacher/lesson-prep',
+    label: t('teacherAdmin.lessonPrep'),
+    hint: t('teacherAdmin.lessonPrepHint'),
+    show: auth.hasPermission('lesson_prep.view') || auth.user?.roles?.some((r) => r.code === 'TEACHER' || r.code === 'SUPER_ADMIN'),
+  },
 ].filter((card) => card.show))
 
 function label(item) {

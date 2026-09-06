@@ -145,6 +145,10 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'president.directive.inbox', 'module' => 'president', 'name_fr' => 'Boîte des directives présidentielles', 'name_ar' => 'صندوق توجيهات الرئيس'],
             ['code' => 'secretariat.directive.view', 'module' => 'secretariat', 'name_fr' => 'Voir les directives entre amanahs', 'name_ar' => 'عرض توجيهات الأمانات'],
             ['code' => 'secretariat.directive.send', 'module' => 'secretariat', 'name_fr' => 'Envoyer une directive aux amanahs', 'name_ar' => 'إرسال توجيه إلى الأمانات'],
+            ['code' => 'lesson_prep.view', 'module' => 'lesson_prep', 'name_fr' => 'Voir les préparations de cours', 'name_ar' => 'عرض تحضير الحصص'],
+            ['code' => 'lesson_prep.create', 'module' => 'lesson_prep', 'name_fr' => 'Créer une préparation de cours', 'name_ar' => 'إنشاء تحضير حصة'],
+            ['code' => 'lesson_prep.update', 'module' => 'lesson_prep', 'name_fr' => 'Modifier une préparation de cours', 'name_ar' => 'تعديل تحضير حصة'],
+            ['code' => 'lesson_prep.delete', 'module' => 'lesson_prep', 'name_fr' => 'Supprimer une préparation de cours', 'name_ar' => 'حذف تحضير حصة'],
         ];
 
         foreach ($permissions as $permission) {
@@ -200,6 +204,7 @@ class RolePermissionSeeder extends Seeder
                 'student.view', 'student.create', 'student.update', 'student.delete',
                 'teacher.view', 'teacher.create', 'teacher.update',
                 'attendance.view', 'attendance.create', 'attendance.update', 'attendance.delete',
+                'lesson_prep.view', 'lesson_prep.create', 'lesson_prep.update', 'lesson_prep.delete',
             ]),
             'SOCIAL_SECRETARIAT' => array_merge($secretariatManagerCodes, [
                 'help.view', 'help.create', 'help.update', 'help.delete',
@@ -238,6 +243,7 @@ class RolePermissionSeeder extends Seeder
             Permission::query()->whereIn('code', [
                 'student.view', 'student.create', 'student.update', 'student.delete',
                 'attendance.view', 'attendance.create', 'attendance.update', 'attendance.delete',
+                'lesson_prep.view', 'lesson_prep.create', 'lesson_prep.update', 'lesson_prep.delete',
             ])->pluck('id')
         );
 

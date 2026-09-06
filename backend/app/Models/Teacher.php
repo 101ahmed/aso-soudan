@@ -51,6 +51,11 @@ class Teacher extends Model
         return $this->hasMany(ClassGroup::class);
     }
 
+    public function lessonPreparations(): HasMany
+    {
+        return $this->hasMany(LessonPreparation::class);
+    }
+
     public function levels(): BelongsToMany
     {
         return $this->belongsToMany(Level::class, 'teacher_level')->withTimestamps();

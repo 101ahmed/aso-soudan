@@ -72,6 +72,7 @@ import SecretariatDirectivesView from '@/views/admin/secretariat/SecretariatDire
 import TeacherAdminShell from '@/views/admin/teacher/TeacherAdminShell.vue'
 import TeacherHomeView from '@/views/admin/teacher/TeacherHomeView.vue'
 import TeacherAttendanceRegisterView from '@/views/admin/teacher/TeacherAttendanceRegisterView.vue'
+import TeacherLessonPrepView from '@/views/admin/teacher/TeacherLessonPrepView.vue'
 import ShuraAdminShell from '@/views/admin/shura/ShuraAdminShell.vue'
 import ShuraOverviewView from '@/views/admin/shura/ShuraOverviewView.vue'
 import ShuraMembersView from '@/views/admin/shura/ShuraMembersView.vue'
@@ -440,6 +441,11 @@ const router = createRouter({
               name: 'admin.teacher.timetable',
               component: AcademicTimetableView,
               meta: { permission: 'attendance.view' },
+            },
+            {
+              path: 'lesson-prep',
+              name: 'admin.teacher.lessonPrep',
+              component: TeacherLessonPrepView,
             },
           ],
         },

@@ -160,6 +160,25 @@ export async function deleteTimetableEntry(id) {
   await api.delete(`/admin/academic/timetable/${id}`)
 }
 
+export async function fetchLessonPreparations() {
+  const { data } = await api.get('/admin/academic/lesson-preparations')
+  return data.data || data
+}
+
+export async function createLessonPreparation(payload) {
+  const { data } = await api.post('/admin/academic/lesson-preparations', payload)
+  return data.data || data
+}
+
+export async function updateLessonPreparation(id, payload) {
+  const { data } = await api.put(`/admin/academic/lesson-preparations/${id}`, payload)
+  return data.data || data
+}
+
+export async function deleteLessonPreparation(id) {
+  await api.delete(`/admin/academic/lesson-preparations/${id}`)
+}
+
 export async function fetchStudentCatalog() {
   const { data } = await api.get('/admin/academic/catalog')
   return {
