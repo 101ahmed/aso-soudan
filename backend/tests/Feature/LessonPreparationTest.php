@@ -124,6 +124,44 @@ class LessonPreparationTest extends TestCase
         $this->actingAs($other)
             ->deleteJson('/api/admin/academic/lesson-preparations/'.$prep->id)
             ->assertForbidden();
+
+        $this->actingAs($other)
+            ->get('/api/admin/academic/lesson-preparations/'.$prep->id.'/pdf?locale=ar')
+            ->assertForbidden();
+    }
+
+    public function test_teacher_can_download_own_lesson_prep_pdf(): void
+    {
+        [$teacherUser] = $this->makeTeacher('pdf@acs-rennes.fr');
+        [$subject, $level] = $this->catalog();
+
+        $prep = LessonPreparation::query()->create([
+            'teacher_id' => $teacherUser->teacher->id,
+            'created_by_user_id' => $teacherUser->id,
+            'subject_id' => $subject->id,
+            'level_id' => $level->id,
+            'lesson_date' => '2026-09-13',
+            'title' => 'أقسام الكلام',
+            'unit' => 'النحو',
+            'objectives' => 'تمييز الاسم والفعل',
+            'intro' => 'أسئلة تمهيدية',
+            'conclusion' => 'واجب: جملتان',
+        ]);
+
+        $response = $this->actingAs($teacherUser)
+            ->get('/api/admin/academic/lesson-preparations/'.$prep->id.'/pdf?locale=ar');
+
+        $response->assertOk();
+        $contentType = (string) $response->headers->get('content-type');
+        $this->assertTrue(
+            str_contains($contentType, 'pdf') || str_contains($contentType, 'html'),
+            'Expected a PDF or HTML download, got: '.$contentType
+        );
+        $this->assertNotEmpty($response->getContent());
+        $this->assertStringContainsString(
+            'attachment; filename="lesson-prep-'.$prep->id.'-2026-09-13.pdf',
+            (string) $response->headers->get('content-disposition')
+        );
     }
 
     public function test_unrelated_user_is_forbidden(): void

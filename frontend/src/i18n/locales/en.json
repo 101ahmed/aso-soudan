@@ -767,7 +767,10 @@
     "created": "Lesson plan saved.",
     "updated": "Lesson plan updated.",
     "confirmDelete": "Delete the lesson plan “{title}”?",
-    "loadError": "Could not load lesson plans."
+    "loadError": "Could not load lesson plans.",
+    "downloadPdf": "Download PDF",
+    "downloading": "Downloading…",
+    "downloadFailed": "Could not download the PDF."
   },
   "parentsAdmin": {
     "badge": "Parents’ Council",

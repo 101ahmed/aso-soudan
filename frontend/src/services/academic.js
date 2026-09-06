@@ -179,6 +179,14 @@ export async function deleteLessonPreparation(id) {
   await api.delete(`/admin/academic/lesson-preparations/${id}`)
 }
 
+export async function downloadLessonPreparationPdf(id, params = {}) {
+  const { data, headers } = await api.get(`/admin/academic/lesson-preparations/${id}/pdf`, {
+    params,
+    responseType: 'blob',
+  })
+  return { blob: data, contentType: headers['content-type'] || data.type }
+}
+
 export async function fetchStudentCatalog() {
   const { data } = await api.get('/admin/academic/catalog')
   return {

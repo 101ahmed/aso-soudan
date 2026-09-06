@@ -767,7 +767,10 @@
     "created": "Préparation enregistrée.",
     "updated": "Préparation mise à jour.",
     "confirmDelete": "Supprimer la préparation « {title} » ?",
-    "loadError": "Impossible de charger les préparations."
+    "loadError": "Impossible de charger les préparations.",
+    "downloadPdf": "Télécharger le PDF",
+    "downloading": "Téléchargement…",
+    "downloadFailed": "Impossible de télécharger le PDF."
   },
   "parentsAdmin": {
     "badge": "Conseil des parents",

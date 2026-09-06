@@ -6,9 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\LessonPreparationResource;
 use App\Models\LessonPreparation;
 use App\Models\User;
+use App\Support\ArabicPdfGlyphs;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Validation\Rule;
 
 class AdminLessonPreparationController extends Controller
@@ -46,6 +50,46 @@ class AdminLessonPreparationController extends Controller
         $this->assertCanAccess($request, $lessonPreparation);
 
         return new LessonPreparationResource($lessonPreparation->load(['subject', 'level', 'teacher']));
+    }
+
+    public function pdf(Request $request, LessonPreparation $lessonPreparation): Response
+    {
+        $this->authorizeView($request);
+        $this->assertCanAccess($request, $lessonPreparation);
+
+        $lessonPreparation->load(['subject', 'level', 'teacher']);
+        $locale = in_array($request->string('locale')->toString(), ['ar', 'fr', 'en'], true)
+            ? $request->string('locale')->toString()
+            : 'ar';
+
+        $html = view('reports.lesson-preparation', [
+            'locale' => $locale,
+            'prep' => $lessonPreparation,
+        ])->render();
+        $html = ArabicPdfGlyphs::shapeHtml($html);
+        $filename = 'lesson-prep-'.$lessonPreparation->id.'-'.($lessonPreparation->lesson_date?->toDateString() ?: 'fiche').'.pdf';
+
+        if (class_exists(Dompdf::class)) {
+            $options = new Options;
+            $options->set('isRemoteEnabled', false);
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('defaultFont', 'DejaVu Sans');
+            $options->set('isFontSubsettingEnabled', true);
+            $dompdf = new Dompdf($options);
+            $dompdf->loadHtml($html, 'UTF-8');
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            return response($dompdf->output(), 200, [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            ]);
+        }
+
+        return response($html, 200, [
+            'Content-Type' => 'text/html; charset=UTF-8',
+            'Content-Disposition' => 'inline; filename="'.$filename.'.html"',
+        ]);
     }
 
     public function update(Request $request, LessonPreparation $lessonPreparation): LessonPreparationResource

@@ -199,6 +199,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::delete('/timetable/{session}', [AdminAcademicTimetableController::class, 'destroy']);
         Route::get('/lesson-preparations', [AdminLessonPreparationController::class, 'index']);
         Route::post('/lesson-preparations', [AdminLessonPreparationController::class, 'store']);
+        Route::get('/lesson-preparations/{lessonPreparation}/pdf', [AdminLessonPreparationController::class, 'pdf']);
         Route::get('/lesson-preparations/{lessonPreparation}', [AdminLessonPreparationController::class, 'show']);
         Route::put('/lesson-preparations/{lessonPreparation}', [AdminLessonPreparationController::class, 'update']);
         Route::delete('/lesson-preparations/{lessonPreparation}', [AdminLessonPreparationController::class, 'destroy']);

@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import {
   createLessonPreparation,
   deleteLessonPreparation,
+  downloadLessonPreparationPdf,
   fetchLessonPreparations,
   fetchLevels,
   fetchSubjects,
@@ -24,6 +25,7 @@ const subjects = ref([])
 const levels = ref([])
 const editingId = ref(null)
 const showForm = ref(false)
+const downloadingId = ref(null)
 
 const canWrite = computed(() =>
   auth.hasPermission('lesson_prep.create')
@@ -188,6 +190,49 @@ async function remove(item) {
   }
 }
 
+function slugName(value) {
+  return String(value || 'fiche')
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 40) || 'fiche'
+}
+
+async function downloadPdf(item) {
+  if (!item?.id) return
+  downloadingId.value = item.id
+  error.value = ''
+  try {
+    const { blob, contentType } = await downloadLessonPreparationPdf(item.id, { locale: locale.value })
+    if (blob.type.includes('json') || String(contentType).includes('json')) {
+      const payload = JSON.parse(await blob.text())
+      throw new Error(payload.message || t('lessonPrep.downloadFailed'))
+    }
+    const url = URL.createObjectURL(blob)
+    const isPdf = String(contentType).includes('pdf') || blob.type.includes('pdf')
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `lesson-prep-${item.id}-${item.lesson_date || slugName(item.title)}.${isPdf ? 'pdf' : 'html'}`
+    document.body.appendChild(a)
+    a.click()
+    a.remove()
+    setTimeout(() => URL.revokeObjectURL(url), 1500)
+  } catch (e) {
+    const data = e.response?.data
+    if (data instanceof Blob) {
+      try {
+        const payload = JSON.parse(await data.text())
+        error.value = payload.message || t('lessonPrep.downloadFailed')
+      } catch {
+        error.value = t('lessonPrep.downloadFailed')
+      }
+    } else {
+      error.value = e.message || e.response?.data?.message || t('lessonPrep.downloadFailed')
+    }
+  } finally {
+    downloadingId.value = null
+  }
+}
+
 onMounted(load)
 </script>
 
@@ -298,9 +343,20 @@ onMounted(load)
         </label>
       </section>
 
-      <button type="submit" class="rounded bg-teal-800 px-4 py-2 text-sm text-white disabled:opacity-50" :disabled="saving">
-        {{ saving ? t('academicAttendance.saving') : t('forms.save') }}
-      </button>
+      <div class="flex flex-wrap items-center gap-3">
+        <button type="submit" class="rounded bg-teal-800 px-4 py-2 text-sm text-white disabled:opacity-50" :disabled="saving">
+          {{ saving ? t('academicAttendance.saving') : t('forms.save') }}
+        </button>
+        <button
+          v-if="editingId"
+          type="button"
+          class="rounded border border-teal-800 px-4 py-2 text-sm text-teal-800 disabled:opacity-50"
+          :disabled="downloadingId === editingId"
+          @click="downloadPdf(items.find((item) => item.id === editingId) || { id: editingId, title: form.title, lesson_date: form.lesson_date })"
+        >
+          {{ downloadingId === editingId ? t('lessonPrep.downloading') : t('lessonPrep.downloadPdf') }}
+        </button>
+      </div>
     </form>
 
     <section class="overflow-hidden rounded-xl border bg-white">
@@ -312,7 +368,7 @@ onMounted(load)
             <th class="px-4 py-3 font-medium">{{ t('lessonPrep.level') }}</th>
             <th class="px-4 py-3 font-medium">{{ t('lessonPrep.lessonTitle') }}</th>
             <th class="px-4 py-3 font-medium">{{ t('lessonPrep.unit') }}</th>
-            <th v-if="canWrite || canDelete" class="px-4 py-3"></th>
+            <th class="px-4 py-3"></th>
           </tr>
         </thead>
         <tbody>
@@ -325,8 +381,11 @@ onMounted(load)
             <td class="px-4 py-3">{{ label(item.level) || '—' }}</td>
             <td class="px-4 py-3 font-medium">{{ item.title }}</td>
             <td class="px-4 py-3 text-slate-600">{{ item.unit || '—' }}</td>
-            <td v-if="canWrite || canDelete" class="px-4 py-3 text-end">
-              <button v-if="canWrite" type="button" class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline" @click="startEdit(item)">
+            <td class="px-4 py-3 text-end">
+              <button type="button" class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline disabled:opacity-50" :disabled="downloadingId === item.id" @click="downloadPdf(item)">
+                {{ downloadingId === item.id ? t('lessonPrep.downloading') : t('lessonPrep.downloadPdf') }}
+              </button>
+              <button v-if="canWrite" type="button" class="ms-3 text-xs font-semibold text-[var(--rdp-forest)] hover:underline" @click="startEdit(item)">
                 {{ t('forms.edit') }}
               </button>
               <button v-if="canDelete" type="button" class="ms-3 text-xs text-rose-700 hover:underline" @click="remove(item)">
@@ -335,7 +394,7 @@ onMounted(load)
             </td>
           </tr>
           <tr v-if="!loading && !items.length">
-            <td :colspan="canWrite || canDelete ? 6 : 5" class="px-4 py-8 text-center text-slate-500">
+            <td colspan="6" class="px-4 py-8 text-center text-slate-500">
               {{ t('lessonPrep.empty') }}
             </td>
           </tr>

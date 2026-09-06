@@ -767,7 +767,10 @@
     "created": "تم حفظ التحضير.",
     "updated": "تم تحديث التحضير.",
     "confirmDelete": "حذف تحضير «{title}»؟",
-    "loadError": "تعذر تحميل تحضير الحصص."
+    "loadError": "تعذر تحميل تحضير الحصص.",
+    "downloadPdf": "تحميل PDF",
+    "downloading": "جاري التحميل…",
+    "downloadFailed": "تعذر تحميل ملف PDF."
   },
   "parentsAdmin": {
     "badge": "مجلس الآباء",
