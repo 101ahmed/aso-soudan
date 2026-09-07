@@ -83,15 +83,18 @@ Collez l’URL choisie dans `DB_URL` (ou `DATABASE_URL`), **Save**, redeploy.
 
 ### Erreur DNS `could not translate host name "dpg-…"`
 
-Cause fréquente : le service web et Postgres ne sont **pas dans la même région**, donc le hostname interne (`dpg-…-a`) ne résout pas.
+Cause : Render lie la base avec l’**Internal Database URL** (`dpg-…-a`). Ce nom ne se résout que si le web et Postgres sont **dans la même région**. Un web en Oregon + une base à Francfort produit exactement cette erreur, et le lien Render **réécrit** `DB_URL` à chaque deploy.
 
-**Correctif rapide :**
-1. Postgres → **External Database URL** → copier  
-2. Web service → Environment → `DB_URL` = cette URL  
-3. `DB_SSLMODE=require`  
-4. Save + Manual Deploy  
+L’entrypoint tente alors les hôtes publics `{id}.{région}-postgres.render.com` (Francfort en premier).
 
-**Correctif durable :** recréer web + DB dans la **même région**.
+**Correctif dashboard (immédiat, sans attendre un nouveau build) :**
+1. **rdp-db** → **Connect** → copier **External Database URL**
+2. **rdp-web** → **Environment**
+   - Si `DB_URL` est marqué « from database », **Unlink** la base puis coller l’URL externe
+   - `DB_SSLMODE=require`
+3. Save + **Manual Deploy**
+
+Si **rdp-db** est `Expired` (plan gratuit, 30 jours), **Upgrade** d’abord.
 
 ---
 

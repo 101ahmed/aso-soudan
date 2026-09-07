@@ -48,6 +48,7 @@ COPY --from=frontend /frontend/dist/ /tmp/spa-dist/
 COPY docker/apache-ports.conf /etc/apache2/ports.conf
 COPY docker/apache-vhost.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/entrypoint.sh /usr/local/bin/rdp-entrypoint.sh
+COPY docker/rewrite-render-db-url.php /usr/local/bin/rdp-rewrite-render-db-url.php
 
 RUN printf '%s\n' \
     '<Directory /var/www/html/public>' \
