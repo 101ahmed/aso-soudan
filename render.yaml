@@ -26,6 +26,12 @@ services:
         value: "false"
       # Optionnel : si vide, entrypoint génère une clé au boot.
       # Pour la stabilité (sessions), définissez APP_KEY dans le dashboard Render.
+      - key: APP_KEY
+        sync: false
+      # If web and Postgres regions differ, set this to the DB region
+      # (frankfurt|oregon|ohio|virginia|singapore) so boot skips guessing.
+      - key: RENDER_POSTGRES_REGION
+        value: frankfurt
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_URL

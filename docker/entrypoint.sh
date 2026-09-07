@@ -13,6 +13,15 @@ if [[ -n "${DATABASE_URL:-}" && -z "${DB_URL:-}" ]]; then
   export DB_URL="$DATABASE_URL"
 fi
 
+# Strip accidental quotes from dashboard paste
+if [[ -n "${DB_URL:-}" ]]; then
+  DB_URL="${DB_URL%\"}"
+  DB_URL="${DB_URL#\"}"
+  DB_URL="${DB_URL%\'}"
+  DB_URL="${DB_URL#\'}"
+  export DB_URL
+fi
+
 # Production must use Postgres (sqlite in Docker is read-only for www-data → login 500)
 if [[ -z "${DB_URL:-}" ]]; then
   echo "ERROR: DB_URL (or DATABASE_URL) is not set. Link the Render Postgres database to this service."
@@ -21,6 +30,16 @@ fi
 export DB_CONNECTION="${DB_CONNECTION:-pgsql}"
 # Prevent accidental sqlite fallback from config defaults
 export DB_DATABASE="${DB_DATABASE:-rdp}"
+export DB_SSLMODE="${DB_SSLMODE:-require}"
+
+# Linked databases inject the Internal URL (dpg-…-a). That host does not
+# resolve when web and Postgres are in different regions. Rewrite to the
+# public *.postgres.render.com hostname when needed.
+if [[ -f /usr/local/bin/rdp-rewrite-render-db-url.php ]]; then
+  rewritten="$(php /usr/local/bin/rdp-rewrite-render-db-url.php)"
+  export DB_URL="$rewritten"
+  export DATABASE_URL="$rewritten"
+fi
 
 # Render injects public URL automatically
 if [[ -z "${APP_URL:-}" && -n "${RENDER_EXTERNAL_URL:-}" ]]; then
