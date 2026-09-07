@@ -1,8 +1,8 @@
-# Blueprint Render — https://render.com/docs/blueprint-spec
+﻿# Blueprint Render â€” https://render.com/docs/blueprint-spec
 # Web Service Docker (Vue SPA + API Laravel) + PostgreSQL (free)
 
 databases:
-  - name: rdp-db
+  - name: rdp-db-frankfurt
     plan: free
     region: frankfurt
     databaseName: rdp
@@ -19,18 +19,18 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: APP_NAME
-        value: الرابطة السودانية برين
+        value: Ø§Ù„Ø±Ø§Ø¨Ø·Ø© Ø§Ù„Ø³ÙˆØ¯Ø§Ù†ÙŠØ© Ø¨Ø±ÙŠÙ†
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: "false"
-      # Optionnel : si vide, entrypoint génère une clé au boot.
-      # Pour la stabilité (sessions), définissez APP_KEY dans le dashboard Render.
+      # Optionnel : si vide, entrypoint gÃ©nÃ¨re une clÃ© au boot.
+      # Pour la stabilitÃ© (sessions), dÃ©finissez APP_KEY dans le dashboard Render.
       - key: DB_CONNECTION
         value: pgsql
       - key: DB_URL
         fromDatabase:
-          name: rdp-db
+          name: rdp-db-frankfurt
           property: connectionString
       - key: DB_SSLMODE
         value: require
@@ -63,7 +63,7 @@ services:
         value: "false"
       - key: ADMIN_EMAIL
         sync: false
-      # Mot de passe admin : à définir uniquement dans le dashboard Render (jamais dans git)
+      # Mot de passe admin : Ã  dÃ©finir uniquement dans le dashboard Render (jamais dans git)
       - key: ADMIN_PASSWORD
         sync: false
       # URL publique (liens reset password)
@@ -82,3 +82,4 @@ services:
         value: Rabta ACS Rennes
       - key: CONTACT_EMAIL
         value: hima171221@gmail.com
+
