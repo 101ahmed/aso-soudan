@@ -68,9 +68,11 @@ services:
         sync: false
       # URL publique (liens reset password)
       - key: APP_URL
-        value: https://aso-soudan.onrender.com
+        value: https://asosoudan.fr
       - key: FRONTEND_URL
-        value: https://aso-soudan.onrender.com
+        value: https://asosoudan.fr
+      - key: SANCTUM_STATEFUL_DOMAINS
+        value: asosoudan.fr,www.asosoudan.fr
       # MailerSend HTTP API (SMTP 587 timeout sur Render free)
       - key: MAIL_MAILER
         value: mailersend
