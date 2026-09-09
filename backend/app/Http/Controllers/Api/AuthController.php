@@ -57,10 +57,16 @@ class AuthController extends Controller
             RateLimiter::clear($throttleKey);
 
             Auth::guard('web')->login($user, $request->boolean('remember'));
-            $request->session()->regenerate();
+            if ($request->hasSession()) {
+                $request->session()->regenerate();
+            }
 
             $user->forceFill(['last_login_at' => now()])->save();
-            $user->tokens()->delete();
+            try {
+                $user->tokens()->delete();
+            } catch (Throwable $e) {
+                report($e);
+            }
 
             AuditLogger::record('login.success', $user->id, 'user', $user->id, [], $request);
 

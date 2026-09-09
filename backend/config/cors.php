@@ -11,6 +11,7 @@ return [
         env('APP_URL'),
         'https://asosoudan.fr',
         'https://www.asosoudan.fr',
+        'https://aso-soudan.onrender.com',
         env('APP_ENV') === 'production' ? null : 'http://localhost:5173',
         env('APP_ENV') === 'production' ? null : 'http://127.0.0.1:5173',
         env('APP_ENV') === 'production' ? null : 'http://127.0.0.1:5175',

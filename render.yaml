@@ -72,7 +72,7 @@ services:
       - key: FRONTEND_URL
         value: https://asosoudan.fr
       - key: SANCTUM_STATEFUL_DOMAINS
-        value: asosoudan.fr,www.asosoudan.fr
+        value: asosoudan.fr,www.asosoudan.fr,aso-soudan.onrender.com
       # MailerSend HTTP API (SMTP 587 timeout sur Render free)
       - key: MAIL_MAILER
         value: mailersend
