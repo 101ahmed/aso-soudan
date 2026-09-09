@@ -106,8 +106,8 @@ Sur Render free, **SMTP port 587 time out** souvent. Utilisez l’API HTTP :
 | `MAIL_FROM_ADDRESS` | `noreply@test-….mlsender.net` |
 | `MAIL_FROM_NAME` | `Rabta ACS Rennes` |
 | `CONTACT_EMAIL` | `hima171221@gmail.com` |
-| `FRONTEND_URL` | `https://aso-soudan.onrender.com` |
-| `APP_URL` | `https://aso-soudan.onrender.com` |
+| `FRONTEND_URL` | `https://asosoudan.fr` |
+| `APP_URL` | `https://asosoudan.fr` |
 
 Puis **Save** → **Manual Deploy**. Vérifiez `/api/health` → `mail_mailer` = **`mailersend`**.
 
@@ -145,8 +145,8 @@ Voir `docs/password-reset.md`.
 
 ## 9. Domaine personnalisé (plus tard)
 
-Render → service → **Custom Domains** → ajouter `acs-rennes.fr`  
-Puis définir éventuellement `APP_URL` / `FRONTEND_URL` en dur sur la nouvelle URL.
+Render → service → **Custom Domains** → ajouter `asosoudan.fr` (et `www.asosoudan.fr` si besoin).  
+`APP_URL` et `FRONTEND_URL` sont déjà `https://asosoudan.fr` dans `render.yaml`.
 
 ---
 

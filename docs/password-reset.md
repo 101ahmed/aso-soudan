@@ -39,8 +39,8 @@ Utilisez l’**API HTTP** MailerSend (port 443) :
 | `MAILERSEND_API_KEY` | *(API token MailerSend → Settings → API tokens)* |
 | `MAIL_FROM_ADDRESS` | `noreply@…mlsender.net` (domaine d’essai) |
 | `MAIL_FROM_NAME` | `Rabta ACS Rennes` |
-| `FRONTEND_URL` | `https://aso-soudan.onrender.com` |
-| `APP_URL` | `https://aso-soudan.onrender.com` |
+| `FRONTEND_URL` | `https://asosoudan.fr` |
+| `APP_URL` | `https://asosoudan.fr` |
 
 Le « SMTP name » / user `MS_…@….mlsender.net` **ne remplace pas** `MAILERSEND_API_KEY`.
 
