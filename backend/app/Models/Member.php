@@ -20,6 +20,8 @@ class Member extends Model
 
     public const MEMBERSHIP_TYPES = ['adherent', 'volunteer', 'supporter', 'student', 'family', 'other'];
 
+    public const SUBSCRIPTION_STATUSES = ['unpaid', 'first', 'second', 'full'];
+
     /** Rennes Métropole : Rennes puis les 42 communes de banlieue. */
     public const CITIES = [
         'Rennes',
@@ -78,6 +80,7 @@ class Member extends Model
         'address',
         'city',
         'membership_type',
+        'subscription_status',
         'status',
         'notes',
         'reviewed_by',
@@ -130,6 +133,10 @@ class Member extends Model
             ->when($request->filled('gender'), fn ($q) => $q->where('gender', $request->string('gender')))
             ->when($request->filled('city'), fn ($q) => $q->where('city', $request->string('city')))
             ->when($request->filled('membership_type'), fn ($q) => $q->where('membership_type', $request->string('membership_type')))
+            ->when(
+                $request->filled('subscription_status') && Schema::hasColumn('members', 'subscription_status'),
+                fn ($q) => $q->where('subscription_status', $request->string('subscription_status'))
+            )
             ->when($request->filled('age_min'), function ($q) use ($request) {
                 $min = $request->integer('age_min');
                 $q->whereNotNull('birth_date')

@@ -120,6 +120,11 @@ const cards = computed(() => {
         label: t('secretariatAdmin.financeSubscriptions'),
         hint: t('secretariatAdmin.financeSubscriptionsHint'),
       },
+      {
+        to: `/admin/secretariats/finance/members`,
+        label: t('secretariatAdmin.financeMembers'),
+        hint: t('secretariatAdmin.financeMembersHint'),
+      },
     )
   }
   if (code.value === 'general') {
@@ -156,6 +161,25 @@ const cards = computed(() => {
       label: t('secretariatAdmin.helpRequests'),
       hint: t('secretariatAdmin.helpRequestsHint'),
     })
+  }
+  if (code.value === 'sports' && auth.hasPermission('sport.view')) {
+    items.unshift(
+      {
+        to: `/admin/secretariats/sports/teams`,
+        label: t('secretariatAdmin.sportsTeams'),
+        hint: t('secretariatAdmin.sportsTeamsHint'),
+      },
+      {
+        to: `/admin/secretariats/sports/national-team`,
+        label: t('secretariatAdmin.sportsNational'),
+        hint: t('secretariatAdmin.sportsNationalHint'),
+      },
+      {
+        to: `/admin/secretariats/sports/sports-join-requests`,
+        label: t('secretariatAdmin.sportsJoin'),
+        hint: t('secretariatAdmin.sportsJoinHint'),
+      },
+    )
   }
   if (code.value === 'external-relations') {
     items.unshift(

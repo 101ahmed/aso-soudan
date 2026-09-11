@@ -11,7 +11,9 @@ import { fetchSecretariatFeed } from '@/services/content'
 import { fetchPublicDocuments, fetchPublicPartners } from '@/services/external'
 import { fetchPublicFinanceDocuments } from '@/services/finance'
 import { fetchPublicMeetingOutputs } from '@/services/meetingOutputs'
+import { fetchPublicSports } from '@/services/sports'
 import { submitSecretariatMessage } from '@/services/secretariatMessages'
+import { pickName } from '@/utils/localized'
 import EventStarRating from '@/components/public/EventStarRating.vue'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
 
@@ -25,6 +27,7 @@ const publicPartners = ref([])
 const publicDocuments = ref([])
 const financeDocuments = ref([])
 const meetingOutputs = ref([])
+const sportsOverview = ref({ teams: [], national_players_count: 0 })
 
 const form = reactive({
   name: '',
@@ -138,6 +141,7 @@ const canRateEvents = computed(() => route.params.slug === 'women-children')
 const isExternal = computed(() => route.params.slug === 'external-relations')
 const isFinance = computed(() => route.params.slug === 'finance')
 const isGeneral = computed(() => route.params.slug === 'general')
+const isSports = computed(() => route.params.slug === 'sports')
 
 const financeGeneralReport = computed(() =>
   financeDocuments.value.find((item) => item.kind === 'general_report') || null,
@@ -241,6 +245,15 @@ async function loadFeed(slug) {
   } else {
     meetingOutputs.value = []
   }
+  if (slug === 'sports') {
+    try {
+      sportsOverview.value = await fetchPublicSports()
+    } catch {
+      sportsOverview.value = { teams: [], national_players_count: 0 }
+    }
+  } else {
+    sportsOverview.value = { teams: [], national_players_count: 0 }
+  }
 }
 
 watch(
@@ -310,6 +323,40 @@ watch(
               {{ item.person.email }}
             </p>
           </aside>
+        </div>
+      </section>
+
+      <section v-if="isSports" class="space-y-6">
+        <div class="flex flex-wrap gap-3">
+          <RouterLink
+            to="/sports/national"
+            class="inline-flex rounded bg-[var(--rdp-forest)] px-5 py-3 text-sm font-semibold text-white"
+          >
+            {{ t('sportsAmanah.publicNationalCta') }}
+          </RouterLink>
+          <RouterLink
+            to="/sports/join"
+            class="inline-flex rounded border border-[var(--rdp-forest)] px-5 py-3 text-sm font-semibold text-[var(--rdp-forest)]"
+          >
+            {{ t('sportsAmanah.publicJoinCta') }}
+          </RouterLink>
+        </div>
+        <div>
+          <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('sportsAmanah.publicTeams') }}</h2>
+          <div class="mt-4 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <RouterLink
+              v-for="team in sportsOverview.teams || []"
+              :key="team.id"
+              :to="`/sports/teams/${team.id}`"
+              class="overflow-hidden rounded-xl bg-white shadow-sm hover:border-teal-700/40"
+            >
+              <img v-if="team.photo_url" :src="team.photo_url" alt="" class="h-36 w-full object-cover" />
+              <div class="p-4">
+                <p class="font-semibold">{{ pickName(team, locale) }}</p>
+                <p class="text-sm text-slate-600">{{ t(`sportsAmanah.ages.${team.age_category}`) }} · {{ team.players_count || 0 }} {{ t('sportsAmanah.players') }}</p>
+              </div>
+            </RouterLink>
+          </div>
         </div>
       </section>
 

@@ -204,6 +204,7 @@ class AdminStatisticsMemberController extends Controller
             'address' => ['nullable', 'string', 'max:255'],
             'city' => ['nullable', 'string', 'max:120', Rule::in(array_values(array_unique($allowedCities)))],
             'membership_type' => ['nullable', Rule::in(Member::MEMBERSHIP_TYPES)],
+            'subscription_status' => ['nullable', Rule::in(Member::SUBSCRIPTION_STATUSES)],
             'status' => ['nullable', Rule::in(Member::STATUSES)],
             'notes' => ['nullable', 'string', 'max:2000'],
         ], [
@@ -213,7 +214,7 @@ class AdminStatisticsMemberController extends Controller
 
     private function memberPayload(array $data): array
     {
-        return [
+        $payload = [
             'first_name' => $data['first_name'],
             'last_name' => $data['last_name'],
             'birth_date' => $data['birth_date'] ?? null,
@@ -226,6 +227,12 @@ class AdminStatisticsMemberController extends Controller
             'status' => $data['status'] ?? 'active',
             'notes' => $data['notes'] ?? null,
         ];
+
+        if (array_key_exists('subscription_status', $data)) {
+            $payload['subscription_status'] = $data['subscription_status'] ?: 'unpaid';
+        }
+
+        return $payload;
     }
 
     private function authorizePermission(Request $request, string $permission): void

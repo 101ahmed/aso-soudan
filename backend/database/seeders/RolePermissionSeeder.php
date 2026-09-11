@@ -97,6 +97,10 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'help.create', 'module' => 'social', 'name_fr' => 'Créer demande d’aide', 'name_ar' => 'إنشاء طلب مساعدة'],
             ['code' => 'help.update', 'module' => 'social', 'name_fr' => 'Modifier demande d’aide', 'name_ar' => 'تعديل طلب مساعدة'],
             ['code' => 'help.delete', 'module' => 'social', 'name_fr' => 'Supprimer demande d’aide', 'name_ar' => 'حذف طلب مساعدة'],
+            ['code' => 'sport.view', 'module' => 'sports', 'name_fr' => 'Voir le secrétariat sportif', 'name_ar' => 'عرض الأمانة الرياضية'],
+            ['code' => 'sport.create', 'module' => 'sports', 'name_fr' => 'Créer contenu sportif', 'name_ar' => 'إنشاء محتوى رياضي'],
+            ['code' => 'sport.update', 'module' => 'sports', 'name_fr' => 'Modifier contenu sportif', 'name_ar' => 'تعديل محتوى رياضي'],
+            ['code' => 'sport.delete', 'module' => 'sports', 'name_fr' => 'Supprimer contenu sportif', 'name_ar' => 'حذف محتوى رياضي'],
             ['code' => 'partner.view', 'module' => 'external', 'name_fr' => 'Voir partenaires', 'name_ar' => 'عرض الشركاء'],
             ['code' => 'partner.create', 'module' => 'external', 'name_fr' => 'Créer partenaire', 'name_ar' => 'إضافة شريك'],
             ['code' => 'partner.update', 'module' => 'external', 'name_fr' => 'Modifier partenaire', 'name_ar' => 'تعديل شريك'],
@@ -211,6 +215,7 @@ class RolePermissionSeeder extends Seeder
             ]),
             'FINANCE_SECRETARIAT' => array_merge($secretariatManagerCodes, [
                 'finance.view', 'finance.create', 'finance.update', 'finance.delete',
+                'member.view', 'member.create', 'member.update', 'member.delete', 'member.message',
             ]),
             'MEDIA_SECRETARIAT' => array_merge($secretariatManagerCodes, [
                 'decision.view', 'decision.create', 'decision.update', 'decision.delete',
@@ -229,7 +234,9 @@ class RolePermissionSeeder extends Seeder
                 'partner.view', 'partner.create', 'partner.update', 'partner.delete',
                 'extcontact.view', 'extcontact.create', 'extcontact.update', 'extcontact.delete',
             ]),
-            'SPORTS_SECRETARIAT' => $secretariatManagerCodes,
+            'SPORTS_SECRETARIAT' => array_merge($secretariatManagerCodes, [
+                'sport.view', 'sport.create', 'sport.update', 'sport.delete',
+            ]),
         ];
 
         foreach ($managerRoleMap as $roleCode => $codes) {

@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -14,6 +15,10 @@ import { RENNES_CITY, RENNES_SUBURBS } from '@/data/rennesMetropole'
 
 const { t } = useI18n()
 const auth = useAuthStore()
+const route = useRoute()
+const isFinance = computed(() => route.params.code === 'finance')
+
+const subscriptionStatuses = ['unpaid', 'first', 'second', 'full']
 
 const loading = ref(false)
 const saving = ref(false)
@@ -39,6 +44,7 @@ const filters = reactive({
   membership_type: '',
   age_min: '',
   age_max: '',
+  subscription_status: '',
   page: 1,
 })
 
@@ -92,6 +98,7 @@ function emptyForm() {
     city: '',
     membership_type: '',
     status: 'active',
+    subscription_status: 'unpaid',
     notes: '',
   }
 }
@@ -108,6 +115,7 @@ function filterParams() {
     gender: filters.gender || undefined,
     city: filters.city || undefined,
     membership_type: filters.membership_type || undefined,
+    subscription_status: filters.subscription_status || undefined,
     age_min: filters.age_min || undefined,
     age_max: filters.age_max || undefined,
   }
@@ -150,6 +158,7 @@ function edit(item) {
     city: canonicalizeCity(item.city),
     membership_type: item.membership_type || '',
     status: item.status || 'active',
+    subscription_status: item.subscription_status || 'unpaid',
     notes: item.notes || '',
   })
 }
@@ -166,6 +175,7 @@ function payload() {
     city: canonicalizeCity(form.city) || null,
     membership_type: form.membership_type || null,
     status: form.status,
+    subscription_status: form.subscription_status || 'unpaid',
     notes: form.notes || null,
   }
 }
@@ -285,8 +295,8 @@ onMounted(load)
   <div class="space-y-5">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div>
-        <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('statisticsMembers.title') }}</h2>
-        <p class="mt-1 text-sm text-slate-600">{{ t('statisticsMembers.subtitle') }}</p>
+        <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ isFinance ? t('statisticsMembers.financeTitle') : t('statisticsMembers.title') }}</h2>
+        <p class="mt-1 text-sm text-slate-600">{{ isFinance ? t('statisticsMembers.financeSubtitle') : t('statisticsMembers.subtitle') }}</p>
       </div>
       <div v-if="canMessage" class="flex flex-wrap gap-2">
         <button type="button" class="rounded-md border px-3 py-2 text-sm" :disabled="!selectedCount" @click="openMessage('selected')">
@@ -318,6 +328,10 @@ onMounted(load)
         <select v-model="filters.membership_type" class="rounded-md border px-3 py-2 text-sm">
           <option value="">{{ t('statisticsMembers.allTypes') }}</option>
           <option v-for="type in membershipTypes" :key="type" :value="type">{{ t(`statisticsMembers.types.${type}`) }}</option>
+        </select>
+        <select v-model="filters.subscription_status" class="rounded-md border px-3 py-2 text-sm">
+          <option value="">{{ t('statisticsMembers.allDues') }}</option>
+          <option v-for="due in subscriptionStatuses" :key="due" :value="due">{{ t(`statisticsMembers.dues.${due}`) }}</option>
         </select>
         <select v-model="filters.city" class="rounded-md border px-3 py-2 text-sm">
           <option value="">{{ t('statisticsMembers.allCities') }}</option>
@@ -352,13 +366,14 @@ onMounted(load)
                   <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.gender') }}</th>
                   <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.city') }}</th>
                   <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.type') }}</th>
+                  <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.duesLabel') }}</th>
                   <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.status') }}</th>
                   <th class="px-3 py-3"></th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-if="!loading && !items.length">
-                  <td colspan="8" class="px-4 py-6 text-center text-slate-500">{{ t('statisticsMembers.empty') }}</td>
+                  <td colspan="9" class="px-4 py-6 text-center text-slate-500">{{ t('statisticsMembers.empty') }}</td>
                 </tr>
                 <tr v-for="item in items" :key="item.id" class="border-t">
                   <td class="px-3 py-3">
@@ -372,6 +387,19 @@ onMounted(load)
                   <td class="px-3 py-3">{{ item.gender ? t(`statisticsMembers.genders.${item.gender}`) : '—' }}</td>
                   <td class="px-3 py-3">{{ cityLabel(item.city) }}</td>
                   <td class="px-3 py-3">{{ item.membership_type ? t(`statisticsMembers.types.${item.membership_type}`) : '—' }}</td>
+                  <td class="px-3 py-3">
+                    <span
+                      class="rounded px-2 py-0.5 text-xs"
+                      :class="{
+                        'bg-slate-100 text-slate-700': (item.subscription_status || 'unpaid') === 'unpaid',
+                        'bg-amber-50 text-amber-900': item.subscription_status === 'first',
+                        'bg-sky-50 text-sky-800': item.subscription_status === 'second',
+                        'bg-emerald-50 text-emerald-800': item.subscription_status === 'full',
+                      }"
+                    >
+                      {{ t(`statisticsMembers.dues.${item.subscription_status || 'unpaid'}`) }}
+                    </span>
+                  </td>
                   <td class="px-3 py-3">{{ t(`statisticsMembers.statuses.${item.status}`) }}</td>
                   <td class="px-3 py-3 whitespace-nowrap">
                     <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
@@ -427,6 +455,9 @@ onMounted(load)
           <select v-model="form.membership_type" class="w-full rounded border px-3 py-2 text-sm">
             <option value="">{{ t('statisticsMembers.type') }}</option>
             <option v-for="type in membershipTypes" :key="type" :value="type">{{ t(`statisticsMembers.types.${type}`) }}</option>
+          </select>
+          <select v-model="form.subscription_status" class="w-full rounded border px-3 py-2 text-sm">
+            <option v-for="due in subscriptionStatuses" :key="due" :value="due">{{ t(`statisticsMembers.dues.${due}`) }}</option>
           </select>
           <select v-model="form.status" class="w-full rounded border px-3 py-2 text-sm">
             <option value="pending">{{ t('statisticsMembers.statuses.pending') }}</option>

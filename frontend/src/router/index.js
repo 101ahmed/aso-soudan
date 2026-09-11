@@ -23,6 +23,9 @@ import ContactView from '@/views/public/ContactView.vue'
 import StudentRegisterView from '@/views/public/StudentRegisterView.vue'
 import MemberRegisterView from '@/views/public/MemberRegisterView.vue'
 import HelpRequestView from '@/views/public/HelpRequestView.vue'
+import SportsTeamPublicView from '@/views/public/SportsTeamPublicView.vue'
+import SportsNationalPublicView from '@/views/public/SportsNationalPublicView.vue'
+import SportsJoinView from '@/views/public/SportsJoinView.vue'
 import SubscriptionsView from '@/views/public/SubscriptionsView.vue'
 import ExternalContactView from '@/views/public/ExternalContactView.vue'
 import LoginView from '@/views/auth/LoginView.vue'
@@ -56,6 +59,10 @@ import AcademicStudentFileView from '@/views/admin/academic/AcademicStudentFileV
 import AcademicTimetableView from '@/views/admin/academic/AcademicTimetableView.vue'
 import StatisticsMembersView from '@/views/admin/statistics/StatisticsMembersView.vue'
 import SocialHelpRequestsView from '@/views/admin/secretariat/SocialHelpRequestsView.vue'
+import SportsTeamsView from '@/views/admin/secretariat/SportsTeamsView.vue'
+import SportsTeamHubView from '@/views/admin/secretariat/SportsTeamHubView.vue'
+import SportsNationalView from '@/views/admin/secretariat/SportsNationalView.vue'
+import SportsJoinRequestsView from '@/views/admin/secretariat/SportsJoinRequestsView.vue'
 import FinanceOverviewView from '@/views/admin/secretariat/FinanceOverviewView.vue'
 import FinanceRevenuesView from '@/views/admin/secretariat/FinanceRevenuesView.vue'
 import FinanceExpensesView from '@/views/admin/secretariat/FinanceExpensesView.vue'
@@ -158,6 +165,9 @@ const router = createRouter({
         { path: 'register/student', name: 'register.student', component: StudentRegisterView },
         { path: 'register/member', name: 'register.member', component: MemberRegisterView },
         { path: 'help-request', name: 'help.request', component: HelpRequestView },
+        { path: 'sports/join', name: 'sports.join', component: SportsJoinView },
+        { path: 'sports/national', name: 'sports.national', component: SportsNationalPublicView },
+        { path: 'sports/teams/:teamId', name: 'sports.team', component: SportsTeamPublicView },
         { path: 'subscriptions', name: 'subscriptions', component: SubscriptionsView },
         { path: 'cotisations', redirect: '/subscriptions' },
         { path: 'external-contact', name: 'external.contact', component: ExternalContactView },
@@ -317,6 +327,30 @@ const router = createRouter({
               name: 'admin.secretariat.help',
               component: SocialHelpRequestsView,
               meta: { permission: 'help.view' },
+            },
+            {
+              path: 'teams',
+              name: 'admin.secretariat.sports.teams',
+              component: SportsTeamsView,
+              meta: { permission: 'sport.view' },
+            },
+            {
+              path: 'teams/:teamId',
+              name: 'admin.secretariat.sports.team',
+              component: SportsTeamHubView,
+              meta: { permission: 'sport.view' },
+            },
+            {
+              path: 'national-team',
+              name: 'admin.secretariat.sports.national',
+              component: SportsNationalView,
+              meta: { permission: 'sport.view' },
+            },
+            {
+              path: 'sports-join-requests',
+              name: 'admin.secretariat.sports.join',
+              component: SportsJoinRequestsView,
+              meta: { permission: 'sport.view' },
             },
             {
               path: 'accounts',

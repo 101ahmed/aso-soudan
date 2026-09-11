@@ -73,11 +73,19 @@ const links = computed(() => {
   if (props.code === 'social' && auth.hasPermission('help.view')) {
     items.push({ to: `${base.value}/help-requests`, label: t('secretariatAdmin.helpRequests') })
   }
+  if (props.code === 'sports' && auth.hasPermission('sport.view')) {
+    items.push({ to: `${base.value}/teams`, label: t('secretariatAdmin.sportsTeams') })
+    items.push({ to: `${base.value}/national-team`, label: t('secretariatAdmin.sportsNational') })
+    items.push({ to: `${base.value}/sports-join-requests`, label: t('secretariatAdmin.sportsJoin') })
+  }
   if (props.code === 'finance' && auth.hasPermission('finance.view')) {
     items.push({ to: `${base.value}/accounts`, label: t('secretariatAdmin.financeOverview') })
     items.push({ to: `${base.value}/revenues`, label: t('secretariatAdmin.financeRevenues') })
     items.push({ to: `${base.value}/expenses`, label: t('secretariatAdmin.financeExpenses') })
     items.push({ to: `${base.value}/documents`, label: t('secretariatAdmin.financeDocuments') })
+  }
+  if (props.code === 'finance' && auth.hasPermission('member.view')) {
+    items.push({ to: `${base.value}/members`, label: t('secretariatAdmin.financeMembers') })
   }
   if ((props.code === 'media' || props.code === 'general') && auth.hasPermission('decision.view')) {
     items.push({ to: `${base.value}/decisions`, label: props.code === 'general' ? t('secretariatAdmin.executiveDecisions') : t('secretariatAdmin.decisions') })

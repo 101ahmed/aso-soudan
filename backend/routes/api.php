@@ -26,6 +26,7 @@ use App\Http\Controllers\Api\Admin\AdminSecretariatReportController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
 use App\Http\Controllers\Api\Admin\AdminSiteContentController;
 use App\Http\Controllers\Api\Admin\AdminSocialHelpRequestController;
+use App\Http\Controllers\Api\Admin\AdminSportsController;
 use App\Http\Controllers\Api\Admin\AdminStatisticsMemberController;
 use App\Http\Controllers\Api\Admin\AdminTeacherRegisterController;
 use App\Http\Controllers\Api\AuthController;
@@ -43,6 +44,7 @@ use App\Http\Controllers\Api\Public\PublicPresidentController;
 use App\Http\Controllers\Api\Public\PublicSecretariatMeetingOutputController;
 use App\Http\Controllers\Api\Public\PublicSecretariatMessageController;
 use App\Http\Controllers\Api\Public\PublicShuraController;
+use App\Http\Controllers\Api\Public\PublicSportsController;
 use App\Http\Controllers\Api\Public\PublicStoredFileController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\UserController;
@@ -80,6 +82,10 @@ Route::prefix('public')->group(function () {
     Route::post('/contact', [PublicContactController::class, 'store']);
     Route::post('/members', [PublicMemberController::class, 'store']);
     Route::post('/help-requests', [PublicHelpRequestController::class, 'store']);
+    Route::get('/sports', [PublicSportsController::class, 'overview']);
+    Route::get('/sports/national', [PublicSportsController::class, 'national']);
+    Route::get('/sports/teams/{team}', [PublicSportsController::class, 'team']);
+    Route::post('/sports/join', [PublicSportsController::class, 'join']);
     Route::get('/external/partners', [PublicExternalController::class, 'partners']);
     Route::get('/external/documents', [PublicExternalController::class, 'documents']);
     Route::get('/president', [PublicPresidentController::class, 'show']);
@@ -372,5 +378,47 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/secretariat-directives', [AdminSecretariatDirectiveController::class, 'index']);
             Route::post('/secretariat-directives', [AdminSecretariatDirectiveController::class, 'store'])->middleware(['department:write']);
             Route::put('/secretariat-directives/{secretariatDirective}', [AdminSecretariatDirectiveController::class, 'update'])->middleware(['department:write']);
+
+            Route::get('/sports/teams', [AdminSportsController::class, 'teamsIndex']);
+            Route::post('/sports/teams', [AdminSportsController::class, 'teamsStore'])->middleware(['department:write']);
+            Route::get('/sports/teams/{team}', [AdminSportsController::class, 'teamsShow']);
+            Route::put('/sports/teams/{team}', [AdminSportsController::class, 'teamsUpdate'])->middleware(['department:write']);
+            Route::post('/sports/teams/{team}', [AdminSportsController::class, 'teamsUpdate'])->middleware(['department:write']);
+            Route::delete('/sports/teams/{team}', [AdminSportsController::class, 'teamsDestroy'])->middleware(['department:write']);
+
+            Route::get('/sports/players', [AdminSportsController::class, 'playersIndex']);
+            Route::post('/sports/players', [AdminSportsController::class, 'playersStore'])->middleware(['department:write']);
+            Route::put('/sports/players/{player}', [AdminSportsController::class, 'playersUpdate'])->middleware(['department:write']);
+            Route::post('/sports/players/{player}', [AdminSportsController::class, 'playersUpdate'])->middleware(['department:write']);
+            Route::delete('/sports/players/{player}', [AdminSportsController::class, 'playersDestroy'])->middleware(['department:write']);
+
+            Route::get('/sports/staff', [AdminSportsController::class, 'staffIndex']);
+            Route::post('/sports/staff', [AdminSportsController::class, 'staffStore'])->middleware(['department:write']);
+            Route::put('/sports/staff/{staff}', [AdminSportsController::class, 'staffUpdate'])->middleware(['department:write']);
+            Route::post('/sports/staff/{staff}', [AdminSportsController::class, 'staffUpdate'])->middleware(['department:write']);
+            Route::delete('/sports/staff/{staff}', [AdminSportsController::class, 'staffDestroy'])->middleware(['department:write']);
+
+            Route::get('/sports/matches', [AdminSportsController::class, 'matchesIndex']);
+            Route::post('/sports/matches', [AdminSportsController::class, 'matchesStore'])->middleware(['department:write']);
+            Route::put('/sports/matches/{match}', [AdminSportsController::class, 'matchesUpdate'])->middleware(['department:write']);
+            Route::delete('/sports/matches/{match}', [AdminSportsController::class, 'matchesDestroy'])->middleware(['department:write']);
+
+            Route::post('/sports/trainings', [AdminSportsController::class, 'trainingsStore'])->middleware(['department:write']);
+            Route::put('/sports/trainings/{training}', [AdminSportsController::class, 'trainingsUpdate'])->middleware(['department:write']);
+            Route::delete('/sports/trainings/{training}', [AdminSportsController::class, 'trainingsDestroy'])->middleware(['department:write']);
+
+            Route::get('/sports/tournaments', [AdminSportsController::class, 'tournamentsIndex']);
+            Route::post('/sports/tournaments', [AdminSportsController::class, 'tournamentsStore'])->middleware(['department:write']);
+            Route::put('/sports/tournaments/{tournament}', [AdminSportsController::class, 'tournamentsUpdate'])->middleware(['department:write']);
+            Route::delete('/sports/tournaments/{tournament}', [AdminSportsController::class, 'tournamentsDestroy'])->middleware(['department:write']);
+
+            Route::get('/sports/camps', [AdminSportsController::class, 'campsIndex']);
+            Route::post('/sports/camps', [AdminSportsController::class, 'campsStore'])->middleware(['department:write']);
+            Route::put('/sports/camps/{camp}', [AdminSportsController::class, 'campsUpdate'])->middleware(['department:write']);
+            Route::delete('/sports/camps/{camp}', [AdminSportsController::class, 'campsDestroy'])->middleware(['department:write']);
+
+            Route::get('/sports/join-requests', [AdminSportsController::class, 'joinIndex']);
+            Route::put('/sports/join-requests/{joinRequest}', [AdminSportsController::class, 'joinUpdate'])->middleware(['department:write']);
+            Route::delete('/sports/join-requests/{joinRequest}', [AdminSportsController::class, 'joinDestroy'])->middleware(['department:write']);
         });
 });
