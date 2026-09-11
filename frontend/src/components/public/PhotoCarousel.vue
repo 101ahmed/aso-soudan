@@ -164,13 +164,13 @@ onBeforeUnmount(() => {
           :style="{ flex: `0 0 ${slideFlex}`, maxWidth: slideFlex }"
           @click="openLightbox(i)"
         >
-          <div :class="['overflow-hidden rounded-2xl bg-slate-100 shadow-sm', aspect]">
+          <div :class="['flex items-center justify-center overflow-hidden rounded-2xl bg-slate-100 shadow-sm', aspect]">
             <img
               :src="slide.src"
               :alt="slide.title || slide.caption || ''"
               loading="lazy"
               decoding="async"
-              class="h-full w-full object-cover transition duration-500 ease-out group-hover:scale-105"
+              class="max-h-full max-w-full object-contain transition duration-500 ease-out"
             />
           </div>
           <p

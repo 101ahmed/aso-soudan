@@ -56,7 +56,7 @@ onMounted(async () => {
           :to="`/gallery/${album.slug}`"
           class="overflow-hidden rounded-xl bg-white shadow-sm"
         >
-          <img :src="album.cover || album.cover_url" alt="" class="h-44 w-full object-cover" loading="lazy" />
+          <img :src="album.cover || album.cover_url" alt="" class="h-44 w-full bg-slate-100 object-contain" loading="lazy" />
           <p class="p-4 text-sm font-medium text-[var(--rdp-forest)]">{{ localized(album.title) }}</p>
         </RouterLink>
       </div>
