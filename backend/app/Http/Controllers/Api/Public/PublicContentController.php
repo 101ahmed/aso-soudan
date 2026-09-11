@@ -7,8 +7,8 @@ use App\Http\Resources\AlbumResource;
 use App\Http\Resources\AnnouncementResource;
 use App\Http\Resources\DepartmentResource;
 use App\Http\Resources\EventResource;
-use App\Http\Resources\MediaDecisionResource;
 use App\Http\Resources\MediaCenterItemResource;
+use App\Http\Resources\MediaDecisionResource;
 use App\Http\Resources\NewsResource;
 use App\Models\Album;
 use App\Models\Announcement;
@@ -18,6 +18,7 @@ use App\Models\EventRating;
 use App\Models\MediaCenterItem;
 use App\Models\MediaDecision;
 use App\Models\News;
+use App\Support\DepartmentCardPhotoStore;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -28,13 +29,18 @@ class PublicContentController extends Controller
     public function departments(): AnonymousResourceCollection
     {
         return DepartmentResource::collection(
-            Department::query()->active()->orderBy('sort_order')->get()
+            DepartmentCardPhotoStore::eagerLoadCardPhotos(
+                Department::query()->active()
+            )->orderBy('sort_order')->get()
         );
     }
 
     public function secretariatFeed(string $code): JsonResponse
     {
         $department = Department::query()->where('code', $code)->active()->firstOrFail();
+        $department->load(['cardPhotos' => function ($photos) {
+            $photos->select(['id', 'department_id', 'role', 'mime', 'updated_at']);
+        }]);
 
         $news = News::query()
             ->with('department')

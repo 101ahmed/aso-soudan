@@ -70,7 +70,8 @@ class OfficerCardPersistenceTest extends TestCase
             ->json('data');
 
         $this->assertSame('Ibrahim persisté', $payload['officer']['name_fr']);
-        $this->assertSame('db:officer', $payload['officer']['photo_path']);
+        $this->assertNotNull($payload['officer']['photo_path']);
+        $this->assertTrue(str_starts_with((string) $payload['officer']['photo_path'], 'db:officer'));
         $this->assertStringContainsString('/api/public/departments/academic/officer-photo', $payload['officer']['photo_url']);
 
         $this->assertDatabaseHas('department_card_photos', [
@@ -112,7 +113,7 @@ class OfficerCardPersistenceTest extends TestCase
         $this->artisan('rdp:ingest-officer-photos')->assertSuccessful();
 
         $department->refresh();
-        $this->assertSame('db:officer', $department->officer_photo_path);
+        $this->assertTrue(str_starts_with((string) $department->officer_photo_path, 'db:officer'));
         $this->assertTrue(
             DepartmentCardPhoto::query()
                 ->where('department_id', $department->id)
@@ -125,6 +126,96 @@ class OfficerCardPersistenceTest extends TestCase
         $contents = DepartmentCardPhotoStore::contents($department->fresh(), 'officer');
         $this->assertNotNull($contents);
         $this->assertSame('legacy-photo-bytes', $contents[0]);
+    }
+
+    public function test_admin_can_replace_and_remove_officer_and_deputy_photos(): void
+    {
+        $admin = $this->superAdmin();
+        $first = UploadedFile::fake()->createWithContent('amin.jpg', str_repeat('OFFICERONE', 80));
+        $second = UploadedFile::fake()->createWithContent('amin-2.jpg', str_repeat('OFFICERTWO', 80));
+        $deputy = UploadedFile::fake()->createWithContent('naib.jpg', str_repeat('DEPUTYONE', 80));
+
+        $created = $this->actingAs($admin)
+            ->post('/api/admin/departments/academic/officer', [
+                'officer_name_fr' => 'Ibrahim',
+                'officer_is_public' => '1',
+                'photo' => $first,
+            ], ['Accept' => 'application/json'])
+            ->assertOk()
+            ->json('data');
+
+        $firstUrl = $created['officer']['photo_url'];
+        $this->assertNotEmpty($firstUrl);
+        $this->get($firstUrl)
+            ->assertOk()
+            ->assertSee('OFFICERONE', false);
+
+        $replaced = $this->actingAs($admin)
+            ->post('/api/admin/departments/academic/officer', [
+                'officer_name_fr' => 'Ibrahim',
+                'officer_is_public' => '1',
+                'photo' => $second,
+            ], ['Accept' => 'application/json'])
+            ->assertOk()
+            ->json('data');
+
+        $secondUrl = $replaced['officer']['photo_url'];
+        $this->assertNotEmpty($secondUrl);
+        $this->assertNotSame($firstUrl, $secondUrl);
+        $this->get($secondUrl)
+            ->assertOk()
+            ->assertSee('OFFICERTWO', false)
+            ->assertDontSee('OFFICERONE', false);
+
+        $this->actingAs($admin)
+            ->post('/api/admin/departments/academic/deputy', [
+                'deputy_name_fr' => 'Adjoint',
+                'deputy_is_public' => '1',
+                'photo' => $deputy,
+            ], ['Accept' => 'application/json'])
+            ->assertOk();
+
+        $deputyPayload = $this->actingAs($admin)
+            ->getJson('/api/admin/departments/academic')
+            ->assertOk()
+            ->json('data.deputy');
+        $this->assertNotEmpty($deputyPayload['photo_url']);
+        $this->get($deputyPayload['photo_url'])
+            ->assertOk()
+            ->assertSee('DEPUTYONE', false);
+
+        $removedOfficer = $this->actingAs($admin)
+            ->post('/api/admin/departments/academic/officer', [
+                'officer_name_fr' => 'Ibrahim',
+                'officer_is_public' => '1',
+                'remove_photo' => '1',
+            ], ['Accept' => 'application/json'])
+            ->assertOk()
+            ->json('data');
+
+        $this->assertNull($removedOfficer['officer']['photo_url']);
+        $this->assertNull($removedOfficer['officer']['photo_path']);
+        $this->get($secondUrl)->assertNotFound();
+
+        $public = $this->getJson('/api/public/departments')
+            ->assertOk()
+            ->json('data');
+        $academic = collect($public)->firstWhere('code', 'academic');
+        $this->assertNotNull($academic);
+        $this->assertNull($academic['officer']['photo_url'] ?? null);
+
+        $removedDeputy = $this->actingAs($admin)
+            ->post('/api/admin/departments/academic/deputy', [
+                'deputy_name_fr' => 'Adjoint',
+                'deputy_is_public' => '1',
+                'remove_photo' => '1',
+            ], ['Accept' => 'application/json'])
+            ->assertOk()
+            ->json('data');
+
+        $this->assertNull($removedDeputy['deputy']['photo_url']);
+        $this->assertNull($removedDeputy['deputy']['photo_path']);
+        $this->get($deputyPayload['photo_url'])->assertNotFound();
     }
 
     private function superAdmin(): User

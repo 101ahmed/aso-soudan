@@ -29,7 +29,8 @@ class PublicDepartmentPhotoController extends Controller
             'Content-Type' => $mime,
             'Content-Length' => (string) strlen($bytes),
             'Content-Disposition' => 'inline; filename="'.$role.'-'.$department->code.'.'.$ext.'"',
-            'Cache-Control' => 'public, max-age=604800',
+            'Cache-Control' => 'public, max-age=0, must-revalidate',
+            'ETag' => '"'.sha1($bytes).'"',
         ]);
     }
 }

@@ -10,7 +10,7 @@ const departments = ref([])
 
 const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 
-function miniCard(apiPerson, fallback) {
+function miniCard(apiPerson, fallback, fromApi) {
   if (apiPerson) {
     const name = locale.value === 'ar'
       ? apiPerson.name_ar || apiPerson.name_fr
@@ -21,25 +21,26 @@ function miniCard(apiPerson, fallback) {
     return {
       name: name || localized(fallback?.name),
       title: title || localized(fallback?.title),
-      photo: apiPerson.photo_url || fallback?.photo || null,
+      photo: apiPerson.photo_url || null,
     }
   }
   return {
     name: localized(fallback?.name),
     title: localized(fallback?.title),
-    photo: fallback?.photo || null,
+    photo: fromApi ? null : (fallback?.photo || null),
   }
 }
 
 const cards = computed(() => {
   const byCode = Object.fromEntries((departments.value || []).map((d) => [d.code, d]))
+  const fromApi = departments.value.length > 0
   return secretariats.map((item) => {
     const dept = byCode[item.slug]
     return {
       ...item,
       people: [
-        { role: 'officer', ...miniCard(dept?.officer, item.officer) },
-        { role: 'deputy', ...miniCard(dept?.deputy, item.deputy) },
+        { role: 'officer', ...miniCard(dept?.officer, item.officer, fromApi) },
+        { role: 'deputy', ...miniCard(dept?.deputy, item.deputy, fromApi) },
       ].filter((person) => person?.name),
     }
   })

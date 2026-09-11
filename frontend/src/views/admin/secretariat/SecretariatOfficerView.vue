@@ -138,6 +138,7 @@ watch(() => [code.value, role.value, route.fullPath], load, { immediate: true })
       <div class="flex flex-wrap items-center gap-4">
         <img
           v-if="photoPreview"
+          :key="photoPreview"
           :src="photoPreview"
           alt=""
           class="h-24 w-24 rounded-2xl object-cover object-top ring-2 ring-[var(--rdp-forest)]/20"
@@ -179,6 +180,7 @@ watch(() => [code.value, role.value, route.fullPath], load, { immediate: true })
         <div class="flex items-center gap-4">
           <img
             v-if="photoPreview"
+            :key="`preview-${photoPreview}`"
             :src="photoPreview"
             alt=""
             class="h-16 w-16 rounded-full object-cover object-top"

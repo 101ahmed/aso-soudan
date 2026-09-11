@@ -161,7 +161,7 @@ export const secretariats = [
         fr: 'Supervise les inscriptions, les programmes et le suivi pédagogique.',
       },
       email: 'hima171221@gmail.com',
-      photo: '/officers/academic-ibrahim-suleiman.png',
+      photo: null,
     },
     deputy: deputyCard('نائب أمين الأمانة الأكاديمية', 'Vice-secrétaire académique', 'academic@acs-rennes.fr'),
     showStudentRegister: true,
