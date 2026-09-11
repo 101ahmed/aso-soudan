@@ -4,11 +4,15 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CouncilMeetingResource;
+use App\Http\Resources\CouncilMemberResource;
 use App\Http\Resources\ParentRegistrationResource;
 use App\Http\Resources\ParentSurveyResource;
 use App\Models\CouncilMeeting;
+use App\Models\CouncilMember;
 use App\Models\ParentRegistration;
 use App\Models\ParentSurvey;
+use App\Support\StoredFileStore;
+use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -16,6 +20,61 @@ use Illuminate\Validation\Rule;
 
 class AdminParentsController extends Controller
 {
+    public function membersIndex(Request $request): AnonymousResourceCollection
+    {
+        $this->authorizePermission($request, 'parents.member.view');
+
+        return CouncilMemberResource::collection(
+            CouncilMember::query()
+                ->forCouncil('parents')
+                ->when($request->filled('status'), fn ($q) => $q->where('status', $request->string('status')))
+                ->orderBy('sort_order')
+                ->paginate($request->integer('per_page', 30))
+        );
+    }
+
+    public function membersStore(Request $request): JsonResponse
+    {
+        $this->authorizePermission($request, 'parents.member.manage');
+        $data = CouncilMember::fillPositionLabels($this->validatedMember($request));
+        unset($data['photo']);
+        $data['council_code'] = 'parents';
+
+        if ($request->hasFile('photo')) {
+            $data['photo_path'] = StoredFileStore::store($request->file('photo'), 'parents')['path'];
+        }
+
+        $member = CouncilMember::query()->create($data);
+
+        return (new CouncilMemberResource($member))->response()->setStatusCode(201);
+    }
+
+    public function membersUpdate(Request $request, CouncilMember $member): CouncilMemberResource
+    {
+        $this->authorizePermission($request, 'parents.member.manage');
+        abort_unless($member->council_code === 'parents', 404);
+        $data = CouncilMember::fillPositionLabels($this->validatedMember($request, $member));
+        unset($data['photo']);
+
+        if ($request->hasFile('photo')) {
+            $data['photo_path'] = StoredFileStore::replace($member->photo_path, $request->file('photo'), 'parents')['path'];
+        }
+
+        $member->update($data);
+
+        return new CouncilMemberResource($member->fresh());
+    }
+
+    public function membersDestroy(Request $request, CouncilMember $member): JsonResponse
+    {
+        $this->authorizePermission($request, 'parents.member.manage');
+        abort_unless($member->council_code === 'parents', 404);
+        StoredFileStore::forget($member->photo_path);
+        $member->delete();
+
+        return response()->json(['message' => 'Deleted.']);
+    }
+
     public function registrationsIndex(Request $request): AnonymousResourceCollection
     {
         $this->authorizePermission($request, 'parents.registration.view');
@@ -210,6 +269,28 @@ class AdminParentsController extends Controller
         }
 
         return $data;
+    }
+
+    private function validatedMember(Request $request, ?CouncilMember $member = null): array
+    {
+        return $request->validate([
+            'first_name' => [$member ? 'sometimes' : 'required', 'string', 'max:100'],
+            'last_name' => [$member ? 'sometimes' : 'required', 'string', 'max:100'],
+            'email' => ['nullable', 'email', 'max:191'],
+            'phone' => ['nullable', 'string', 'max:50'],
+            'position_code' => ['nullable', Rule::in(CouncilMember::POSITIONS)],
+            'position_ar' => ['nullable', 'string', 'max:255'],
+            'position_fr' => ['nullable', 'string', 'max:255'],
+            'bio_ar' => ['nullable', 'string'],
+            'bio_fr' => ['nullable', 'string'],
+            'started_at' => ['nullable', 'date'],
+            'ended_at' => ['nullable', 'date'],
+            'status' => ['nullable', Rule::in(['active', 'inactive', 'former', 'suspended'])],
+            'is_public' => ['sometimes', 'boolean'],
+            'sort_order' => ['nullable', 'integer', 'min:0'],
+            'user_id' => ['nullable', 'integer', 'exists:users,id'],
+            'photo' => UploadRules::image(5120),
+        ]);
     }
 
     private function authorizePermission(Request $request, string $permission): void

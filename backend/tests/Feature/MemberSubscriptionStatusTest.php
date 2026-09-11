@@ -84,6 +84,33 @@ class MemberSubscriptionStatusTest extends TestCase
             ->assertJsonPath('data.subscription_status', 'unpaid');
 
         $this->assertSame('unpaid', Member::query()->first()->subscription_status);
+        $this->assertEquals(0, (float) Member::query()->first()->amount_paid);
+    }
+
+    public function test_admin_can_set_amount_paid(): void
+    {
+        $admin = $this->superAdmin();
+
+        $created = $this->actingAs($admin)
+            ->postJson('/api/admin/statistics/members', [
+                'first_name' => 'Omar',
+                'last_name' => 'Saleh',
+                'status' => 'active',
+                'amount_paid' => 45.5,
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.amount_paid', 45.5)
+            ->json('data');
+
+        $this->actingAs($admin)
+            ->putJson('/api/admin/statistics/members/'.$created['id'], [
+                'first_name' => 'Omar',
+                'last_name' => 'Saleh',
+                'status' => 'active',
+                'amount_paid' => 90,
+            ])
+            ->assertOk()
+            ->assertJsonPath('data.amount_paid', 90);
     }
 
     private function superAdmin(): User

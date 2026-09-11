@@ -31,6 +31,10 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'SHURA_MEMBER', 'name_fr' => 'Membre Choura', 'name_ar' => 'عضو مجلس الشورى'],
             ['code' => 'SHURA_CONTENT_EDITOR', 'name_fr' => 'Éditeur contenu Choura', 'name_ar' => 'محرر محتوى الشورى'],
             ['code' => 'PARENTS_COUNCIL', 'name_fr' => 'Conseil des parents', 'name_ar' => 'مجلس الآباء'],
+            ['code' => 'PARENTS_PRESIDENT', 'name_fr' => 'Président du Conseil des parents', 'name_ar' => 'رئيس مجلس الآباء'],
+            ['code' => 'PARENTS_VICE_PRESIDENT', 'name_fr' => 'Vice-président du Conseil des parents', 'name_ar' => 'نائب رئيس مجلس الآباء'],
+            ['code' => 'PARENTS_TREASURER', 'name_fr' => 'Trésorier du Conseil des parents', 'name_ar' => 'أمين مال مجلس الآباء'],
+            ['code' => 'PARENTS_SECRETARY', 'name_fr' => 'Rapporteur du Conseil des parents', 'name_ar' => 'مقرر مجلس الآباء'],
             ['code' => 'TEACHER', 'name_fr' => 'Enseignant', 'name_ar' => 'معلم'],
             ['code' => 'PARENT', 'name_fr' => 'Parent', 'name_ar' => 'ولي أمر'],
             ['code' => 'MEMBER', 'name_fr' => 'Membre', 'name_ar' => 'عضو'],
@@ -134,6 +138,8 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'shura.proposal.manage', 'module' => 'shura', 'name_fr' => 'Gérer propositions', 'name_ar' => 'إدارة المقترحات'],
             ['code' => 'shura.document.view', 'module' => 'shura', 'name_fr' => 'Voir documents Choura', 'name_ar' => 'عرض وثائق الشورى'],
             ['code' => 'shura.document.manage', 'module' => 'shura', 'name_fr' => 'Gérer documents Choura', 'name_ar' => 'إدارة وثائق الشورى'],
+            ['code' => 'parents.member.view', 'module' => 'parents', 'name_fr' => 'Voir le bureau du Conseil des parents', 'name_ar' => 'عرض مكتب مجلس الآباء'],
+            ['code' => 'parents.member.manage', 'module' => 'parents', 'name_fr' => 'Gérer le bureau du Conseil des parents', 'name_ar' => 'إدارة مكتب مجلس الآباء'],
             ['code' => 'parents.registration.view', 'module' => 'parents', 'name_fr' => 'Voir inscriptions parents', 'name_ar' => 'عرض تسجيلات أولياء الأمور'],
             ['code' => 'parents.registration.manage', 'module' => 'parents', 'name_fr' => 'Gérer inscriptions parents', 'name_ar' => 'إدارة تسجيلات أولياء الأمور'],
             ['code' => 'parents.meeting.view', 'module' => 'parents', 'name_fr' => 'Voir réunions parents', 'name_ar' => 'عرض اجتماعات مجلس الآباء'],
@@ -295,13 +301,39 @@ class RolePermissionSeeder extends Seeder
             );
         }
 
-        $parentsCodes = [
-            'parents.registration.view', 'parents.registration.manage',
-            'parents.meeting.view', 'parents.meeting.manage',
-            'parents.survey.view', 'parents.survey.manage',
+        $parentsView = [
+            'parents.member.view',
+            'parents.registration.view',
+            'parents.meeting.view',
+            'parents.survey.view',
         ];
-        Role::query()->where('code', 'PARENTS_COUNCIL')->first()?->permissions()->sync(
-            Permission::query()->whereIn('code', $parentsCodes)->pluck('id')
-        );
+        $parentsSecretary = array_merge($parentsView, [
+            'parents.meeting.manage',
+            'parents.survey.manage',
+            'parents.registration.view',
+        ]);
+        $parentsTreasurer = array_merge($parentsView, [
+            'parents.registration.manage',
+        ]);
+        $parentsVice = array_merge($parentsSecretary, [
+            'parents.registration.manage',
+        ]);
+        $parentsPresident = array_merge($parentsVice, [
+            'parents.member.manage',
+        ]);
+
+        $parentsMap = [
+            'PARENTS_PRESIDENT' => $parentsPresident,
+            'PARENTS_VICE_PRESIDENT' => $parentsVice,
+            'PARENTS_TREASURER' => $parentsTreasurer,
+            'PARENTS_SECRETARY' => $parentsSecretary,
+            'PARENTS_COUNCIL' => $parentsPresident,
+        ];
+
+        foreach ($parentsMap as $roleCode => $codes) {
+            Role::query()->where('code', $roleCode)->first()?->permissions()->sync(
+                Permission::query()->whereIn('code', $codes)->pluck('id')
+            );
+        }
     }
 }

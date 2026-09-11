@@ -5,6 +5,7 @@ import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const cards = [
+  { to: '/admin/parents/members', label: 'parentsAdmin.bureau', hint: 'parentsAdmin.bureauHint' },
   { to: '/admin/parents/registrations', label: 'parentsAdmin.registrations', hint: 'parentsAdmin.registrationsHint' },
   { to: '/admin/parents/meetings', label: 'parentsAdmin.meetings', hint: 'parentsAdmin.meetingsHint' },
   { to: '/admin/parents/surveys', label: 'parentsAdmin.surveys', hint: 'parentsAdmin.surveysHint' },
@@ -14,7 +15,7 @@ const cards = [
 <template>
   <div class="space-y-4">
     <p class="text-sm text-slate-600">{{ t('parentsAdmin.homeHint') }}</p>
-    <div class="grid gap-4 md:grid-cols-3">
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
       <RouterLink
         v-for="card in cards"
         :key="card.to"

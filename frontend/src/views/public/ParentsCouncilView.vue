@@ -7,6 +7,7 @@ import { galleryAlbums } from '@/data/publicContent'
 import { fetchPublicAlbums } from '@/services/content'
 import {
   fetchPublicParentMeetings,
+  fetchPublicParentMembers,
   fetchPublicParentSurveys,
   registerParentHousehold,
   submitParentSurveyResponse,
@@ -22,6 +23,7 @@ const registerSent = ref(false)
 const registerError = ref('')
 const registerSending = ref(false)
 const apiAlbums = ref([])
+const apiMembers = ref([])
 const apiMeetings = ref([])
 const apiSurveys = ref([])
 const surveyAnswers = reactive({})
@@ -64,6 +66,18 @@ const list = (value) => {
   const items = value?.[locale.value] || value?.en || value?.fr || value?.ar || []
   return Array.isArray(items) ? items : []
 }
+
+const displayedMembers = computed(() => {
+  if (apiMembers.value.length) {
+    return apiMembers.value.map((m) => ({
+      name: { ar: m.full_name, fr: m.full_name },
+      role: { ar: m.position_ar || m.position_code, fr: m.position_fr || m.position_code },
+      bio: { ar: m.bio_ar, fr: m.bio_fr },
+      photo: m.photo_url,
+    }))
+  }
+  return parentsCouncil.members
+})
 
 const albums = computed(() => {
   if (apiAlbums.value.length) {
@@ -178,6 +192,11 @@ onMounted(async () => {
     apiAlbums.value = data.data || []
   } catch {
     apiAlbums.value = []
+  }
+  try {
+    apiMembers.value = await fetchPublicParentMembers()
+  } catch {
+    apiMembers.value = []
   }
   try {
     apiMeetings.value = await fetchPublicParentMeetings()
@@ -344,11 +363,17 @@ onMounted(async () => {
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('parents.members') }}</h2>
         <div class="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <article
-            v-for="(member, index) in parentsCouncil.members"
+            v-for="(member, index) in displayedMembers"
             :key="index"
             class="rounded-2xl bg-white p-5 shadow-sm"
           >
-            <div class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-lg font-bold text-white">
+            <img
+              v-if="member.photo"
+              :src="member.photo"
+              alt=""
+              class="mb-3 h-14 w-14 rounded-full object-cover"
+            />
+            <div v-else class="mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-[var(--rdp-forest)] text-lg font-bold text-white">
               {{ localized(member.name).slice(0, 1) }}
             </div>
             <p class="text-sm font-semibold text-[var(--rdp-forest)]">{{ localized(member.role) }}</p>

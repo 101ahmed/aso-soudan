@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api\Public;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\CouncilMeetingResource;
+use App\Http\Resources\CouncilMemberResource;
 use App\Http\Resources\ParentSurveyResource;
 use App\Models\CouncilMeeting;
+use App\Models\CouncilMember;
 use App\Models\ParentRegistration;
 use App\Models\ParentSurvey;
 use Illuminate\Http\JsonResponse;
@@ -16,6 +18,18 @@ use Illuminate\Validation\Rule;
 
 class PublicParentsController extends Controller
 {
+    public function members(): AnonymousResourceCollection
+    {
+        return CouncilMemberResource::collection(
+            CouncilMember::query()
+                ->forCouncil('parents')
+                ->publicVisible()
+                ->orderBy('sort_order')
+                ->orderBy('id')
+                ->get()
+        );
+    }
+
     public function meetings(): AnonymousResourceCollection
     {
         return CouncilMeetingResource::collection(

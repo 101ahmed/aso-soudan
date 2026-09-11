@@ -81,6 +81,7 @@ class Member extends Model
         'city',
         'membership_type',
         'subscription_status',
+        'amount_paid',
         'status',
         'notes',
         'reviewed_by',
@@ -92,6 +93,7 @@ class Member extends Model
     {
         return [
             'birth_date' => 'date',
+            'amount_paid' => 'decimal:2',
             'reviewed_at' => 'datetime',
             'submitted_at' => 'datetime',
         ];

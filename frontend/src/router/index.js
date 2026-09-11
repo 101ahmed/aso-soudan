@@ -86,6 +86,7 @@ import ShuraMembersView from '@/views/admin/shura/ShuraMembersView.vue'
 import ShuraMeetingsView from '@/views/admin/shura/ShuraMeetingsView.vue'
 import ParentsAdminShell from '@/views/admin/parents/ParentsAdminShell.vue'
 import ParentsHomeView from '@/views/admin/parents/ParentsHomeView.vue'
+import ParentsMembersView from '@/views/admin/parents/ParentsMembersView.vue'
 import ParentsRegistrationsView from '@/views/admin/parents/ParentsRegistrationsView.vue'
 import ParentsMeetingsView from '@/views/admin/parents/ParentsMeetingsView.vue'
 import ParentsSurveysView from '@/views/admin/parents/ParentsSurveysView.vue'
@@ -497,6 +498,7 @@ const router = createRouter({
           component: ParentsAdminShell,
           children: [
             { path: '', name: 'admin.parents', component: ParentsHomeView },
+            { path: 'members', name: 'admin.parents.members', component: ParentsMembersView },
             { path: 'registrations', name: 'admin.parents.registrations', component: ParentsRegistrationsView },
             { path: 'meetings', name: 'admin.parents.meetings', component: ParentsMeetingsView },
             { path: 'surveys', name: 'admin.parents.surveys', component: ParentsSurveysView },

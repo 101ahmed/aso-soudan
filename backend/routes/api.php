@@ -74,6 +74,7 @@ Route::prefix('public')->group(function () {
     Route::post('/events/{slug}/rate', [PublicContentController::class, 'rateEvent']);
     Route::get('/shura/members', [PublicShuraController::class, 'members']);
     Route::get('/shura/meetings', [PublicShuraController::class, 'meetings']);
+    Route::get('/parents/members', [PublicParentsController::class, 'members']);
     Route::get('/parents/meetings', [PublicParentsController::class, 'meetings']);
     Route::get('/parents/surveys', [PublicParentsController::class, 'surveys']);
     Route::post('/parents/registrations', [PublicParentsController::class, 'storeRegistration']);
@@ -180,6 +181,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::prefix('admin/parents')->group(function () {
+        Route::get('/members', [AdminParentsController::class, 'membersIndex']);
+        Route::post('/members', [AdminParentsController::class, 'membersStore']);
+        Route::put('/members/{member}', [AdminParentsController::class, 'membersUpdate']);
+        Route::post('/members/{member}', [AdminParentsController::class, 'membersUpdate']);
+        Route::delete('/members/{member}', [AdminParentsController::class, 'membersDestroy']);
         Route::get('/registrations', [AdminParentsController::class, 'registrationsIndex']);
         Route::put('/registrations/{registration}', [AdminParentsController::class, 'registrationsUpdate']);
         Route::delete('/registrations/{registration}', [AdminParentsController::class, 'registrationsDestroy']);

@@ -32,6 +32,10 @@ class EnsureAdminCommand extends Command
             '--force' => true,
         ]);
         $this->call('db:seed', [
+            '--class' => \Database\Seeders\ParentsCouncilMemberSeeder::class,
+            '--force' => true,
+        ]);
+        $this->call('db:seed', [
             '--class' => \Database\Seeders\AcademicAttendanceSeeder::class,
             '--force' => true,
         ]);

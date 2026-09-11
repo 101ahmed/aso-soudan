@@ -205,6 +205,7 @@ class AdminStatisticsMemberController extends Controller
             'city' => ['nullable', 'string', 'max:120', Rule::in(array_values(array_unique($allowedCities)))],
             'membership_type' => ['nullable', Rule::in(Member::MEMBERSHIP_TYPES)],
             'subscription_status' => ['nullable', Rule::in(Member::SUBSCRIPTION_STATUSES)],
+            'amount_paid' => ['nullable', 'numeric', 'min:0', 'max:999999.99'],
             'status' => ['nullable', Rule::in(Member::STATUSES)],
             'notes' => ['nullable', 'string', 'max:2000'],
         ], [
@@ -230,6 +231,12 @@ class AdminStatisticsMemberController extends Controller
 
         if (array_key_exists('subscription_status', $data)) {
             $payload['subscription_status'] = $data['subscription_status'] ?: 'unpaid';
+        }
+
+        if (array_key_exists('amount_paid', $data)) {
+            $payload['amount_paid'] = $data['amount_paid'] === null || $data['amount_paid'] === ''
+                ? 0
+                : round((float) $data['amount_paid'], 2);
         }
 
         return $payload;

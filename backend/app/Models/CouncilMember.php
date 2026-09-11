@@ -22,9 +22,32 @@ class CouncilMember extends Model
     public const POSITIONS = [
         'president',
         'vice_president',
+        'treasurer',
         'secretary',
         'member',
     ];
+
+    public const POSITION_LABELS = [
+        'president' => ['ar' => 'رئيس المجلس', 'fr' => 'Président du conseil'],
+        'vice_president' => ['ar' => 'نائب الرئيس', 'fr' => 'Vice-président'],
+        'treasurer' => ['ar' => 'أمين المال', 'fr' => 'Trésorier'],
+        'secretary' => ['ar' => 'مقرر المجلس', 'fr' => 'Rapporteur'],
+        'member' => ['ar' => 'عضو المجلس', 'fr' => 'Membre'],
+    ];
+
+    public static function fillPositionLabels(array $data): array
+    {
+        $code = $data['position_code'] ?? 'member';
+        $labels = self::POSITION_LABELS[$code] ?? self::POSITION_LABELS['member'];
+        if (empty($data['position_ar'])) {
+            $data['position_ar'] = $labels['ar'];
+        }
+        if (empty($data['position_fr'])) {
+            $data['position_fr'] = $labels['fr'];
+        }
+
+        return $data;
+    }
 
     protected $fillable = [
         'council_code',

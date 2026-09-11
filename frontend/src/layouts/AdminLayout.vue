@@ -65,7 +65,8 @@ const links = computed(() => [
   {
     to: '/admin/parents',
     label: t('admin.nav.parents'),
-    show: auth.user?.roles?.some((r) => r.code === 'PARENTS_COUNCIL')
+    show: auth.user?.roles?.some((r) => String(r.code).startsWith('PARENTS_'))
+      || auth.hasPermission('parents.member.view')
       || auth.hasPermission('parents.registration.view')
       || auth.hasPermission('parents.meeting.view')
       || auth.hasPermission('parents.survey.view'),

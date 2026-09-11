@@ -48,7 +48,7 @@ class AdminShuraController extends Controller
     public function membersStore(Request $request): JsonResponse
     {
         $this->authorizePermission($request, 'shura.member.manage');
-        $data = $this->validatedMember($request);
+        $data = CouncilMember::fillPositionLabels($this->validatedMember($request));
         unset($data['photo']);
         $data['council_code'] = 'shura';
 
@@ -65,7 +65,7 @@ class AdminShuraController extends Controller
     {
         $this->authorizePermission($request, 'shura.member.manage');
         abort_unless($member->council_code === 'shura', 404);
-        $data = $this->validatedMember($request, $member);
+        $data = CouncilMember::fillPositionLabels($this->validatedMember($request, $member));
         unset($data['photo']);
 
         if ($request->hasFile('photo')) {

@@ -8,8 +8,17 @@ const { t } = useI18n()
 const auth = useAuthStore()
 const route = useRoute()
 
+const PARENTS_ROLES = [
+  'PARENTS_COUNCIL',
+  'PARENTS_PRESIDENT',
+  'PARENTS_VICE_PRESIDENT',
+  'PARENTS_TREASURER',
+  'PARENTS_SECRETARY',
+]
+
 const allowed = computed(() =>
-  auth.user?.roles?.some((r) => ['PARENTS_COUNCIL', 'SUPER_ADMIN', 'PRESIDENT'].includes(r.code))
+  auth.user?.roles?.some((r) => ['SUPER_ADMIN', 'PRESIDENT', ...PARENTS_ROLES].includes(r.code))
+  || auth.hasPermission('parents.member.view')
   || auth.hasPermission('parents.registration.view')
   || auth.hasPermission('parents.meeting.view')
   || auth.hasPermission('parents.survey.view'),
@@ -17,6 +26,11 @@ const allowed = computed(() =>
 
 const links = computed(() => [
   { to: '/admin/parents', label: t('parentsAdmin.home'), exact: true },
+  {
+    to: '/admin/parents/members',
+    label: t('parentsAdmin.bureau'),
+    show: auth.hasPermission('parents.member.view'),
+  },
   {
     to: '/admin/parents/registrations',
     label: t('parentsAdmin.registrations'),

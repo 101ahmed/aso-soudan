@@ -21,6 +21,10 @@ const ROLE_HOME = {
   SHURA_MEMBER: '/admin/shura',
   SHURA_CONTENT_EDITOR: '/admin/shura',
   PARENTS_COUNCIL: '/admin/parents',
+  PARENTS_PRESIDENT: '/admin/parents',
+  PARENTS_VICE_PRESIDENT: '/admin/parents',
+  PARENTS_TREASURER: '/admin/parents',
+  PARENTS_SECRETARY: '/admin/parents',
   TEACHER: '/admin/teacher',
   PARENT: '/admin',
   MEMBER: '/admin',
@@ -43,6 +47,11 @@ export function resolvePostLoginPath(user) {
   const shuraRole = codes.find((c) => c.startsWith('SHURA_'))
   if (shuraRole) {
     return ROLE_HOME[shuraRole] || '/admin/shura'
+  }
+
+  const parentsRole = codes.find((c) => c.startsWith('PARENTS_'))
+  if (parentsRole) {
+    return ROLE_HOME[parentsRole] || '/admin/parents'
   }
 
   const primary = primaryDepartmentCode(user)

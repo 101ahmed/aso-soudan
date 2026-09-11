@@ -13,7 +13,7 @@ import {
 } from '@/services/members'
 import { RENNES_CITY, RENNES_SUBURBS } from '@/data/rennesMetropole'
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const auth = useAuthStore()
 const route = useRoute()
 const isFinance = computed(() => route.params.code === 'finance')
@@ -76,6 +76,14 @@ function cityLabel(city) {
   return canonicalizeCity(city) === RENNES_CITY ? t('statisticsMembers.rennes') : city
 }
 
+function formatAmount(value) {
+  const amount = Number(value || 0)
+  return new Intl.NumberFormat(locale.value === 'ar' ? 'fr-FR' : locale.value === 'en' ? 'en-FR' : 'fr-FR', {
+    style: 'currency',
+    currency: 'EUR',
+  }).format(amount)
+}
+
 const extraCityOptions = computed(() => {
   const known = new Set([RENNES_CITY, ...RENNES_SUBURBS])
   const extras = extraCities.value.filter((city) => city && !known.has(city))
@@ -99,6 +107,7 @@ function emptyForm() {
     membership_type: '',
     status: 'active',
     subscription_status: 'unpaid',
+    amount_paid: '',
     notes: '',
   }
 }
@@ -159,12 +168,13 @@ function edit(item) {
     membership_type: item.membership_type || '',
     status: item.status || 'active',
     subscription_status: item.subscription_status || 'unpaid',
+    amount_paid: item.amount_paid === 0 || item.amount_paid ? String(item.amount_paid) : '',
     notes: item.notes || '',
   })
 }
 
 function payload() {
-  return {
+  const data = {
     first_name: form.first_name,
     last_name: form.last_name,
     birth_date: form.birth_date || null,
@@ -178,6 +188,10 @@ function payload() {
     subscription_status: form.subscription_status || 'unpaid',
     notes: form.notes || null,
   }
+  if (isFinance.value) {
+    data.amount_paid = form.amount_paid === '' || form.amount_paid === null ? 0 : Number(form.amount_paid)
+  }
+  return data
 }
 
 async function save() {
@@ -313,7 +327,7 @@ onMounted(load)
     <template v-else>
       <div class="grid gap-3 rounded-xl border bg-white p-4 md:grid-cols-4">
         <input v-model="filters.search" type="search" :placeholder="t('statisticsMembers.search')" class="rounded-md border px-3 py-2 text-sm md:col-span-2" @keyup.enter="applyFilters" />
-        <select v-model="filters.status" class="rounded-md border px-3 py-2 text-sm">
+        <select v-if="!isFinance" v-model="filters.status" class="rounded-md border px-3 py-2 text-sm">
           <option value="">{{ t('statisticsMembers.allStatuses') }}</option>
           <option value="pending">{{ t('statisticsMembers.statuses.pending') }}</option>
           <option value="active">{{ t('statisticsMembers.statuses.active') }}</option>
@@ -367,7 +381,8 @@ onMounted(load)
                   <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.city') }}</th>
                   <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.type') }}</th>
                   <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.duesLabel') }}</th>
-                  <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.status') }}</th>
+                  <th v-if="isFinance" class="px-3 py-3 font-medium">{{ t('statisticsMembers.amountPaid') }}</th>
+                  <th v-else class="px-3 py-3 font-medium">{{ t('statisticsMembers.status') }}</th>
                   <th class="px-3 py-3"></th>
                 </tr>
               </thead>
@@ -400,7 +415,8 @@ onMounted(load)
                       {{ t(`statisticsMembers.dues.${item.subscription_status || 'unpaid'}`) }}
                     </span>
                   </td>
-                  <td class="px-3 py-3">{{ t(`statisticsMembers.statuses.${item.status}`) }}</td>
+                  <td v-if="isFinance" class="px-3 py-3 font-medium">{{ formatAmount(item.amount_paid) }}</td>
+                  <td v-else class="px-3 py-3">{{ t(`statisticsMembers.statuses.${item.status}`) }}</td>
                   <td class="px-3 py-3 whitespace-nowrap">
                     <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
                     <button v-if="canDelete" type="button" class="ms-2 text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
@@ -459,7 +475,16 @@ onMounted(load)
           <select v-model="form.subscription_status" class="w-full rounded border px-3 py-2 text-sm">
             <option v-for="due in subscriptionStatuses" :key="due" :value="due">{{ t(`statisticsMembers.dues.${due}`) }}</option>
           </select>
-          <select v-model="form.status" class="w-full rounded border px-3 py-2 text-sm">
+          <input
+            v-if="isFinance"
+            v-model="form.amount_paid"
+            type="number"
+            min="0"
+            step="0.01"
+            class="w-full rounded border px-3 py-2 text-sm"
+            :placeholder="t('statisticsMembers.amountPaid')"
+          />
+          <select v-else v-model="form.status" class="w-full rounded border px-3 py-2 text-sm">
             <option value="pending">{{ t('statisticsMembers.statuses.pending') }}</option>
             <option value="active">{{ t('statisticsMembers.statuses.active') }}</option>
             <option value="inactive">{{ t('statisticsMembers.statuses.inactive') }}</option>

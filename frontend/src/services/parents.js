@@ -1,5 +1,10 @@
 import api from '@/services/api'
 
+export async function fetchPublicParentMembers() {
+  const { data } = await api.get('/public/parents/members')
+  return data.data || data || []
+}
+
 export async function fetchPublicParentMeetings() {
   const { data } = await api.get('/public/parents/meetings')
   return data.data || data || []
@@ -18,6 +23,40 @@ export async function registerParentHousehold(payload) {
 export async function submitParentSurveyResponse(surveyId, payload) {
   const { data } = await api.post(`/public/parents/surveys/${surveyId}/responses`, payload)
   return data
+}
+
+export async function fetchParentMembers(params = {}) {
+  const { data } = await api.get('/admin/parents/members', { params })
+  return data
+}
+
+function toFormData(payload) {
+  const body = new FormData()
+  Object.entries(payload || {}).forEach(([key, value]) => {
+    if (value === undefined || value === null || value === '') return
+    if (typeof value === 'boolean') {
+      body.append(key, value ? '1' : '0')
+      return
+    }
+    body.append(key, value)
+  })
+  return body
+}
+
+export async function createParentMember(payload) {
+  const { data } = await api.post('/admin/parents/members', toFormData(payload))
+  return data.data || data
+}
+
+export async function updateParentMember(id, payload) {
+  const body = toFormData(payload)
+  body.append('_method', 'PUT')
+  const { data } = await api.post(`/admin/parents/members/${id}`, body)
+  return data.data || data
+}
+
+export async function deleteParentMember(id) {
+  await api.delete(`/admin/parents/members/${id}`)
 }
 
 export async function fetchParentRegistrations(params = {}) {

@@ -11,8 +11,8 @@ export const parentsCouncil = {
     fr: 'Un partenariat efficace entre la famille et la Rabta pour soutenir nos enfants et améliorer l’éducation.',
   },
   intro: {
-    ar: 'مجلس الآباء هو إطار تنظيمي يهدف إلى تعزيز التواصل والتعاون بين أولياء الأمور والأمانة الأكاديمية وإدارة الرابطة. يساهم المجلس في مناقشة القضايا المتعلقة بالطلاب، وتقديم المقترحات والملاحظات، والمشاركة في تطوير البرامج والأنشطة التعليمية والاجتماعية التي تخدم أبناء الجالية.',
-    fr: 'Le Conseil des parents est un cadre organisationnel qui renforce le dialogue entre les familles, le secrétariat académique et la direction de la Rabta. Il contribue à discuter des sujets liés aux élèves, à transmettre propositions et observations, et à développer les programmes éducatifs et sociaux.',
+    ar: 'مجلس الآباء مجلس مستقل داخل الرابطة، له مكتبه الخاص: رئيس، نائب رئيس، أمين مال، ومقرر. يعمل بالتنسيق مع الأمانة الأكاديمية دون أن يتبع لها.',
+    fr: 'Le Conseil des parents est un conseil indépendant au sein de la Rabta, avec son propre bureau : président, vice-président, trésorier et rapporteur. Il coopère avec le secrétariat académique sans en dépendre.',
   },
   vision: {
     ar: 'بناء شراكة فاعلة ومستدامة بين الأسرة والرابطة تساهم في توفير بيئة تعليمية وتربوية مناسبة للطلاب.',
@@ -74,16 +74,16 @@ export const parentsCouncil = {
   },
   structure: {
     ar: [
-      { role: 'رئيس المجلس', note: 'يقود أعمال المجلس وينسق مع الأمانة الأكاديمية' },
+      { role: 'رئيس المجلس', note: 'يقود أعمال المجلس المستقل وينسق مع الرابطة' },
       { role: 'نائب الرئيس', note: 'ينوب عن الرئيس ويتابع بعض الملفات' },
+      { role: 'أمين المال', note: 'يتابع الجوانب المالية الخاصة بمجلس الآباء' },
       { role: 'مقرر المجلس', note: 'يتابع الاجتماعات والمحاضر والوثائق العامة' },
-      { role: 'أعضاء المجلس', note: 'يمثلون أولياء الأمور ويساهمون في المقترحات' },
     ],
     fr: [
-      { role: 'Président du conseil', note: 'Dirige les travaux et coordonne avec le secrétariat académique' },
+      { role: 'Président du conseil', note: 'Dirige les travaux du conseil indépendant' },
       { role: 'Vice-président', note: 'Assure l’intérim et suit certains dossiers' },
+      { role: 'Trésorier', note: 'Suit les questions financières du conseil' },
       { role: 'Rapporteur', note: 'Suit réunions, comptes rendus et documents publics' },
-      { role: 'Membres', note: 'Représentent les parents et contribuent aux propositions' },
     ],
   },
   members: [
@@ -91,8 +91,8 @@ export const parentsCouncil = {
       name: { ar: 'يُعلن لاحقاً', fr: 'À annoncer' },
       role: { ar: 'رئيس مجلس الآباء', fr: 'Président du Conseil des parents' },
       bio: {
-        ar: 'يشرف على تنسيق أعمال المجلس والتواصل مع الأمانة الأكاديمية.',
-        fr: 'Coordonne les travaux du conseil et le lien avec le secrétariat académique.',
+        ar: 'يشرف على تنسيق أعمال المجلس المستقل.',
+        fr: 'Coordonne les travaux du conseil indépendant.',
       },
     },
     {
@@ -105,18 +105,18 @@ export const parentsCouncil = {
     },
     {
       name: { ar: 'يُعلن لاحقاً', fr: 'À annoncer' },
+      role: { ar: 'أمين مال المجلس', fr: 'Trésorier' },
+      bio: {
+        ar: 'يتابع الجوانب المالية الخاصة بمجلس الآباء.',
+        fr: 'Suit les questions financières propres au Conseil des parents.',
+      },
+    },
+    {
+      name: { ar: 'يُعلن لاحقاً', fr: 'À annoncer' },
       role: { ar: 'مقرر المجلس', fr: 'Rapporteur' },
       bio: {
         ar: 'يتابع إعداد الاجتماعات والوثائق المسموح بنشرها.',
         fr: 'Suit la préparation des réunions et des documents publics autorisés.',
-      },
-    },
-    {
-      name: { ar: 'عضو المجلس', fr: 'Membre du conseil' },
-      role: { ar: 'عضو', fr: 'Membre' },
-      bio: {
-        ar: 'يشارك في التشاور ونقل مقترحات أولياء الأمور.',
-        fr: 'Participe à la concertation et à la transmission des propositions des parents.',
       },
     },
   ],
