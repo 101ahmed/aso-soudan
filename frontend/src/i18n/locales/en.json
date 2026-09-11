@@ -678,6 +678,7 @@
     "type": "Membership type",
     "duesLabel": "Subscription",
     "allDues": "All subscriptions",
+    "maritalStatus": "Marital status",
     "status": "Status",
     "amountPaid": "Amount paid",
     "address": "Address",
@@ -717,6 +718,12 @@
       "first": "1st installment",
       "second": "2nd installment",
       "full": "Paid in full"
+    },
+    "marital": {
+      "single": "Single",
+      "married": "Married",
+      "divorced": "Divorced",
+      "widowed": "Widowed"
     }
   },
   "teacherAdmin": {

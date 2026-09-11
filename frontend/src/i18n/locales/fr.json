@@ -678,6 +678,7 @@
     "type": "Type d’adhésion",
     "duesLabel": "Cotisation",
     "allDues": "Toutes les cotisations",
+    "maritalStatus": "Situation familiale",
     "status": "Statut",
     "amountPaid": "Montant payé",
     "address": "Adresse",
@@ -717,6 +718,12 @@
       "first": "1er versement",
       "second": "2e versement",
       "full": "Complet"
+    },
+    "marital": {
+      "single": "Célibataire",
+      "married": "Marié(e)",
+      "divorced": "Divorcé(e)",
+      "widowed": "Veuf / veuve"
     }
   },
   "teacherAdmin": {

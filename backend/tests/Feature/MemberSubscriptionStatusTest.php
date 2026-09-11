@@ -113,6 +113,27 @@ class MemberSubscriptionStatusTest extends TestCase
             ->assertJsonPath('data.amount_paid', 90);
     }
 
+    public function test_admin_can_set_and_filter_marital_status(): void
+    {
+        $admin = $this->superAdmin();
+
+        $created = $this->actingAs($admin)
+            ->postJson('/api/admin/statistics/members', [
+                'first_name' => 'Nour',
+                'last_name' => 'Idris',
+                'status' => 'active',
+                'marital_status' => 'married',
+            ])
+            ->assertCreated()
+            ->assertJsonPath('data.marital_status', 'married')
+            ->json('data');
+
+        $this->actingAs($admin)
+            ->getJson('/api/admin/statistics/members?marital_status=married')
+            ->assertOk()
+            ->assertJsonPath('data.0.id', $created['id']);
+    }
+
     private function superAdmin(): User
     {
         $user = User::factory()->create();

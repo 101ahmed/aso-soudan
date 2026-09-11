@@ -678,6 +678,7 @@
     "type": "نوع العضوية",
     "duesLabel": "الاشتراك",
     "allDues": "كل الاشتراكات",
+    "maritalStatus": "الحالة الاجتماعية",
     "status": "الحالة",
     "amountPaid": "المبلغ المدفوع",
     "address": "العنوان",
@@ -717,6 +718,12 @@
       "first": "قسط أول",
       "second": "قسط ثانٍ",
       "full": "كامل"
+    },
+    "marital": {
+      "single": "أعزب",
+      "married": "متزوج",
+      "divorced": "مطلق",
+      "widowed": "أرمل"
     }
   },
   "teacherAdmin": {

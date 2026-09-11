@@ -19,6 +19,7 @@ const route = useRoute()
 const isFinance = computed(() => route.params.code === 'finance')
 
 const subscriptionStatuses = ['unpaid', 'first', 'second', 'full']
+const maritalStatuses = ['single', 'married', 'divorced', 'widowed']
 
 const loading = ref(false)
 const saving = ref(false)
@@ -45,6 +46,7 @@ const filters = reactive({
   age_min: '',
   age_max: '',
   subscription_status: '',
+  marital_status: '',
   page: 1,
 })
 
@@ -107,6 +109,7 @@ function emptyForm() {
     membership_type: '',
     status: 'active',
     subscription_status: 'unpaid',
+    marital_status: '',
     amount_paid: '',
     notes: '',
   }
@@ -125,6 +128,7 @@ function filterParams() {
     city: filters.city || undefined,
     membership_type: filters.membership_type || undefined,
     subscription_status: filters.subscription_status || undefined,
+    marital_status: filters.marital_status || undefined,
     age_min: filters.age_min || undefined,
     age_max: filters.age_max || undefined,
   }
@@ -168,6 +172,7 @@ function edit(item) {
     membership_type: item.membership_type || '',
     status: item.status || 'active',
     subscription_status: item.subscription_status || 'unpaid',
+    marital_status: item.marital_status || '',
     amount_paid: item.amount_paid === 0 || item.amount_paid ? String(item.amount_paid) : '',
     notes: item.notes || '',
   })
@@ -185,11 +190,13 @@ function payload() {
     city: canonicalizeCity(form.city) || null,
     membership_type: form.membership_type || null,
     status: form.status,
-    subscription_status: form.subscription_status || 'unpaid',
     notes: form.notes || null,
   }
   if (isFinance.value) {
+    data.subscription_status = form.subscription_status || 'unpaid'
     data.amount_paid = form.amount_paid === '' || form.amount_paid === null ? 0 : Number(form.amount_paid)
+  } else {
+    data.marital_status = form.marital_status || null
   }
   return data
 }
@@ -343,9 +350,13 @@ onMounted(load)
           <option value="">{{ t('statisticsMembers.allTypes') }}</option>
           <option v-for="type in membershipTypes" :key="type" :value="type">{{ t(`statisticsMembers.types.${type}`) }}</option>
         </select>
-        <select v-model="filters.subscription_status" class="rounded-md border px-3 py-2 text-sm">
+        <select v-if="isFinance" v-model="filters.subscription_status" class="rounded-md border px-3 py-2 text-sm">
           <option value="">{{ t('statisticsMembers.allDues') }}</option>
           <option v-for="due in subscriptionStatuses" :key="due" :value="due">{{ t(`statisticsMembers.dues.${due}`) }}</option>
+        </select>
+        <select v-else v-model="filters.marital_status" class="rounded-md border px-3 py-2 text-sm">
+          <option value="">{{ t('statisticsMembers.maritalStatus') }}</option>
+          <option v-for="status in maritalStatuses" :key="status" :value="status">{{ t(`statisticsMembers.marital.${status}`) }}</option>
         </select>
         <select v-model="filters.city" class="rounded-md border px-3 py-2 text-sm">
           <option value="">{{ t('statisticsMembers.allCities') }}</option>
@@ -380,7 +391,8 @@ onMounted(load)
                   <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.gender') }}</th>
                   <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.city') }}</th>
                   <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.type') }}</th>
-                  <th class="px-3 py-3 font-medium">{{ t('statisticsMembers.duesLabel') }}</th>
+                  <th v-if="isFinance" class="px-3 py-3 font-medium">{{ t('statisticsMembers.duesLabel') }}</th>
+                  <th v-else class="px-3 py-3 font-medium">{{ t('statisticsMembers.maritalStatus') }}</th>
                   <th v-if="isFinance" class="px-3 py-3 font-medium">{{ t('statisticsMembers.amountPaid') }}</th>
                   <th v-else class="px-3 py-3 font-medium">{{ t('statisticsMembers.status') }}</th>
                   <th class="px-3 py-3"></th>
@@ -402,7 +414,7 @@ onMounted(load)
                   <td class="px-3 py-3">{{ item.gender ? t(`statisticsMembers.genders.${item.gender}`) : '—' }}</td>
                   <td class="px-3 py-3">{{ cityLabel(item.city) }}</td>
                   <td class="px-3 py-3">{{ item.membership_type ? t(`statisticsMembers.types.${item.membership_type}`) : '—' }}</td>
-                  <td class="px-3 py-3">
+                  <td v-if="isFinance" class="px-3 py-3">
                     <span
                       class="rounded px-2 py-0.5 text-xs"
                       :class="{
@@ -414,6 +426,9 @@ onMounted(load)
                     >
                       {{ t(`statisticsMembers.dues.${item.subscription_status || 'unpaid'}`) }}
                     </span>
+                  </td>
+                  <td v-else class="px-3 py-3">
+                    {{ item.marital_status ? t(`statisticsMembers.marital.${item.marital_status}`) : '—' }}
                   </td>
                   <td v-if="isFinance" class="px-3 py-3 font-medium">{{ formatAmount(item.amount_paid) }}</td>
                   <td v-else class="px-3 py-3">{{ t(`statisticsMembers.statuses.${item.status}`) }}</td>
@@ -472,8 +487,12 @@ onMounted(load)
             <option value="">{{ t('statisticsMembers.type') }}</option>
             <option v-for="type in membershipTypes" :key="type" :value="type">{{ t(`statisticsMembers.types.${type}`) }}</option>
           </select>
-          <select v-model="form.subscription_status" class="w-full rounded border px-3 py-2 text-sm">
+          <select v-if="isFinance" v-model="form.subscription_status" class="w-full rounded border px-3 py-2 text-sm">
             <option v-for="due in subscriptionStatuses" :key="due" :value="due">{{ t(`statisticsMembers.dues.${due}`) }}</option>
+          </select>
+          <select v-else v-model="form.marital_status" class="w-full rounded border px-3 py-2 text-sm">
+            <option value="">{{ t('statisticsMembers.maritalStatus') }}</option>
+            <option v-for="status in maritalStatuses" :key="status" :value="status">{{ t(`statisticsMembers.marital.${status}`) }}</option>
           </select>
           <input
             v-if="isFinance"

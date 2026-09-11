@@ -24,6 +24,7 @@ class MemberResource extends JsonResource
             'city' => $this->city,
             'membership_type' => $this->membership_type,
             'subscription_status' => $this->subscription_status ?: 'unpaid',
+            'marital_status' => $this->marital_status,
             'amount_paid' => (float) ($this->amount_paid ?? 0),
             'status' => $this->status,
             'notes' => $this->notes,

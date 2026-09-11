@@ -22,6 +22,8 @@ class Member extends Model
 
     public const SUBSCRIPTION_STATUSES = ['unpaid', 'first', 'second', 'full'];
 
+    public const MARITAL_STATUSES = ['single', 'married', 'divorced', 'widowed'];
+
     /** Rennes Métropole : Rennes puis les 42 communes de banlieue. */
     public const CITIES = [
         'Rennes',
@@ -81,6 +83,7 @@ class Member extends Model
         'city',
         'membership_type',
         'subscription_status',
+        'marital_status',
         'amount_paid',
         'status',
         'notes',
@@ -138,6 +141,10 @@ class Member extends Model
             ->when(
                 $request->filled('subscription_status') && Schema::hasColumn('members', 'subscription_status'),
                 fn ($q) => $q->where('subscription_status', $request->string('subscription_status'))
+            )
+            ->when(
+                $request->filled('marital_status') && Schema::hasColumn('members', 'marital_status'),
+                fn ($q) => $q->where('marital_status', $request->string('marital_status'))
             )
             ->when($request->filled('age_min'), function ($q) use ($request) {
                 $min = $request->integer('age_min');
