@@ -18,6 +18,7 @@ use App\Models\EventRating;
 use App\Models\MediaCenterItem;
 use App\Models\MediaDecision;
 use App\Models\News;
+use App\Services\PublicStatsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -30,6 +31,11 @@ class PublicContentController extends Controller
         return DepartmentResource::collection(
             Department::query()->active()->orderBy('sort_order')->get()
         );
+    }
+
+    public function stats(PublicStatsService $stats): JsonResponse
+    {
+        return response()->json($stats->snapshot());
     }
 
     public function secretariatFeed(string $code): JsonResponse

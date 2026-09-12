@@ -1,6 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { pickTitle } from '@/utils/localized'
@@ -32,8 +32,9 @@ const canUpdate = computed(() => auth.hasPermission('finance.update'))
 const canDelete = computed(() => auth.hasPermission('finance.delete'))
 const canManage = computed(() => (editingId.value ? canUpdate.value : canCreate.value))
 
-const filters = reactive({ search: '', source: '' })
+const filters = reactive({ search: '', source: 'membership' })
 const form = reactive(emptyForm())
+const subscriptionsTotal = ref(0)
 
 function emptyForm() {
   return {
@@ -71,6 +72,7 @@ async function load() {
       source: filters.source || undefined,
     })
     items.value = data.data || []
+    subscriptionsTotal.value = Number(data.subscriptions_total || 0)
   } catch (e) {
     error.value = e.response?.data?.message || e.message
   } finally {
@@ -109,6 +111,16 @@ onMounted(load)
     <div class="space-y-3">
       <h2 class="text-lg font-semibold">{{ t('financeAdmin.revenuesTitle') }}</h2>
       <p class="text-sm text-slate-600">{{ t('financeAdmin.revenuesHint') }}</p>
+      <p class="rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        {{ t('financeAdmin.subscriptionsTotal') }}:
+        <span class="font-semibold">{{ formatEuro(subscriptionsTotal) }}</span>
+        <RouterLink
+          :to="`/admin/secretariats/${code}/members`"
+          class="ms-2 font-semibold underline"
+        >
+          {{ t('financeAdmin.openSubscriptions') }}
+        </RouterLink>
+      </p>
       <div class="grid gap-2 sm:grid-cols-3">
         <select v-model.number="year" class="rounded border px-3 py-2 text-sm">
           <option v-for="item in years" :key="item" :value="item">{{ item }}</option>
@@ -125,13 +137,17 @@ onMounted(load)
       <article v-for="item in items" :key="item.id" class="rounded-lg border border-slate-200 bg-white p-4">
         <div class="flex items-start justify-between gap-3">
           <div>
-            <p class="font-medium">{{ pickTitle(item, locale) }}</p>
+            <p class="font-medium">{{ item.member?.full_name || pickTitle(item, locale) }}</p>
             <p class="mt-1 text-sm text-slate-600">
               {{ item.occurred_on }} · {{ t(`financeAdmin.sources.${item.source}`) }}
+              <span v-if="item.from_subscription"> · {{ t('financeAdmin.fromSubscription') }}</span>
+            </p>
+            <p v-if="item.member?.subscription_status" class="mt-1 text-xs text-slate-500">
+              {{ t(`statisticsMembers.dues.${item.member.subscription_status}`) }}
             </p>
             <p class="mt-1 font-semibold text-emerald-800">{{ formatEuro(item.amount) }}</p>
           </div>
-          <div class="flex gap-1">
+          <div v-if="!item.from_subscription" class="flex gap-1">
             <button v-if="canUpdate" type="button" class="rounded border px-2 py-1 text-xs" @click="edit(item)">{{ t('forms.edit') }}</button>
             <button v-if="canDelete" type="button" class="rounded border border-rose-300 px-2 py-1 text-xs text-rose-700" @click="remove(item.id)">{{ t('forms.delete') }}</button>
           </div>

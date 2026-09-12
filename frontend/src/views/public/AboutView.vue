@@ -1,14 +1,27 @@
 <script setup>
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { aboutPage } from '@/data/aboutPage'
+import { fetchPublicStats } from '@/services/content'
+import { mergePublicStats } from '@/utils/publicStats'
 
 const { t, locale } = useI18n()
+const liveStats = ref(null)
 const localized = (value) => value?.[locale.value] || value?.en || value?.fr || value?.ar || ''
 const list = (value) => {
   const items = value?.[locale.value] || value?.en || value?.fr || value?.ar || []
   return Array.isArray(items) ? items : []
 }
+const displayedAchievements = computed(() => mergePublicStats(aboutPage.achievements, liveStats.value))
+
+onMounted(async () => {
+  try {
+    liveStats.value = await fetchPublicStats()
+  } catch {
+    liveStats.value = null
+  }
+})
 </script>
 
 <template>
@@ -159,7 +172,7 @@ const list = (value) => {
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('about.achievements') }}</h2>
         <div class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
           <div
-            v-for="item in aboutPage.achievements"
+            v-for="item in displayedAchievements"
             :key="item.key"
             class="rounded-xl bg-white px-4 py-6 text-center shadow-sm"
           >

@@ -7,12 +7,13 @@ import {
   albumsBySecretariat,
   newsBySecretariat,
 } from '@/data/publicContent'
-import { fetchSecretariatFeed } from '@/services/content'
+import { fetchPublicStats, fetchSecretariatFeed } from '@/services/content'
 import { fetchPublicDocuments, fetchPublicPartners } from '@/services/external'
 import { fetchPublicFinanceDocuments } from '@/services/finance'
 import { fetchPublicMeetingOutputs } from '@/services/meetingOutputs'
 import { fetchPublicSports } from '@/services/sports'
 import { submitSecretariatMessage } from '@/services/secretariatMessages'
+import { mergePublicStats, secretariatStatAliases } from '@/utils/publicStats'
 import { pickName } from '@/utils/localized'
 import EventStarRating from '@/components/public/EventStarRating.vue'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
@@ -28,6 +29,7 @@ const publicDocuments = ref([])
 const financeDocuments = ref([])
 const meetingOutputs = ref([])
 const sportsOverview = ref({ teams: [], national_players_count: 0 })
+const liveStats = ref(null)
 
 const form = reactive({
   name: '',
@@ -69,6 +71,7 @@ const secretariat = computed(() => {
     ...base,
     officer: mergePerson(feed.value.department?.officer, base.officer) || base.officer,
     deputy: mergePerson(feed.value.department?.deputy, base.deputy),
+    stats: mergePublicStats(base.stats || [], liveStats.value, secretariatStatAliases(base.slug)),
   }
 })
 
@@ -211,6 +214,11 @@ async function loadFeed(slug) {
     feed.value = await fetchSecretariatFeed(slug)
   } catch {
     feed.value = { news: [], announcements: [], albums: [], events: [], media_center: [], department: null }
+  }
+  try {
+    liveStats.value = await fetchPublicStats()
+  } catch {
+    liveStats.value = null
   }
   if (slug === 'external-relations') {
     try {

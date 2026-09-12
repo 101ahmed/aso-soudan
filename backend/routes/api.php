@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\Admin\AdminSecretariatReportController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
 use App\Http\Controllers\Api\Admin\AdminSiteContentController;
 use App\Http\Controllers\Api\Admin\AdminSocialHelpRequestController;
+use App\Http\Controllers\Api\Admin\AdminSocialVisitController;
 use App\Http\Controllers\Api\Admin\AdminSportsController;
 use App\Http\Controllers\Api\Admin\AdminStatisticsMemberController;
 use App\Http\Controllers\Api\Admin\AdminTeacherRegisterController;
@@ -70,6 +71,7 @@ Route::prefix('public')->group(function () {
     Route::get('/announcements', [PublicContentController::class, 'announcements']);
     Route::get('/albums', [PublicContentController::class, 'albums']);
     Route::get('/albums/{album}', [PublicContentController::class, 'albumShow']);
+    Route::get('/stats', [PublicContentController::class, 'stats']);
     Route::get('/events', [PublicContentController::class, 'events']);
     Route::get('/events/{slug}', [PublicContentController::class, 'eventShow']);
     Route::post('/events/{slug}/rate', [PublicContentController::class, 'rateEvent']);
@@ -360,6 +362,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/help-requests/{helpRequest}', [AdminSocialHelpRequestController::class, 'show']);
             Route::put('/help-requests/{helpRequest}', [AdminSocialHelpRequestController::class, 'update'])->middleware(['department:write']);
             Route::delete('/help-requests/{helpRequest}', [AdminSocialHelpRequestController::class, 'destroy'])->middleware(['department:write']);
+
+            Route::get('/visits', [AdminSocialVisitController::class, 'index']);
+            Route::post('/visits', [AdminSocialVisitController::class, 'store'])->middleware(['department:write']);
+            Route::get('/visits/{socialVisit}', [AdminSocialVisitController::class, 'show']);
+            Route::put('/visits/{socialVisit}', [AdminSocialVisitController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/visits/{socialVisit}', [AdminSocialVisitController::class, 'destroy'])->middleware(['department:write']);
 
             Route::get('/partners', [AdminExternalPartnerController::class, 'index']);
             Route::post('/partners', [AdminExternalPartnerController::class, 'store'])->middleware(['department:write']);

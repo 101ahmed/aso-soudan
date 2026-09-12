@@ -267,6 +267,11 @@ export async function fetchPublicEvents(params = {}) {
   return data
 }
 
+export async function fetchPublicStats() {
+  const { data } = await api.get('/public/stats')
+  return data
+}
+
 export async function fetchPublicEvent(slug) {
   const { data } = await api.get(`/public/events/${slug}`)
   return data.data || data

@@ -111,6 +111,12 @@ class MemberSubscriptionStatusTest extends TestCase
             ])
             ->assertOk()
             ->assertJsonPath('data.amount_paid', 90);
+
+        $this->assertDatabaseHas('finance_revenues', [
+            'member_id' => $created['id'],
+            'source' => 'membership',
+            'amount' => 90,
+        ]);
     }
 
     public function test_admin_can_set_and_filter_marital_status(): void

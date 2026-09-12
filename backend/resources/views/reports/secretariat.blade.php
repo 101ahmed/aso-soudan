@@ -49,6 +49,9 @@
             'press' => 'مركز الإعلام',
             'pressPublished' => 'منشورات صادرة',
             'members' => 'الأعضاء',
+            'membersActive' => 'أعضاء نشطون',
+            'teachersVolunteers' => 'المعلمون والمتطوعون',
+            'initiatives' => 'المبادرات',
             'partners' => 'الشركاء',
             'documents' => 'الوثائق',
             'contacts' => 'طلبات التواصل',
@@ -94,6 +97,9 @@
             'press' => 'Centre médias',
             'pressPublished' => 'Publications parues',
             'members' => 'Adhérents',
+            'membersActive' => 'Adhérents actifs',
+            'teachersVolunteers' => 'Enseignants et bénévoles',
+            'initiatives' => 'Initiatives',
             'partners' => 'Partenaires',
             'documents' => 'Documents',
             'contacts' => 'Demandes de contact',
@@ -139,6 +145,9 @@
             'press' => 'Media center',
             'pressPublished' => 'Published items',
             'members' => 'Members',
+            'membersActive' => 'Active members',
+            'teachersVolunteers' => 'Teachers and volunteers',
+            'initiatives' => 'Initiatives',
             'partners' => 'Partners',
             'documents' => 'Documents',
             'contacts' => 'Contact requests',
@@ -227,6 +236,11 @@
     @elseif(($specific['kind'] ?? '') === 'statistics')
         <h2>{{ $label('members') }}</h2>
         <div class="kpi"><span>{{ $label('members') }}</span><b>{{ $specific['members_total'] }}</b></div>
+        <div class="kpi"><span>{{ $label('membersActive') }}</span><b>{{ $specific['members_active'] ?? 0 }}</b></div>
+        <div class="kpi"><span>{{ $label('studentsActive') }}</span><b>{{ $specific['students_active'] ?? 0 }}</b></div>
+        <div class="kpi"><span>{{ $label('teachersVolunteers') }}</span><b>{{ $specific['teachers_and_volunteers'] ?? 0 }}</b></div>
+        <div class="kpi"><span>{{ $label('eventsPublished') }}</span><b>{{ $specific['events_published'] ?? 0 }}</b></div>
+        <div class="kpi"><span>{{ $label('initiatives') }}</span><b>{{ $specific['initiatives'] ?? 0 }}</b></div>
     @elseif(($specific['kind'] ?? '') === 'external')
         <h2>{{ $label('partners') }}</h2>
         <div class="kpi"><span>{{ $label('partners') }}</span><b>{{ $specific['partners_total'] }}</b></div>

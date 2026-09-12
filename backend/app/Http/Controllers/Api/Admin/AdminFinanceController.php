@@ -9,6 +9,7 @@ use App\Models\Department;
 use App\Models\FinanceBudget;
 use App\Models\FinanceExpense;
 use App\Models\FinanceRevenue;
+use App\Services\MemberSubscriptionRevenueSync;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -20,6 +21,8 @@ class AdminFinanceController extends Controller
     {
         $this->assertFinance($code);
         $this->authorizePermission($request, 'finance.view');
+
+        app(MemberSubscriptionRevenueSync::class)->syncAll($request->user()?->id);
 
         $year = $request->integer('year', (int) now()->year);
         $budget = FinanceBudget::query()->where('year', $year)->first();
@@ -130,13 +133,22 @@ class AdminFinanceController extends Controller
         $this->assertFinance($code);
         $this->authorizePermission($request, 'finance.view');
 
+        app(MemberSubscriptionRevenueSync::class)->syncAll($request->user()?->id);
+
+        $filters = $request->only(['year', 'source', 'search']);
+        $query = FinanceRevenue::query()->with('member')->filtered($filters);
+
         return FinanceRevenueResource::collection(
-            FinanceRevenue::query()
-                ->filtered($request->only(['year', 'source', 'search']))
+            (clone $query)
                 ->latest('occurred_on')
                 ->latest('id')
                 ->paginate($request->integer('per_page', 30))
-        );
+        )->additional([
+            'subscriptions_total' => (float) FinanceRevenue::query()
+                ->filtered(['year' => $filters['year'] ?? now()->year, 'source' => 'membership'])
+                ->sum('amount'),
+            'year_total' => (float) (clone $query)->sum('amount'),
+        ]);
     }
 
     public function revenuesStore(Request $request, string $code): JsonResponse
@@ -156,6 +168,7 @@ class AdminFinanceController extends Controller
     {
         $this->assertFinance($code);
         $this->authorizePermission($request, 'finance.update');
+        abort_if($financeRevenue->member_id, 422, 'Subscription revenues are updated from the members list.');
         $financeRevenue->update($this->validatedRevenue($request, $financeRevenue));
 
         return new FinanceRevenueResource($financeRevenue->fresh());
@@ -165,6 +178,7 @@ class AdminFinanceController extends Controller
     {
         $this->assertFinance($code);
         $this->authorizePermission($request, 'finance.delete');
+        abort_if($financeRevenue->member_id, 422, 'Subscription revenues are removed from the members list.');
         $financeRevenue->delete();
 
         return response()->json(['message' => 'Deleted.']);

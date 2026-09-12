@@ -7,6 +7,7 @@ use App\Http\Resources\MemberResource;
 use App\Mail\MemberBroadcastMail;
 use App\Models\Member;
 use App\Models\MemberCity;
+use App\Services\MemberSubscriptionRevenueSync;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -51,6 +52,8 @@ class AdminStatisticsMemberController extends Controller
             'submitted_at' => now(),
         ]);
 
+        app(MemberSubscriptionRevenueSync::class)->sync($member, $request->user()->id);
+
         return (new MemberResource($member))->response()->setStatusCode(201);
     }
 
@@ -74,12 +77,15 @@ class AdminStatisticsMemberController extends Controller
 
         $member->update($payload);
 
+        app(MemberSubscriptionRevenueSync::class)->sync($member->fresh(), $request->user()->id);
+
         return new MemberResource($member->fresh());
     }
 
     public function destroy(Request $request, Member $member): JsonResponse
     {
         $this->authorizePermission($request, 'member.delete');
+        $member->subscriptionRevenue?->forceDelete();
         $member->delete();
 
         return response()->json(['message' => 'Deleted.']);

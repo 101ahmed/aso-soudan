@@ -28,6 +28,7 @@ class FinanceRevenue extends Model
         'title_fr',
         'notes',
         'recorded_by',
+        'member_id',
     ];
 
     protected function casts(): array
@@ -41,6 +42,11 @@ class FinanceRevenue extends Model
     public function recorder(): BelongsTo
     {
         return $this->belongsTo(User::class, 'recorded_by');
+    }
+
+    public function member(): BelongsTo
+    {
+        return $this->belongsTo(Member::class);
     }
 
     public function scopeForYear(Builder $query, int $year): Builder

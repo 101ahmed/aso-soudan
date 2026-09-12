@@ -4,7 +4,7 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { parentsCouncil } from '@/data/parentsCouncil'
 import { galleryAlbums } from '@/data/publicContent'
-import { fetchPublicAlbums } from '@/services/content'
+import { fetchPublicAlbums, fetchPublicStats } from '@/services/content'
 import {
   fetchPublicParentMeetings,
   fetchPublicParentMembers,
@@ -13,6 +13,7 @@ import {
   submitParentSurveyResponse,
 } from '@/services/parents'
 import { RENNES_CITY, RENNES_SUBURBS } from '@/data/rennesMetropole'
+import { mergePublicStats } from '@/utils/publicStats'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
 import MeetingMap from '@/components/public/MeetingMap.vue'
 
@@ -26,6 +27,7 @@ const apiAlbums = ref([])
 const apiMembers = ref([])
 const apiMeetings = ref([])
 const apiSurveys = ref([])
+const liveStats = ref(null)
 const surveyAnswers = reactive({})
 const surveySent = ref({})
 const surveyError = ref({})
@@ -66,6 +68,7 @@ const list = (value) => {
   const items = value?.[locale.value] || value?.en || value?.fr || value?.ar || []
   return Array.isArray(items) ? items : []
 }
+const displayedStats = computed(() => mergePublicStats(parentsCouncil.stats, liveStats.value))
 
 const displayedMembers = computed(() => {
   if (apiMembers.value.length) {
@@ -210,6 +213,11 @@ onMounted(async () => {
     })
   } catch {
     apiSurveys.value = []
+  }
+  try {
+    liveStats.value = await fetchPublicStats()
+  } catch {
+    liveStats.value = null
   }
 })
 </script>
@@ -528,7 +536,7 @@ onMounted(async () => {
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('parents.publicStats') }}</h2>
         <div class="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
           <div
-            v-for="stat in parentsCouncil.stats"
+            v-for="stat in displayedStats"
             :key="stat.key"
             class="rounded-xl bg-white px-4 py-5 text-center shadow-sm"
           >

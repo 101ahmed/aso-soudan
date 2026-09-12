@@ -18,6 +18,7 @@ use App\Models\MediaDecision;
 use App\Models\Member;
 use App\Models\News;
 use App\Models\SecretariatMessage;
+use App\Models\SocialVisit;
 use App\Models\Student;
 use App\Models\StudentAttendance;
 use App\Models\Teacher;
@@ -159,12 +160,16 @@ class SecretariatReportBuilder
     private function social(Carbon $from, Carbon $to): array
     {
         $query = HelpRequest::query()->whereBetween('created_at', [$from, $to]);
+        $visits = SocialVisit::query()->whereBetween('visited_on', [$from->toDateString(), $to->toDateString()]);
 
         return [
             'kind' => 'social',
             'total' => (clone $query)->count(),
             'by_status' => $this->countsBy((clone $query), 'status'),
             'by_type' => $this->countsBy((clone $query), 'help_type'),
+            'visits_total' => (clone $visits)->count(),
+            'visits_by_status' => $this->countsBy((clone $visits), 'status'),
+            'visits_by_type' => $this->countsBy((clone $visits), 'visit_type'),
         ];
     }
 
@@ -226,10 +231,16 @@ class SecretariatReportBuilder
     private function statistics(): array
     {
         $members = Member::query();
+        $public = app(PublicStatsService::class)->snapshot();
 
         return [
             'kind' => 'statistics',
             'members_total' => (clone $members)->count(),
+            'members_active' => $public['members'],
+            'students_active' => $public['students'],
+            'teachers_and_volunteers' => $public['teachers_and_volunteers'],
+            'events_published' => $public['events'],
+            'initiatives' => $public['initiatives'],
             'members_by_status' => $this->countsBy((clone $members), 'status'),
             'members_by_type' => $this->countsBy((clone $members), 'membership_type'),
         ];

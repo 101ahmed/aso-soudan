@@ -11,8 +11,9 @@ import {
   publicStats,
   recentActivities,
 } from '@/data/publicContent'
-import { fetchPublicAlbums, fetchPublicAnnouncements, fetchPublicDecisions, fetchPublicEvents, fetchPublicNews, mapPublicEvent } from '@/services/content'
+import { fetchPublicAlbums, fetchPublicAnnouncements, fetchPublicDecisions, fetchPublicEvents, fetchPublicNews, fetchPublicStats, mapPublicEvent } from '@/services/content'
 import { albumsToSlides } from '@/utils/gallerySlides'
+import { mergePublicStats } from '@/utils/publicStats'
 import { useAuthStore } from '@/stores/auth'
 import { resolveAdminEntryPath } from '@/utils/roleRedirect'
 
@@ -25,6 +26,7 @@ const apiAlbums = ref([])
 const apiEvents = ref([])
 const apiDecisions = ref([])
 const eventsLoaded = ref(false)
+const liveStats = ref(null)
 
 function localized(item) {
   return item?.[locale.value] || item?.en || item?.fr || item?.ar || ''
@@ -80,6 +82,10 @@ const homeDecisions = computed(() =>
   })),
 )
 
+const displayedStats = computed(() =>
+  mergePublicStats(publicStats, liveStats.value, { teachers: 'teachers_and_volunteers' }),
+)
+
 onMounted(async () => {
   try {
     const data = await fetchPublicNews({ home: 1, per_page: 6 })
@@ -130,6 +136,12 @@ onMounted(async () => {
     apiEvents.value = []
   } finally {
     eventsLoaded.value = true
+  }
+
+  try {
+    liveStats.value = await fetchPublicStats()
+  } catch {
+    liveStats.value = null
   }
 })
 </script>
@@ -311,7 +323,7 @@ onMounted(async () => {
     <section class="mx-auto max-w-6xl px-5 py-16 md:px-8">
       <SectionHeading :title="t('home.statsTitle')" :subtitle="t('home.statsSubtitle')" />
       <div class="grid grid-cols-2 gap-4 md:grid-cols-5">
-        <div v-for="stat in publicStats" :key="stat.key" class="rounded-xl bg-white px-4 py-6 text-center shadow-sm">
+        <div v-for="stat in displayedStats" :key="stat.key" class="rounded-xl bg-white px-4 py-6 text-center shadow-sm">
           <p class="text-3xl font-bold text-[var(--rdp-forest)]">{{ stat.value }}</p>
           <p class="mt-2 text-sm text-slate-600">{{ t(`home.stats.${stat.key}`) }}</p>
         </div>

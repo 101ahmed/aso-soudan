@@ -236,6 +236,7 @@ onMounted(load)
             </tbody>
           </table>
         </div>
+        <p class="mt-4 text-sm font-medium text-slate-600">{{ t('secretariatReports.socialVisits') }}: {{ report.specific.visits_total || 0 }}</p>
       </section>
 
       <section v-else-if="report.specific?.kind === 'finance'">
@@ -284,7 +285,32 @@ onMounted(load)
 
       <section v-else-if="report.specific?.kind === 'statistics'">
         <h4 class="mb-3 font-semibold text-[var(--rdp-forest)]">{{ t('secretariatReports.members') }}</h4>
-        <p class="text-2xl font-semibold">{{ report.specific.members_total }}</p>
+        <div class="grid gap-3 sm:grid-cols-3">
+          <div class="rounded-lg border p-3">
+            <p class="text-xs text-slate-500">{{ t('secretariatReports.members') }}</p>
+            <p class="text-xl font-semibold">{{ report.specific.members_total }}</p>
+          </div>
+          <div class="rounded-lg border p-3">
+            <p class="text-xs text-slate-500">{{ t('secretariatReports.membersActive') }}</p>
+            <p class="text-xl font-semibold">{{ report.specific.members_active }}</p>
+          </div>
+          <div class="rounded-lg border p-3">
+            <p class="text-xs text-slate-500">{{ t('secretariatReports.students') }}</p>
+            <p class="text-xl font-semibold">{{ report.specific.students_active }}</p>
+          </div>
+          <div class="rounded-lg border p-3">
+            <p class="text-xs text-slate-500">{{ t('secretariatReports.teachersVolunteers') }}</p>
+            <p class="text-xl font-semibold">{{ report.specific.teachers_and_volunteers }}</p>
+          </div>
+          <div class="rounded-lg border p-3">
+            <p class="text-xs text-slate-500">{{ t('secretariatReports.events') }}</p>
+            <p class="text-xl font-semibold">{{ report.specific.events_published }}</p>
+          </div>
+          <div class="rounded-lg border p-3">
+            <p class="text-xs text-slate-500">{{ t('secretariatReports.initiatives') }}</p>
+            <p class="text-xl font-semibold">{{ report.specific.initiatives }}</p>
+          </div>
+        </div>
       </section>
 
       <section v-else-if="report.specific?.kind === 'external'">

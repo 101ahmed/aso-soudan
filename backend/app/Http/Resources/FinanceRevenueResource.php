@@ -19,6 +19,14 @@ class FinanceRevenueResource extends JsonResource
             'title_fr' => $this->title_fr,
             'notes' => $this->notes,
             'recorded_by' => $this->recorded_by,
+            'member_id' => $this->member_id,
+            'member' => $this->whenLoaded('member', fn () => $this->member ? [
+                'id' => $this->member->id,
+                'full_name' => $this->member->full_name,
+                'subscription_status' => $this->member->subscription_status ?: 'unpaid',
+                'amount_paid' => (float) ($this->member->amount_paid ?? 0),
+            ] : null),
+            'from_subscription' => $this->member_id !== null,
             'created_at' => $this->created_at?->toIso8601String(),
             'updated_at' => $this->updated_at?->toIso8601String(),
         ];

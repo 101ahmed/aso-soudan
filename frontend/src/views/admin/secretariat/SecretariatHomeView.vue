@@ -166,11 +166,18 @@ const cards = computed(() => {
     )
   }
   if (code.value === 'social') {
-    items.unshift({
-      to: `/admin/secretariats/social/help-requests`,
-      label: t('secretariatAdmin.helpRequests'),
-      hint: t('secretariatAdmin.helpRequestsHint'),
-    })
+    items.unshift(
+      {
+        to: `/admin/secretariats/social/help-requests`,
+        label: t('secretariatAdmin.helpRequests'),
+        hint: t('secretariatAdmin.helpRequestsHint'),
+      },
+      {
+        to: `/admin/secretariats/social/visits`,
+        label: t('secretariatAdmin.socialVisits'),
+        hint: t('secretariatAdmin.socialVisitsHint'),
+      },
+    )
   }
   if (code.value === 'sports' && auth.hasPermission('sport.view')) {
     items.unshift(

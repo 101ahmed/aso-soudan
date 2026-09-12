@@ -60,6 +60,7 @@ import AcademicStudentFileView from '@/views/admin/academic/AcademicStudentFileV
 import AcademicTimetableView from '@/views/admin/academic/AcademicTimetableView.vue'
 import StatisticsMembersView from '@/views/admin/statistics/StatisticsMembersView.vue'
 import SocialHelpRequestsView from '@/views/admin/secretariat/SocialHelpRequestsView.vue'
+import SocialVisitsView from '@/views/admin/secretariat/SocialVisitsView.vue'
 import SportsTeamsView from '@/views/admin/secretariat/SportsTeamsView.vue'
 import SportsTeamHubView from '@/views/admin/secretariat/SportsTeamHubView.vue'
 import SportsNationalView from '@/views/admin/secretariat/SportsNationalView.vue'
@@ -344,6 +345,12 @@ const router = createRouter({
               path: 'help-requests',
               name: 'admin.secretariat.help',
               component: SocialHelpRequestsView,
+              meta: { permission: 'help.view' },
+            },
+            {
+              path: 'visits',
+              name: 'admin.secretariat.visits',
+              component: SocialVisitsView,
               meta: { permission: 'help.view' },
             },
             {

@@ -4,13 +4,15 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { presidentPage as page } from '@/data/presidentPage'
 import { galleryAlbums } from '@/data/publicContent'
-import { fetchPublicAlbums } from '@/services/content'
+import { fetchPublicAlbums, fetchPublicStats } from '@/services/content'
 import { fetchPublicPresidentCard } from '@/services/president'
+import { mergePublicStats } from '@/utils/publicStats'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
 
 const { t, locale } = useI18n()
 const contactSent = ref(false)
 const apiAlbums = ref([])
+const liveStats = ref(null)
 const offices = ref({ president: null, vice_president: null })
 const form = reactive({
   name: '',
@@ -34,7 +36,9 @@ const list = (value) => {
   const items = value?.[locale.value] || value?.en || value?.fr || value?.ar || []
   return Array.isArray(items) ? items : []
 }
-
+const displayedStats = computed(() =>
+  mergePublicStats(page.stats, liveStats.value, { teachers: 'teachers_and_volunteers' }),
+)
 const albums = computed(() => {
   if (apiAlbums.value.length) {
     return apiAlbums.value.map((item) => ({
@@ -66,6 +70,11 @@ onMounted(async () => {
     apiAlbums.value = data.data?.length ? data.data : (await fetchPublicAlbums({ per_page: 8 })).data || []
   } catch {
     apiAlbums.value = []
+  }
+  try {
+    liveStats.value = await fetchPublicStats()
+  } catch {
+    liveStats.value = null
   }
 })
 </script>
@@ -322,7 +331,7 @@ onMounted(async () => {
         <p class="mt-2 text-sm text-slate-500">{{ t('president.statsNote') }}</p>
         <div class="mt-5 grid grid-cols-2 gap-4 md:grid-cols-5">
           <div
-            v-for="stat in page.stats"
+            v-for="stat in displayedStats"
             :key="stat.key"
             class="bg-[var(--rdp-forest)] px-4 py-5 text-center text-white"
           >
