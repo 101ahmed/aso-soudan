@@ -19,6 +19,9 @@
             'birthDate' => 'تاريخ الميلاد',
             'subjects' => 'المواد',
             'notes' => 'ملاحظات مرشد الصف',
+            'supervisor' => 'موجه الصف (زيارة شهرية)',
+            'counselor' => 'مرشد الصف',
+            'lastVisit' => 'آخر زيارة للموجه',
             'noPhoto' => 'لا توجد صورة',
             'empty' => '—',
             'footer' => 'وثيقة داخلية — الرابطة السودانية برين',
@@ -40,6 +43,9 @@
             'birthDate' => 'Date de naissance',
             'subjects' => 'Matières',
             'notes' => 'Observations du conseiller de classe',
+            'supervisor' => 'Superviseur de classe (visite mensuelle)',
+            'counselor' => 'Conseiller de classe',
+            'lastVisit' => 'Dernière visite du superviseur',
             'noPhoto' => 'Pas de photo',
             'empty' => '—',
             'footer' => 'Document interne — Association soudanaise de Rennes',
@@ -61,6 +67,9 @@
             'birthDate' => 'Date of birth',
             'subjects' => 'Subjects',
             'notes' => 'Class counselor notes',
+            'supervisor' => 'Class supervisor (monthly visit)',
+            'counselor' => 'Class counselor',
+            'lastVisit' => 'Last supervisor visit',
             'noPhoto' => 'No photo',
             'empty' => '—',
             'footer' => 'Internal document — Sudanese Association of Rennes',
@@ -88,6 +97,11 @@
         ->map(fn ($subject) => $localized($subject))
         ->filter()
         ->implode(' · ');
+    $assignment = $student->relationLoaded('classStaffAssignment') ? $student->classStaffAssignment : null;
+    $lastVisit = $student->relationLoaded('supervisorLastVisit') ? $student->supervisorLastVisit : null;
+    $supervisorName = $assignment?->supervisorDisplayName() ?: $label('empty');
+    $counselorName = $assignment?->counselorDisplayName() ?: $label('empty');
+    $lastVisitDate = $lastVisit?->visited_on?->format('d/m/Y') ?: $label('empty');
     $notes = trim((string) $student->notes);
     $photoFirst = ! $isAr;
 @endphp
@@ -144,6 +158,9 @@
                 <div class="row"><div class="k">{{ $label('year') }}</div><div class="v">{{ $yearName }}</div></div>
                 <div class="row"><div class="k">{{ $label('gender') }}</div><div class="v">{{ $gender }}</div></div>
                 <div class="row"><div class="k">{{ $label('subjects') }}</div><div class="v">{{ $subjects ?: $label('empty') }}</div></div>
+                <div class="row"><div class="k">{{ $label('counselor') }}</div><div class="v">{{ $counselorName }}</div></div>
+                <div class="row"><div class="k">{{ $label('supervisor') }}</div><div class="v">{{ $supervisorName }}</div></div>
+                <div class="row"><div class="k">{{ $label('lastVisit') }}</div><div class="v">{{ $lastVisitDate }}</div></div>
             </td>
             @unless($photoFirst)
                 <td class="photo">

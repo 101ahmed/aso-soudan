@@ -30,6 +30,9 @@ class StudentResource extends JsonResource
             'academic_year' => $this->whenLoaded('academicYear', fn () => $this->academicYear?->only(['id', 'name'])),
             'education_stage' => $this->whenLoaded('educationStage', fn () => $this->educationStage?->only(['id', 'code', 'name_ar', 'name_fr'])),
             'level' => $this->whenLoaded('level', fn () => $this->level?->only(['id', 'code', 'name_ar', 'name_fr', 'education_stage_id'])),
+            'class_supervisor' => $this->namedStaff('supervisor'),
+            'class_counselor' => $this->namedStaff('counselor'),
+            'supervisor_last_visit' => $this->supervisorLastVisitPayload(),
             'subjects' => $this->whenLoaded('subjects', function () {
                 return $this->subjects
                     ->reject(fn (Subject $subject) => Subject::isFrenchLanguage($subject))
@@ -41,6 +44,37 @@ class StudentResource extends JsonResource
                 ])->values();
             }),
             'created_at' => $this->created_at?->toIso8601String(),
+        ];
+    }
+
+    private function namedStaff(string $role): ?array
+    {
+        if (! $this->relationLoaded('classStaffAssignment')) {
+            return null;
+        }
+
+        $name = $role === 'counselor'
+            ? $this->classStaffAssignment?->counselorDisplayName()
+            : $this->classStaffAssignment?->supervisorDisplayName();
+        if (! $name) {
+            return null;
+        }
+
+        return ['full_name' => $name];
+    }
+
+    private function supervisorLastVisitPayload(): ?array
+    {
+        if (! $this->relationLoaded('supervisorLastVisit') || ! $this->supervisorLastVisit) {
+            return null;
+        }
+
+        $visit = $this->supervisorLastVisit;
+
+        return [
+            'month' => $visit->visit_month?->format('Y-m'),
+            'visited_on' => $visit->visited_on?->toDateString(),
+            'notes' => $visit->notes,
         ];
     }
 }

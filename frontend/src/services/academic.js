@@ -141,6 +141,25 @@ export async function deleteTeacher(id) {
   await api.delete(`/admin/academic/teachers/${id}`)
 }
 
+export async function fetchClassStaff() {
+  const { data } = await api.get('/admin/academic/class-staff')
+  return data
+}
+
+export async function updateClassStaff(levelId, payload) {
+  const { data } = await api.put(`/admin/academic/class-staff/${levelId}`, payload)
+  return data.data || data
+}
+
+export async function upsertClassSupervisorVisit(levelId, payload) {
+  const { data } = await api.put(`/admin/academic/class-staff/${levelId}/visits`, payload)
+  return data.data || data
+}
+
+export async function deleteClassSupervisorVisit(levelId, month) {
+  await api.delete(`/admin/academic/class-staff/${levelId}/visits/${month}`)
+}
+
 export async function fetchTimetable(params = {}) {
   const { data } = await api.get('/admin/academic/timetable', { params })
   return data

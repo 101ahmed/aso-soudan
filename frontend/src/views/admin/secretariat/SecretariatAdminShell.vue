@@ -62,6 +62,8 @@ const links = computed(() => {
   }
   if (props.code === 'academic' && auth.hasPermission('teacher.view')) {
     items.push({ to: `${base.value}/teachers`, label: t('secretariatAdmin.teachers') })
+    items.push({ to: `${base.value}/class-counselor`, label: t('secretariatAdmin.classCounselor') })
+    items.push({ to: `${base.value}/class-supervisor`, label: t('secretariatAdmin.classSupervisor') })
   }
   if (props.code === 'academic' && auth.hasPermission('student.view')) {
     items.push({ to: `${base.value}/students`, label: t('secretariatAdmin.students') })

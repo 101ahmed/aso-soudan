@@ -283,6 +283,17 @@ onMounted(async () => {
                 {{ t('academicStudents.age') }}: {{ ageText(formAge ?? selectedAge) }}
                 · {{ t('academicStudents.level') }}: {{ label(selected.level) || '—' }}
               </p>
+              <p class="mt-1 text-sm text-slate-600">
+                {{ t('academicStudents.classCounselor') }}: {{ selected.class_counselor?.full_name || '—' }}
+              </p>
+              <p class="mt-1 text-sm text-slate-600">
+                {{ t('academicStudents.classSupervisor') }}: {{ selected.class_supervisor?.full_name || '—' }}
+                <span class="text-xs text-slate-500">({{ t('academicStudents.supervisorMonthly') }})</span>
+              </p>
+              <p v-if="selected.supervisor_last_visit?.visited_on" class="mt-1 text-xs text-slate-500">
+                {{ t('academicStudents.lastSupervisorVisit') }}:
+                {{ selected.supervisor_last_visit.visited_on }}
+              </p>
             </div>
             <button
               type="button"

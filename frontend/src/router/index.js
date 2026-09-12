@@ -54,6 +54,7 @@ import AcademicSubjectAttendanceView from '@/views/admin/academic/AcademicSubjec
 import AcademicLevelAttendanceView from '@/views/admin/academic/AcademicLevelAttendanceView.vue'
 import AcademicAttendanceSheetView from '@/views/admin/academic/AcademicAttendanceSheetView.vue'
 import AcademicTeachersView from '@/views/admin/academic/AcademicTeachersView.vue'
+import AcademicClassStaffView from '@/views/admin/academic/AcademicClassStaffView.vue'
 import AcademicStudentsView from '@/views/admin/academic/AcademicStudentsView.vue'
 import AcademicStudentFileView from '@/views/admin/academic/AcademicStudentFileView.vue'
 import AcademicTimetableView from '@/views/admin/academic/AcademicTimetableView.vue'
@@ -304,6 +305,22 @@ const router = createRouter({
               name: 'admin.secretariat.teachers',
               component: AcademicTeachersView,
               meta: { permission: 'teacher.view' },
+            },
+            {
+              path: 'class-counselor',
+              name: 'admin.secretariat.classCounselor',
+              component: AcademicClassStaffView,
+              meta: { permission: 'teacher.view', classStaffRole: 'counselor' },
+            },
+            {
+              path: 'class-supervisor',
+              name: 'admin.secretariat.classSupervisor',
+              component: AcademicClassStaffView,
+              meta: { permission: 'teacher.view', classStaffRole: 'supervisor' },
+            },
+            {
+              path: 'class-staff',
+              redirect: { name: 'admin.secretariat.classCounselor' },
             },
             {
               path: 'students',

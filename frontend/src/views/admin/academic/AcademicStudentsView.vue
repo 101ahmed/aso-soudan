@@ -5,6 +5,7 @@ import { useAuthStore } from '@/stores/auth'
 import {
   createStudent,
   deleteStudent,
+  fetchClassStaff,
   fetchStudentCatalog,
   fetchStudents,
   updateStudent,
@@ -19,6 +20,7 @@ const error = ref('')
 const items = ref([])
 const meta = ref(null)
 const catalog = ref({ academic_years: [], stages: [], subjects: [], level_counts: {} })
+const classStaffByLevel = ref({})
 const editingId = ref(null)
 const filters = reactive({ search: '', status: '', level_id: '', page: 1 })
 const form = reactive({
@@ -60,6 +62,13 @@ function selectLevel(id) {
 function label(item) {
   if (!item) return ''
   return pickName(item, locale.value)
+}
+
+function staffName(levelId, items, key) {
+  const fromApi = classStaffByLevel.value[String(levelId)]?.[key]
+  if (fromApi) return fromApi
+  const found = (items || []).find((item) => item?.[key]?.full_name)
+  return found?.[key]?.full_name || '—'
 }
 
 function resetForm() {
@@ -159,6 +168,19 @@ watch(() => form.education_stage_id, (next, prev) => {
 
 onMounted(async () => {
   try { catalog.value = await fetchStudentCatalog() } catch { catalog.value = { academic_years: [], stages: [], subjects: [], level_counts: {} } }
+  try {
+    const data = await fetchClassStaff()
+    const map = {}
+    for (const level of data.levels || []) {
+      map[String(level.id)] = {
+        class_supervisor: level.supervisor?.full_name || '',
+        class_counselor: level.counselor?.full_name || '',
+      }
+    }
+    classStaffByLevel.value = map
+  } catch {
+    classStaffByLevel.value = {}
+  }
   resetForm()
   await load()
 })
@@ -213,7 +235,16 @@ onMounted(async () => {
               class="overflow-x-auto rounded-xl border bg-white"
             >
               <div class="flex items-center justify-between border-b px-4 py-3">
-                <h3 class="font-semibold text-[var(--rdp-forest)]">{{ label(group.level) }}</h3>
+                <div>
+                  <h3 class="font-semibold text-[var(--rdp-forest)]">{{ label(group.level) }}</h3>
+                  <p class="mt-0.5 text-xs text-slate-500">
+                    {{ t('academicStudents.classCounselor') }}: {{ staffName(group.level.id, group.items, 'class_counselor') }}
+                  </p>
+                  <p class="mt-0.5 text-xs text-slate-500">
+                    {{ t('academicStudents.classSupervisor') }}: {{ staffName(group.level.id, group.items, 'class_supervisor') }}
+                    ({{ t('academicStudents.supervisorMonthly') }})
+                  </p>
+                </div>
                 <p class="text-xs text-slate-500">{{ group.items.length }} {{ t('academicStudents.studentsCount') }}</p>
               </div>
               <table class="min-w-full text-sm">

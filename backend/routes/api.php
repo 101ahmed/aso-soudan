@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\AdminAcademicAttendanceController;
+use App\Http\Controllers\Api\Admin\AdminAcademicClassStaffController;
 use App\Http\Controllers\Api\Admin\AdminAcademicStudentController;
 use App\Http\Controllers\Api\Admin\AdminAcademicTeacherController;
 use App\Http\Controllers\Api\Admin\AdminAcademicTimetableController;
@@ -246,6 +247,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/teachers/{teacher}', [AdminAcademicTeacherController::class, 'show']);
         Route::put('/teachers/{teacher}', [AdminAcademicTeacherController::class, 'update']);
         Route::delete('/teachers/{teacher}', [AdminAcademicTeacherController::class, 'destroy']);
+        Route::get('/class-staff', [AdminAcademicClassStaffController::class, 'index']);
+        Route::put('/class-staff/{level}', [AdminAcademicClassStaffController::class, 'update']);
+        Route::put('/class-staff/{level}/visits', [AdminAcademicClassStaffController::class, 'upsertVisit']);
+        Route::delete('/class-staff/{level}/visits/{month}', [AdminAcademicClassStaffController::class, 'destroyVisit'])
+            ->where('month', '[0-9]{4}-[0-9]{2}');
     });
 
     Route::prefix('admin/statistics')->group(function () {

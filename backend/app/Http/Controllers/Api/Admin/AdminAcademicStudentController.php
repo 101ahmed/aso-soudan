@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\StudentResource;
 use App\Models\AcademicYear;
 use App\Models\ClassGroup;
+use App\Models\ClassStaffAssignment;
 use App\Models\EducationStage;
 use App\Models\Student;
 use App\Models\Subject;
@@ -62,6 +63,8 @@ class AdminAcademicStudentController extends Controller
             ->orderBy('first_name')
             ->paginate($request->integer('per_page', 100));
 
+        ClassStaffAssignment::attachToStudents($students->getCollection());
+
         return StudentResource::collection($students);
     }
 
@@ -90,7 +93,10 @@ class AdminAcademicStudentController extends Controller
             $this->syncSubjects($student, $data['subject_ids'] ?? []);
             $this->enrollInLevelClasses($student, $data['subject_ids'] ?? []);
 
-            return $student->load(['academicYear', 'educationStage', 'level', 'subjects']);
+            $student = $student->load(['academicYear', 'educationStage', 'level', 'subjects']);
+            ClassStaffAssignment::attachToStudents([$student]);
+
+            return $student;
         });
 
         return (new StudentResource($student))->response()->setStatusCode(201);
@@ -100,7 +106,10 @@ class AdminAcademicStudentController extends Controller
     {
         $this->authorizePermission($request, 'student.view');
 
-        return new StudentResource($student->load(['academicYear', 'educationStage', 'level', 'subjects']));
+        $student->load(['academicYear', 'educationStage', 'level', 'subjects']);
+        ClassStaffAssignment::attachToStudents([$student]);
+
+        return new StudentResource($student);
     }
 
     public function update(Request $request, Student $student): StudentResource
@@ -133,7 +142,10 @@ class AdminAcademicStudentController extends Controller
             }
             $this->enrollInLevelClasses($student, $data['subject_ids'] ?? $student->subjects()->pluck('subjects.id')->all());
 
-            return $student->fresh()->load(['academicYear', 'educationStage', 'level', 'subjects']);
+            $student = $student->fresh()->load(['academicYear', 'educationStage', 'level', 'subjects']);
+            ClassStaffAssignment::attachToStudents([$student]);
+
+            return $student;
         });
 
         return new StudentResource($student);
@@ -153,6 +165,7 @@ class AdminAcademicStudentController extends Controller
         $this->authorizePermission($request, 'student.view');
 
         $student->load(['academicYear', 'educationStage', 'level', 'subjects']);
+        ClassStaffAssignment::attachToStudents([$student]);
         $locale = in_array($request->string('locale')->toString(), ['ar', 'fr', 'en'], true)
             ? $request->string('locale')->toString()
             : 'ar';

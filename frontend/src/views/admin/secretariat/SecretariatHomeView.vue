@@ -65,6 +65,16 @@ const cards = computed(() => {
         hint: t('secretariatAdmin.teachersHint'),
       },
       {
+        to: `/admin/secretariats/academic/class-counselor`,
+        label: t('secretariatAdmin.classCounselor'),
+        hint: t('secretariatAdmin.classCounselorHint'),
+      },
+      {
+        to: `/admin/secretariats/academic/class-supervisor`,
+        label: t('secretariatAdmin.classSupervisor'),
+        hint: t('secretariatAdmin.classSupervisorHint'),
+      },
+      {
         to: `/admin/secretariats/academic/students`,
         label: t('secretariatAdmin.students'),
         hint: t('secretariatAdmin.studentsHint'),
