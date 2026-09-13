@@ -94,6 +94,16 @@ const cards = computed(() => {
         label: t('secretariatAdmin.timetable'),
         hint: t('secretariatAdmin.timetableHint'),
       },
+      {
+        to: `/admin/secretariats/academic/exams`,
+        label: t('secretariatAdmin.exams'),
+        hint: t('secretariatAdmin.examsHint'),
+      },
+      {
+        to: `/admin/secretariats/academic/achievement`,
+        label: t('secretariatAdmin.achievement'),
+        hint: t('secretariatAdmin.achievementHint'),
+      },
     )
   }
   if (code.value === 'statistics') {

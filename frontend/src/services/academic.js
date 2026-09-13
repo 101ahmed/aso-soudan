@@ -289,3 +289,60 @@ function studentPayload(payload) {
   })
   return body
 }
+
+export async function fetchExamCatalog() {
+  const { data } = await api.get('/admin/academic/exams/catalog')
+  return data
+}
+
+export async function fetchExams(params = {}) {
+  const { data } = await api.get('/admin/academic/exams', { params })
+  return data
+}
+
+export async function createExam(payload) {
+  const { data } = await api.post('/admin/academic/exams', payload)
+  return data.data || data
+}
+
+export async function updateExam(id, payload) {
+  const { data } = await api.put(`/admin/academic/exams/${id}`, payload)
+  return data.data || data
+}
+
+export async function deleteExam(id) {
+  await api.delete(`/admin/academic/exams/${id}`)
+}
+
+export async function fetchExam(id) {
+  const { data } = await api.get(`/admin/academic/exams/${id}`)
+  return data
+}
+
+export async function saveExamGrades(id, grades) {
+  const { data } = await api.post(`/admin/academic/exams/${id}/grades`, { grades })
+  return data
+}
+
+export async function fetchAchievement(params) {
+  const { data } = await api.get('/admin/academic/achievement', { params })
+  return data
+}
+
+export async function fetchClassResults(params) {
+  const { data } = await api.get('/admin/academic/class-results', { params })
+  return data
+}
+
+export async function fetchStudentAcademicReport(id, params = {}) {
+  const { data } = await api.get(`/admin/academic/students/${id}/academic-report`, { params })
+  return data
+}
+
+export async function downloadStudentAcademicReportPdf(id, params = {}) {
+  const { data, headers } = await api.get(`/admin/academic/students/${id}/academic-report/pdf`, {
+    params,
+    responseType: 'blob',
+  })
+  return { blob: data, contentType: headers['content-type'] || data.type }
+}

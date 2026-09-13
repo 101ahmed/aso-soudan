@@ -58,6 +58,10 @@ import AcademicClassStaffView from '@/views/admin/academic/AcademicClassStaffVie
 import AcademicStudentsView from '@/views/admin/academic/AcademicStudentsView.vue'
 import AcademicStudentFileView from '@/views/admin/academic/AcademicStudentFileView.vue'
 import AcademicTimetableView from '@/views/admin/academic/AcademicTimetableView.vue'
+import AcademicExamsView from '@/views/admin/academic/AcademicExamsView.vue'
+import AcademicExamSheetView from '@/views/admin/academic/AcademicExamSheetView.vue'
+import AcademicAchievementView from '@/views/admin/academic/AcademicAchievementView.vue'
+import AcademicStudentAchievementView from '@/views/admin/academic/AcademicStudentAchievementView.vue'
 import StatisticsMembersView from '@/views/admin/statistics/StatisticsMembersView.vue'
 import SocialHelpRequestsView from '@/views/admin/secretariat/SocialHelpRequestsView.vue'
 import SocialVisitsView from '@/views/admin/secretariat/SocialVisitsView.vue'
@@ -337,6 +341,30 @@ const router = createRouter({
               meta: { permission: 'student.view' },
             },
             {
+              path: 'exams',
+              name: 'admin.secretariat.exams',
+              component: AcademicExamsView,
+              meta: { permission: 'exam.view' },
+            },
+            {
+              path: 'exams/:examId',
+              name: 'admin.secretariat.exams.sheet',
+              component: AcademicExamSheetView,
+              meta: { permission: 'exam.view' },
+            },
+            {
+              path: 'achievement',
+              name: 'admin.secretariat.achievement',
+              component: AcademicAchievementView,
+              meta: { permission: 'exam.view' },
+            },
+            {
+              path: 'achievement/students/:studentId',
+              name: 'admin.secretariat.achievement.student',
+              component: AcademicStudentAchievementView,
+              meta: { permission: 'exam.view' },
+            },
+            {
               path: 'members',
               name: 'admin.secretariat.members',
               component: StatisticsMembersView,
@@ -512,6 +540,30 @@ const router = createRouter({
               path: 'lesson-prep',
               name: 'admin.teacher.lessonPrep',
               component: TeacherLessonPrepView,
+            },
+            {
+              path: 'exams',
+              name: 'admin.teacher.exams',
+              component: AcademicExamsView,
+              meta: { permission: 'exam.view' },
+            },
+            {
+              path: 'exams/:examId',
+              name: 'admin.teacher.exams.sheet',
+              component: AcademicExamSheetView,
+              meta: { permission: 'exam.view' },
+            },
+            {
+              path: 'achievement',
+              name: 'admin.teacher.achievement',
+              component: AcademicAchievementView,
+              meta: { permission: 'exam.view' },
+            },
+            {
+              path: 'achievement/students/:studentId',
+              name: 'admin.teacher.achievement.student',
+              component: AcademicStudentAchievementView,
+              meta: { permission: 'exam.view' },
             },
           ],
         },

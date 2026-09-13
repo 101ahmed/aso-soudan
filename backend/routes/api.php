@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\Admin\AdminAcademicAttendanceController;
 use App\Http\Controllers\Api\Admin\AdminAcademicClassStaffController;
+use App\Http\Controllers\Api\Admin\AdminAcademicExamController;
 use App\Http\Controllers\Api\Admin\AdminAcademicStudentController;
 use App\Http\Controllers\Api\Admin\AdminAcademicTeacherController;
 use App\Http\Controllers\Api\Admin\AdminAcademicTimetableController;
@@ -255,6 +256,18 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::put('/class-staff/{level}/visits', [AdminAcademicClassStaffController::class, 'upsertVisit']);
         Route::delete('/class-staff/{level}/visits/{month}', [AdminAcademicClassStaffController::class, 'destroyVisit'])
             ->where('month', '[0-9]{4}-[0-9]{2}');
+
+        Route::get('/exams/catalog', [AdminAcademicExamController::class, 'catalog']);
+        Route::get('/exams', [AdminAcademicExamController::class, 'index']);
+        Route::post('/exams', [AdminAcademicExamController::class, 'store']);
+        Route::get('/exams/{exam}', [AdminAcademicExamController::class, 'show']);
+        Route::put('/exams/{exam}', [AdminAcademicExamController::class, 'update']);
+        Route::delete('/exams/{exam}', [AdminAcademicExamController::class, 'destroy']);
+        Route::post('/exams/{exam}/grades', [AdminAcademicExamController::class, 'syncGrades']);
+        Route::get('/class-results', [AdminAcademicExamController::class, 'classSheet']);
+        Route::get('/achievement', [AdminAcademicExamController::class, 'achievement']);
+        Route::get('/students/{student}/academic-report/pdf', [AdminAcademicExamController::class, 'studentReportPdf']);
+        Route::get('/students/{student}/academic-report', [AdminAcademicExamController::class, 'studentReport']);
     });
 
     Route::prefix('admin/statistics')->group(function () {

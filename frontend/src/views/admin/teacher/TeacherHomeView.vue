@@ -39,6 +39,18 @@ const cards = computed(() => [
     hint: t('teacherAdmin.lessonPrepHint'),
     show: auth.hasPermission('lesson_prep.view') || auth.user?.roles?.some((r) => r.code === 'TEACHER' || r.code === 'SUPER_ADMIN'),
   },
+  {
+    to: '/admin/teacher/achievement',
+    label: t('teacherAdmin.achievement'),
+    hint: t('teacherAdmin.achievementHint'),
+    show: auth.hasPermission('exam.view'),
+  },
+  {
+    to: '/admin/teacher/exams',
+    label: t('teacherAdmin.exams'),
+    hint: t('teacherAdmin.examsHint'),
+    show: auth.hasPermission('exam.view'),
+  },
 ].filter((card) => card.show))
 
 function label(item) {

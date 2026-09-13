@@ -71,6 +71,11 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'attendance.create', 'module' => 'attendance', 'name_fr' => 'Saisir présence', 'name_ar' => 'تسجيل الحضور'],
             ['code' => 'attendance.update', 'module' => 'attendance', 'name_fr' => 'Modifier présence', 'name_ar' => 'تعديل الحضور'],
             ['code' => 'attendance.delete', 'module' => 'attendance', 'name_fr' => 'Supprimer présence', 'name_ar' => 'حذف الحضور'],
+            ['code' => 'exam.view', 'module' => 'academic', 'name_fr' => 'Voir examens et résultats', 'name_ar' => 'عرض الامتحانات والتحصيل'],
+            ['code' => 'exam.create', 'module' => 'academic', 'name_fr' => 'Créer un examen', 'name_ar' => 'إنشاء امتحان'],
+            ['code' => 'exam.update', 'module' => 'academic', 'name_fr' => 'Modifier un examen', 'name_ar' => 'تعديل امتحان'],
+            ['code' => 'exam.delete', 'module' => 'academic', 'name_fr' => 'Supprimer un examen', 'name_ar' => 'حذف امتحان'],
+            ['code' => 'exam.grade', 'module' => 'academic', 'name_fr' => 'Saisir / modifier les notes', 'name_ar' => 'إدخال وتعديل الدرجات'],
             ['code' => 'report.view', 'module' => 'reports', 'name_fr' => 'Voir rapports', 'name_ar' => 'عرض التقارير'],
             ['code' => 'report.export', 'module' => 'reports', 'name_fr' => 'Exporter rapports', 'name_ar' => 'تصدير التقارير'],
             ['code' => 'statistics.view', 'module' => 'statistics', 'name_fr' => 'Voir statistiques', 'name_ar' => 'عرض الإحصاءات'],
@@ -219,6 +224,7 @@ class RolePermissionSeeder extends Seeder
                 'teacher.view', 'teacher.create', 'teacher.update',
                 'attendance.view', 'attendance.create', 'attendance.update', 'attendance.delete',
                 'lesson_prep.view', 'lesson_prep.create', 'lesson_prep.update', 'lesson_prep.delete',
+                'exam.view', 'exam.create', 'exam.update', 'exam.delete', 'exam.grade',
             ]),
             'SOCIAL_SECRETARIAT' => array_merge($secretariatManagerCodes, [
                 'help.view', 'help.create', 'help.update', 'help.delete',
@@ -263,6 +269,7 @@ class RolePermissionSeeder extends Seeder
                 'student.view', 'student.create', 'student.update', 'student.delete',
                 'attendance.view', 'attendance.create', 'attendance.update', 'attendance.delete',
                 'lesson_prep.view', 'lesson_prep.create', 'lesson_prep.update', 'lesson_prep.delete',
+                'exam.view', 'exam.grade',
             ])->pluck('id')
         );
 

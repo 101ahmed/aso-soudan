@@ -34,6 +34,16 @@ const links = computed(() => [
     label: t('teacherAdmin.lessonPrep'),
     show: auth.hasPermission('lesson_prep.view') || allowed.value,
   },
+  {
+    to: '/admin/teacher/achievement',
+    label: t('teacherAdmin.achievement'),
+    show: auth.hasPermission('exam.view'),
+  },
+  {
+    to: '/admin/teacher/exams',
+    label: t('teacherAdmin.exams'),
+    show: auth.hasPermission('exam.view'),
+  },
 ].filter((link) => link.show !== false))
 
 function isActive(link) {

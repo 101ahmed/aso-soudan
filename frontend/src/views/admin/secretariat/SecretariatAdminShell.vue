@@ -69,6 +69,10 @@ const links = computed(() => {
     items.push({ to: `${base.value}/students`, label: t('secretariatAdmin.students') })
     items.push({ to: `${base.value}/student-file`, label: t('secretariatAdmin.studentFile') })
   }
+  if (props.code === 'academic' && auth.hasPermission('exam.view')) {
+    items.push({ to: `${base.value}/exams`, label: t('secretariatAdmin.exams') })
+    items.push({ to: `${base.value}/achievement`, label: t('secretariatAdmin.achievement') })
+  }
   if (props.code === 'statistics' && auth.hasPermission('member.view')) {
     items.push({ to: `${base.value}/members`, label: t('secretariatAdmin.members') })
   }
