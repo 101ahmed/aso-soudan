@@ -61,6 +61,7 @@ import AcademicTimetableView from '@/views/admin/academic/AcademicTimetableView.
 import StatisticsMembersView from '@/views/admin/statistics/StatisticsMembersView.vue'
 import SocialHelpRequestsView from '@/views/admin/secretariat/SocialHelpRequestsView.vue'
 import SocialVisitsView from '@/views/admin/secretariat/SocialVisitsView.vue'
+import WomenMembersView from '@/views/admin/secretariat/WomenMembersView.vue'
 import SportsTeamsView from '@/views/admin/secretariat/SportsTeamsView.vue'
 import SportsTeamHubView from '@/views/admin/secretariat/SportsTeamHubView.vue'
 import SportsNationalView from '@/views/admin/secretariat/SportsNationalView.vue'
@@ -352,6 +353,12 @@ const router = createRouter({
               name: 'admin.secretariat.visits',
               component: SocialVisitsView,
               meta: { permission: 'help.view' },
+            },
+            {
+              path: 'women-members',
+              name: 'admin.secretariat.womenMembers',
+              component: WomenMembersView,
+              meta: { permission: 'women_member.view' },
             },
             {
               path: 'teams',

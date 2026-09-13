@@ -1148,6 +1148,8 @@
     "helpRequestsHint": "Recevoir les demandes d’aide et suivre leur type et leur statut.",
     "socialVisits": "Visites",
     "socialVisitsHint": "Enregistrer les visites : nom, lieu, type, motif et date.",
+    "womenMembers": "Registre des femmes",
+    "womenMembersHint": "Enregistrer les membres : nom, genre, résidence, situation familiale et nombre d’enfants.",
     "sportsTeams": "Équipes de la Rabta",
     "sportsTeamsHint": "Nom, catégorie d’âge, encadrement, joueurs, matchs et statistiques.",
     "sportsNational": "Sélection / المنتخب",
@@ -1549,6 +1551,33 @@
       "planned": "Planifiée",
       "completed": "Réalisée",
       "cancelled": "Annulée"
+    }
+  },
+  "womenMembers": {
+    "adminTitle": "Registre des femmes",
+    "adminHint": "Enregistrer les membres : nom, genre, résidence, situation familiale et nombre d’enfants.",
+    "search": "Rechercher par nom ou résidence",
+    "allGenders": "Tous les genres",
+    "allMarital": "Toutes les situations",
+    "new": "Ajouter une membre",
+    "edit": "Modifier la membre",
+    "fullName": "Nom",
+    "gender": "Genre",
+    "residence": "Résidence",
+    "maritalStatus": "Situation familiale",
+    "maritalUnset": "Non précisé",
+    "childrenCount": "Nombre d’enfants",
+    "notes": "Notes",
+    "empty": "Aucune membre enregistrée pour le moment.",
+    "genders": {
+      "female": "Femme",
+      "male": "Homme"
+    },
+    "marital": {
+      "single": "Célibataire",
+      "married": "Mariée",
+      "divorced": "Divorcée",
+      "widowed": "Veuve"
     }
   },
   "externalRel": {

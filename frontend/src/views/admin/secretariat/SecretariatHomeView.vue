@@ -179,6 +179,15 @@ const cards = computed(() => {
       },
     )
   }
+  if (code.value === 'women-children' && auth.hasPermission('women_member.view')) {
+    items.unshift(
+      {
+        to: `/admin/secretariats/women-children/women-members`,
+        label: t('secretariatAdmin.womenMembers'),
+        hint: t('secretariatAdmin.womenMembersHint'),
+      },
+    )
+  }
   if (code.value === 'sports' && auth.hasPermission('sport.view')) {
     items.unshift(
       {

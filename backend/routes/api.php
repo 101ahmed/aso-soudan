@@ -29,6 +29,7 @@ use App\Http\Controllers\Api\Admin\AdminSiteContentController;
 use App\Http\Controllers\Api\Admin\AdminSocialHelpRequestController;
 use App\Http\Controllers\Api\Admin\AdminSocialVisitController;
 use App\Http\Controllers\Api\Admin\AdminSportsController;
+use App\Http\Controllers\Api\Admin\AdminWomenMemberController;
 use App\Http\Controllers\Api\Admin\AdminStatisticsMemberController;
 use App\Http\Controllers\Api\Admin\AdminTeacherRegisterController;
 use App\Http\Controllers\Api\AuthController;
@@ -368,6 +369,12 @@ Route::middleware(['auth:sanctum'])->group(function () {
             Route::get('/visits/{socialVisit}', [AdminSocialVisitController::class, 'show']);
             Route::put('/visits/{socialVisit}', [AdminSocialVisitController::class, 'update'])->middleware(['department:write']);
             Route::delete('/visits/{socialVisit}', [AdminSocialVisitController::class, 'destroy'])->middleware(['department:write']);
+
+            Route::get('/women-members', [AdminWomenMemberController::class, 'index']);
+            Route::post('/women-members', [AdminWomenMemberController::class, 'store'])->middleware(['department:write']);
+            Route::get('/women-members/{womenMember}', [AdminWomenMemberController::class, 'show']);
+            Route::put('/women-members/{womenMember}', [AdminWomenMemberController::class, 'update'])->middleware(['department:write']);
+            Route::delete('/women-members/{womenMember}', [AdminWomenMemberController::class, 'destroy'])->middleware(['department:write']);
 
             Route::get('/partners', [AdminExternalPartnerController::class, 'index']);
             Route::post('/partners', [AdminExternalPartnerController::class, 'store'])->middleware(['department:write']);

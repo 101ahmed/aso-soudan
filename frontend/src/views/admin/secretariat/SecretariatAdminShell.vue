@@ -76,6 +76,9 @@ const links = computed(() => {
     items.push({ to: `${base.value}/help-requests`, label: t('secretariatAdmin.helpRequests') })
     items.push({ to: `${base.value}/visits`, label: t('secretariatAdmin.socialVisits') })
   }
+  if (props.code === 'women-children' && auth.hasPermission('women_member.view')) {
+    items.push({ to: `${base.value}/women-members`, label: t('secretariatAdmin.womenMembers') })
+  }
   if (props.code === 'sports' && auth.hasPermission('sport.view')) {
     items.push({ to: `${base.value}/teams`, label: t('secretariatAdmin.sportsTeams') })
     items.push({ to: `${base.value}/national-team`, label: t('secretariatAdmin.sportsNational') })

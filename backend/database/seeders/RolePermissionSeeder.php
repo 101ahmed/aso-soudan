@@ -101,6 +101,10 @@ class RolePermissionSeeder extends Seeder
             ['code' => 'help.create', 'module' => 'social', 'name_fr' => 'Créer demande d’aide', 'name_ar' => 'إنشاء طلب مساعدة'],
             ['code' => 'help.update', 'module' => 'social', 'name_fr' => 'Modifier demande d’aide', 'name_ar' => 'تعديل طلب مساعدة'],
             ['code' => 'help.delete', 'module' => 'social', 'name_fr' => 'Supprimer demande d’aide', 'name_ar' => 'حذف طلب مساعدة'],
+            ['code' => 'women_member.view', 'module' => 'women', 'name_fr' => 'Voir le registre des femmes', 'name_ar' => 'عرض قاعدة أعضاء النساء'],
+            ['code' => 'women_member.create', 'module' => 'women', 'name_fr' => 'Ajouter une femme au registre', 'name_ar' => 'إضافة عضو إلى قاعدة النساء'],
+            ['code' => 'women_member.update', 'module' => 'women', 'name_fr' => 'Modifier le registre des femmes', 'name_ar' => 'تعديل قاعدة أعضاء النساء'],
+            ['code' => 'women_member.delete', 'module' => 'women', 'name_fr' => 'Supprimer du registre des femmes', 'name_ar' => 'حذف من قاعدة أعضاء النساء'],
             ['code' => 'sport.view', 'module' => 'sports', 'name_fr' => 'Voir le secrétariat sportif', 'name_ar' => 'عرض الأمانة الرياضية'],
             ['code' => 'sport.create', 'module' => 'sports', 'name_fr' => 'Créer contenu sportif', 'name_ar' => 'إنشاء محتوى رياضي'],
             ['code' => 'sport.update', 'module' => 'sports', 'name_fr' => 'Modifier contenu sportif', 'name_ar' => 'تعديل محتوى رياضي'],
@@ -188,7 +192,7 @@ class RolePermissionSeeder extends Seeder
         Role::query()->where('code', 'CONTENT_EDITOR')->first()?->permissions()->sync($contentOnlyIds);
 
         $presidencyPermissions = Permission::query()->whereIn('code', [
-            'news.view', 'announcement.view', 'gallery.view', 'report.view', 'report.export', 'statistics.view', 'member.view', 'help.view', 'partner.view', 'extcontact.view', 'inbox.view', 'finance.view', 'decision.view', 'press.view',
+            'news.view', 'announcement.view', 'gallery.view', 'report.view', 'report.export', 'statistics.view', 'member.view', 'help.view', 'women_member.view', 'partner.view', 'extcontact.view', 'inbox.view', 'finance.view', 'decision.view', 'press.view',
             'president.meeting.view', 'president.meeting.manage',
             'president.directive.view', 'president.directive.manage',
             'president.archive.view', 'president.archive.manage',
@@ -227,7 +231,9 @@ class RolePermissionSeeder extends Seeder
                 'decision.view', 'decision.create', 'decision.update', 'decision.delete',
                 'press.view', 'press.create', 'press.update', 'press.delete',
             ]),
-            'WOMEN_CHILDREN' => $secretariatManagerCodes,
+            'WOMEN_CHILDREN' => array_merge($secretariatManagerCodes, [
+                'women_member.view', 'women_member.create', 'women_member.update', 'women_member.delete',
+            ]),
             'STATISTICS_SECRETARIAT' => array_merge($contentCodes, [
                 'statistics.view', 'report.view', 'report.export',
                 'member.view', 'member.create', 'member.update', 'member.delete', 'member.message',

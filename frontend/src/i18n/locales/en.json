@@ -1148,6 +1148,8 @@
     "helpRequestsHint": "Receive help requests and track their type and status.",
     "socialVisits": "Visits",
     "socialVisitsHint": "Record social visits: name, place, type, reason and date.",
+    "womenMembers": "Women members registry",
+    "womenMembersHint": "Record members: name, gender, residence, marital status and number of children.",
     "sportsTeams": "League teams",
     "sportsTeamsHint": "Name, age group, staff, players, matches and statistics.",
     "sportsNational": "National selection",
@@ -1549,6 +1551,33 @@
       "planned": "Planned",
       "completed": "Completed",
       "cancelled": "Cancelled"
+    }
+  },
+  "womenMembers": {
+    "adminTitle": "Women members registry",
+    "adminHint": "Record members: name, gender, residence, marital status and number of children.",
+    "search": "Search by name or residence",
+    "allGenders": "All genders",
+    "allMarital": "All marital statuses",
+    "new": "Add member",
+    "edit": "Edit member",
+    "fullName": "Name",
+    "gender": "Gender",
+    "residence": "Residence",
+    "maritalStatus": "Marital status",
+    "maritalUnset": "Not specified",
+    "childrenCount": "Number of children",
+    "notes": "Notes",
+    "empty": "No members recorded yet.",
+    "genders": {
+      "female": "Female",
+      "male": "Male"
+    },
+    "marital": {
+      "single": "Single",
+      "married": "Married",
+      "divorced": "Divorced",
+      "widowed": "Widowed"
     }
   },
   "externalRel": {
