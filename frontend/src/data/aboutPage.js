@@ -65,7 +65,7 @@ export const aboutPage = {
       year: '2026',
       title: { ar: 'إطلاق المنصة الرقمية', fr: 'Lancement de la plateforme numérique' },
       text: {
-        ar: 'Rabta Digital Platform لإدارة الأنشطة والخدمات إلكترونياً.',
+        ar: 'منصة الرابطة الرقمية لإدارة الأنشطة والخدمات إلكترونياً.',
         fr: 'Rabta Digital Platform pour gérer activités et services en ligne.',
       },
     },
