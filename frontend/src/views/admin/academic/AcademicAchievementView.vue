@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { fetchAchievement, fetchExamCatalog } from '@/services/academic'
+import { downloadAchievementPdf, fetchAchievement, fetchExamCatalog } from '@/services/academic'
 import { academicBaseFromPath } from '@/utils/academicPaths'
 import { pickName } from '@/utils/localized'
 
@@ -11,6 +11,7 @@ const route = useRoute()
 const base = computed(() => academicBaseFromPath(route.path))
 
 const loading = ref(false)
+const downloading = ref(false)
 const error = ref('')
 const catalog = ref({ academic_years: [], levels: [], periods: ['term1', 'term2', 'term3', 'annual'], current_year: null })
 const report = ref(null)
@@ -30,6 +31,24 @@ function trendLabel(trend) {
   if (trend === 'down') return t('academicAchievement.trendDown')
   if (trend === 'same') return t('academicAchievement.trendSame')
   return '—'
+}
+
+async function downloadPdf() {
+  if (!filters.level_id) return
+  downloading.value = true
+  error.value = ''
+  try {
+    await downloadAchievementPdf({
+      academic_year_id: filters.academic_year_id || undefined,
+      level_id: filters.level_id,
+      period: filters.period,
+      locale: locale.value,
+    })
+  } catch (e) {
+    error.value = e.response?.data?.message || t('academicAchievement.downloadFailed')
+  } finally {
+    downloading.value = false
+  }
 }
 
 async function load() {
@@ -66,9 +85,14 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-4">
-    <div>
-      <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('academicAchievement.title') }}</h2>
-      <p class="mt-1 text-sm text-slate-600">{{ t('academicAchievement.hint') }}</p>
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('academicAchievement.title') }}</h2>
+        <p class="mt-1 text-sm text-slate-600">{{ t('academicAchievement.hint') }}</p>
+      </div>
+      <button type="button" class="rounded-md border px-3 py-2 text-sm" :disabled="downloading || !filters.level_id" @click="downloadPdf">
+        {{ downloading ? t('academicAchievement.downloading') : t('academicAchievement.downloadPdf') }}
+      </button>
     </div>
     <p v-if="error" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ error }}</p>
 

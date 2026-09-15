@@ -258,13 +258,16 @@ Route::middleware(['auth:sanctum'])->group(function () {
             ->where('month', '[0-9]{4}-[0-9]{2}');
 
         Route::get('/exams/catalog', [AdminAcademicExamController::class, 'catalog']);
+        Route::get('/exams/pdf', [AdminAcademicExamController::class, 'indexPdf']);
         Route::get('/exams', [AdminAcademicExamController::class, 'index']);
         Route::post('/exams', [AdminAcademicExamController::class, 'store']);
+        Route::get('/exams/{exam}/pdf', [AdminAcademicExamController::class, 'showPdf']);
         Route::get('/exams/{exam}', [AdminAcademicExamController::class, 'show']);
         Route::put('/exams/{exam}', [AdminAcademicExamController::class, 'update']);
         Route::delete('/exams/{exam}', [AdminAcademicExamController::class, 'destroy']);
         Route::post('/exams/{exam}/grades', [AdminAcademicExamController::class, 'syncGrades']);
         Route::get('/class-results', [AdminAcademicExamController::class, 'classSheet']);
+        Route::get('/achievement/pdf', [AdminAcademicExamController::class, 'achievementPdf']);
         Route::get('/achievement', [AdminAcademicExamController::class, 'achievement']);
         Route::get('/students/{student}/academic-report/pdf', [AdminAcademicExamController::class, 'studentReportPdf']);
         Route::get('/students/{student}/academic-report', [AdminAcademicExamController::class, 'studentReport']);

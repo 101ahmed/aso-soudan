@@ -863,6 +863,9 @@
     "saveGrades": "Save grades",
     "gradesSaved": "Grades saved.",
     "gradeForbidden": "You cannot edit grades for this exam.",
+    "downloadPdf": "Download PDF",
+    "downloading": "Downloading…",
+    "downloadFailed": "Could not download the PDF.",
     "periods": {
       "term1": "Term 1",
       "term2": "Term 2",
@@ -883,6 +886,8 @@
     "report": "Report",
     "reportTitle": "Student report",
     "downloadPdf": "Download PDF",
+    "downloading": "Downloading…",
+    "downloadFailed": "Could not download the PDF.",
     "empty": "No grades for this class.",
     "periods": "Period history"
   },

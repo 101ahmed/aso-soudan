@@ -863,6 +863,9 @@
     "saveGrades": "حفظ الدرجات",
     "gradesSaved": "تم حفظ الدرجات.",
     "gradeForbidden": "لا يمكنكم تعديل درجات هذا الامتحان.",
+    "downloadPdf": "تحميل PDF",
+    "downloading": "جاري التحميل…",
+    "downloadFailed": "تعذر تحميل ملف PDF.",
     "periods": {
       "term1": "الفصل الأول",
       "term2": "الفصل الثاني",
@@ -883,6 +886,8 @@
     "report": "كشف الدرجات",
     "reportTitle": "كشف درجات الطالب",
     "downloadPdf": "تحميل PDF",
+    "downloading": "جاري التحميل…",
+    "downloadFailed": "تعذر تحميل ملف PDF.",
     "empty": "لا توجد درجات لهذا الصف.",
     "periods": "سجل الفترات"
   },

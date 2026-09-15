@@ -2,7 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { fetchExam, saveExamGrades } from '@/services/academic'
+import { downloadExamSheetPdf, fetchExam, saveExamGrades } from '@/services/academic'
 import { academicBaseFromPath } from '@/utils/academicPaths'
 import { pickName } from '@/utils/localized'
 
@@ -13,6 +13,7 @@ const examId = computed(() => route.params.examId)
 
 const loading = ref(true)
 const saving = ref(false)
+const downloading = ref(false)
 const error = ref('')
 const success = ref('')
 const payload = ref(null)
@@ -71,19 +72,36 @@ async function save() {
   }
 }
 
+async function downloadPdf() {
+  downloading.value = true
+  error.value = ''
+  try {
+    await downloadExamSheetPdf(examId.value, { locale: locale.value })
+  } catch (e) {
+    error.value = e.response?.data?.message || t('academicExams.downloadFailed')
+  } finally {
+    downloading.value = false
+  }
+}
+
 onMounted(load)
 </script>
 
 <template>
   <div class="space-y-4">
-    <div>
-      <RouterLink :to="`${base}/exams`" class="text-sm text-[var(--rdp-forest)] hover:underline">← {{ t('academicExams.back') }}</RouterLink>
-      <h2 class="mt-1 text-lg font-semibold text-[var(--rdp-forest)]">{{ exam?.title || t('academicExams.sheet') }}</h2>
-      <p v-if="exam" class="mt-1 text-sm text-slate-600">
-        {{ label(exam.level) }} · {{ label(exam.subject) }} · {{ exam.exam_date }}
-        · {{ t('academicExams.maxScore') }} {{ exam.max_score }}
-        · {{ t('academicExams.passScore') }} {{ exam.pass_score }}
-      </p>
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <RouterLink :to="`${base}/exams`" class="text-sm text-[var(--rdp-forest)] hover:underline">← {{ t('academicExams.back') }}</RouterLink>
+        <h2 class="mt-1 text-lg font-semibold text-[var(--rdp-forest)]">{{ exam?.title || t('academicExams.sheet') }}</h2>
+        <p v-if="exam" class="mt-1 text-sm text-slate-600">
+          {{ label(exam.level) }} · {{ label(exam.subject) }} · {{ exam.exam_date }}
+          · {{ t('academicExams.maxScore') }} {{ exam.max_score }}
+          · {{ t('academicExams.passScore') }} {{ exam.pass_score }}
+        </p>
+      </div>
+      <button type="button" class="rounded-md border px-3 py-2 text-sm" :disabled="downloading || !exam" @click="downloadPdf">
+        {{ downloading ? t('academicExams.downloading') : t('academicExams.downloadPdf') }}
+      </button>
     </div>
     <p v-if="error" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ error }}</p>
     <p v-if="success" class="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-800">{{ success }}</p>

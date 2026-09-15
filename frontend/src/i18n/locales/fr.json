@@ -863,6 +863,9 @@
     "saveGrades": "Enregistrer les notes",
     "gradesSaved": "Notes enregistrées.",
     "gradeForbidden": "Vous ne pouvez pas modifier les notes de cet examen.",
+    "downloadPdf": "Télécharger le PDF",
+    "downloading": "Téléchargement…",
+    "downloadFailed": "Impossible de télécharger le PDF.",
     "periods": {
       "term1": "1er trimestre",
       "term2": "2e trimestre",
@@ -883,6 +886,8 @@
     "report": "Bulletin",
     "reportTitle": "Bulletin de l’élève",
     "downloadPdf": "Télécharger le PDF",
+    "downloading": "Téléchargement…",
+    "downloadFailed": "Impossible de télécharger le PDF.",
     "empty": "Aucune note pour cette classe.",
     "periods": "Historique des périodes"
   },

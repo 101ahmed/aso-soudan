@@ -332,16 +332,76 @@ class AdminAcademicExamController extends Controller
         $this->authorizePermission($request, 'exam.view');
         $this->assertTeacherCanAccess($request->user(), null, $student->level_id ? (int) $student->level_id : null);
 
-        $locale = in_array($request->string('locale')->toString(), ['ar', 'fr', 'en'], true)
-            ? $request->string('locale')->toString()
-            : 'ar';
         $report = $this->buildStudentReport($request->user(), $student, $request->string('period')->toString() ?: null);
-        $html = view('reports.student-academic', [
-            'locale' => $locale,
-            'report' => $report,
-        ])->render();
+
+        return $this->pdfDownload(
+            view('reports.student-academic', [
+                'locale' => $this->pdfLocale($request),
+                'report' => $report,
+            ])->render(),
+            'academic-report-'.$student->id.'.pdf'
+        );
+    }
+
+    public function indexPdf(Request $request): Response
+    {
+        $this->authorizePermission($request, 'exam.view');
+
+        $filters = $request->only(['academic_year_id', 'level_id', 'subject_id', 'period', 'search']);
+        $query = AcademicExam::query()
+            ->with(['academicYear', 'level', 'subject'])
+            ->withCount('grades')
+            ->filtered($filters)
+            ->latest('exam_date')
+            ->latest('id');
+        $this->restrictExamQuery($query, $request->user());
+
+        return $this->pdfDownload(
+            view('reports.academic-exams', [
+                'locale' => $this->pdfLocale($request),
+                'exams' => $query->get(),
+            ])->render(),
+            'academic-exams.pdf'
+        );
+    }
+
+    public function showPdf(Request $request, AcademicExam $exam): Response
+    {
+        $payload = json_decode($this->show($request, $exam)->getContent(), true) ?: [];
+
+        return $this->pdfDownload(
+            view('reports.academic-exam-sheet', [
+                'locale' => $this->pdfLocale($request),
+                'payload' => $payload,
+            ])->render(),
+            'exam-'.$exam->id.'.pdf'
+        );
+    }
+
+    public function achievementPdf(Request $request): Response
+    {
+        $payload = json_decode($this->achievement($request)->getContent(), true) ?: [];
+
+        return $this->pdfDownload(
+            view('reports.academic-achievement', [
+                'locale' => $this->pdfLocale($request),
+                'report' => $payload,
+            ])->render(),
+            'academic-achievement.pdf',
+            'landscape'
+        );
+    }
+
+    private function pdfLocale(Request $request): string
+    {
+        $locale = $request->string('locale')->toString();
+
+        return in_array($locale, ['ar', 'fr', 'en'], true) ? $locale : 'ar';
+    }
+
+    private function pdfDownload(string $html, string $filename, string $orientation = 'portrait'): Response
+    {
         $html = ArabicPdfGlyphs::shapeHtml($html);
-        $filename = 'academic-report-'.$student->id.'.pdf';
 
         if (class_exists(\Dompdf\Dompdf::class)) {
             $options = new \Dompdf\Options();
@@ -351,7 +411,7 @@ class AdminAcademicExamController extends Controller
             $options->set('isFontSubsettingEnabled', true);
             $dompdf = new \Dompdf\Dompdf($options);
             $dompdf->loadHtml($html, 'UTF-8');
-            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->setPaper('A4', $orientation);
             $dompdf->render();
 
             return response($dompdf->output(), 200, [

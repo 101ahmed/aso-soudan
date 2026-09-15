@@ -71,6 +71,16 @@ class AcademicExamTest extends TestCase
             ->assertOk()
             ->assertJsonPath('overall_average', 80)
             ->assertJsonPath('subjects.0.average', 80);
+
+        $this->actingAs($admin)
+            ->get('/api/admin/academic/exams/pdf?locale=ar')
+            ->assertOk();
+        $this->actingAs($admin)
+            ->get('/api/admin/academic/exams/'.$exam['id'].'/pdf')
+            ->assertOk();
+        $this->actingAs($admin)
+            ->get('/api/admin/academic/achievement/pdf?academic_year_id='.$year->id.'&level_id='.$level->id.'&period=term1')
+            ->assertOk();
     }
 
     public function test_teacher_can_edit_grades_only_for_assigned_subject(): void

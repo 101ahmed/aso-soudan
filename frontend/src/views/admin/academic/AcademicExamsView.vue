@@ -6,6 +6,7 @@ import { useAuthStore } from '@/stores/auth'
 import {
   createExam,
   deleteExam,
+  downloadExamsPdf,
   fetchExamCatalog,
   fetchExams,
   updateExam,
@@ -20,6 +21,7 @@ const base = computed(() => academicBaseFromPath(route.path))
 
 const loading = ref(false)
 const saving = ref(false)
+const downloading = ref(false)
 const error = ref('')
 const catalog = ref({ academic_years: [], levels: [], subjects: [], periods: [], current_year: null, can_create: false })
 const items = ref([])
@@ -126,6 +128,25 @@ async function save() {
   }
 }
 
+async function downloadPdf() {
+  downloading.value = true
+  error.value = ''
+  try {
+    await downloadExamsPdf({
+      academic_year_id: filters.academic_year_id || undefined,
+      level_id: filters.level_id || undefined,
+      subject_id: filters.subject_id || undefined,
+      period: filters.period || undefined,
+      search: filters.search || undefined,
+      locale: locale.value,
+    })
+  } catch (e) {
+    error.value = e.response?.data?.message || t('academicExams.downloadFailed')
+  } finally {
+    downloading.value = false
+  }
+}
+
 async function remove(item) {
   if (!confirm(t('academicExams.confirmDelete'))) return
   try {
@@ -149,9 +170,20 @@ onMounted(async () => {
 
 <template>
   <div class="space-y-4">
-    <div>
-      <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('academicExams.title') }}</h2>
-      <p class="mt-1 text-sm text-slate-600">{{ t('academicExams.hint') }}</p>
+    <div class="flex flex-wrap items-start justify-between gap-3">
+      <div>
+        <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('academicExams.title') }}</h2>
+        <p class="mt-1 text-sm text-slate-600">{{ t('academicExams.hint') }}</p>
+      </div>
+      <button
+        v-if="canView"
+        type="button"
+        class="rounded-md border px-3 py-2 text-sm"
+        :disabled="downloading"
+        @click="downloadPdf"
+      >
+        {{ downloading ? t('academicExams.downloading') : t('academicExams.downloadPdf') }}
+      </button>
     </div>
     <p v-if="!canView" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ t('academicExams.forbidden') }}</p>
     <p v-if="error" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ error }}</p>

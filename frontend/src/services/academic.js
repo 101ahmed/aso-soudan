@@ -300,6 +300,32 @@ export async function fetchExams(params = {}) {
   return data
 }
 
+async function downloadAcademicPdf(url, params = {}, filename = 'report.pdf') {
+  const { data, headers } = await api.get(url, {
+    params,
+    responseType: 'blob',
+  })
+  const contentType = headers['content-type'] || data.type || 'application/pdf'
+  const href = URL.createObjectURL(new Blob([data], { type: contentType }))
+  const link = document.createElement('a')
+  link.href = href
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(href)
+}
+
+export async function downloadExamsPdf(params = {}) {
+  await downloadAcademicPdf('/admin/academic/exams/pdf', params, 'academic-exams.pdf')
+}
+
+export async function downloadExamSheetPdf(id, params = {}) {
+  await downloadAcademicPdf(`/admin/academic/exams/${id}/pdf`, params, `exam-${id}.pdf`)
+}
+
+export async function downloadAchievementPdf(params = {}) {
+  await downloadAcademicPdf('/admin/academic/achievement/pdf', params, 'academic-achievement.pdf')
+}
+
 export async function createExam(payload) {
   const { data } = await api.post('/admin/academic/exams', payload)
   return data.data || data
