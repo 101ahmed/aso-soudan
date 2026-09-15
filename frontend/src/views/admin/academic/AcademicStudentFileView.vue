@@ -1,22 +1,28 @@
 <script setup>
 import { computed, onMounted, reactive, ref, shallowRef, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import {
+  downloadStudentAcademicReportPdf,
   downloadStudentDossierPdf,
   fetchStudent,
   fetchStudentCatalog,
   fetchStudents,
   updateStudent,
 } from '@/services/academic'
+import { academicBaseFromPath } from '@/utils/academicPaths'
 import { pickName } from '@/utils/localized'
 import { prepareUploadImage } from '@/utils/prepareUploadImage'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
+const route = useRoute()
+const base = computed(() => academicBaseFromPath(route.path))
 const loading = ref(false)
 const saving = ref(false)
 const downloading = ref(false)
+const downloadingResults = ref(false)
 const error = ref('')
 const success = ref('')
 const search = ref('')
@@ -37,6 +43,7 @@ const form = reactive({
 const isTeacher = computed(() => auth.user?.roles?.some((r) => r.code === 'TEACHER'))
 const canView = computed(() => auth.hasPermission('student.view') || isTeacher.value)
 const canUpdate = computed(() => auth.hasPermission('student.update') || isTeacher.value)
+const canViewExams = computed(() => auth.hasPermission('exam.view'))
 const levels = computed(() => {
   const stage = (catalog.value.stages || []).find((item) => String(item.id) === String(form.education_stage_id))
   return stage?.levels || []
@@ -208,6 +215,19 @@ async function downloadPdf() {
   }
 }
 
+async function downloadExamResultsPdf() {
+  if (!selected.value?.id) return
+  downloadingResults.value = true
+  error.value = ''
+  try {
+    await downloadStudentAcademicReportPdf(selected.value.id, { locale: locale.value, period: 'term1' })
+  } catch (e) {
+    error.value = e.response?.data?.message || t('academicAchievement.downloadFailed')
+  } finally {
+    downloadingResults.value = false
+  }
+}
+
 watch(() => form.education_stage_id, (next, prev) => {
   if (prev && next !== prev) {
     const stillValid = levels.value.some((level) => String(level.id) === String(form.level_id))
@@ -295,6 +315,7 @@ onMounted(async () => {
                 {{ selected.supervisor_last_visit.visited_on }}
               </p>
             </div>
+            <div class="flex flex-wrap gap-2">
             <button
               type="button"
               class="rounded border border-teal-800 px-4 py-2 text-sm font-semibold text-teal-800 disabled:opacity-60"
@@ -303,6 +324,23 @@ onMounted(async () => {
             >
               {{ downloading ? t('academicStudents.downloading') : t('academicStudents.downloadPdf') }}
             </button>
+            <template v-if="canViewExams">
+              <RouterLink
+                :to="`${base}/achievement/students/${selected.id}`"
+                class="rounded border px-4 py-2 text-sm font-semibold text-[var(--rdp-forest)]"
+              >
+                {{ t('academicStudents.examResults') }}
+              </RouterLink>
+              <button
+                type="button"
+                class="rounded border px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                :disabled="downloadingResults"
+                @click="downloadExamResultsPdf"
+              >
+                {{ downloadingResults ? t('academicStudents.downloading') : t('academicStudents.examResultsPdf') }}
+              </button>
+            </template>
+            </div>
           </div>
           <div class="flex flex-wrap items-center gap-3">
             <img v-if="photoPreview" :src="photoPreview" alt="" class="h-24 w-24 rounded-xl object-cover object-top ring-2 ring-teal-800/20" />

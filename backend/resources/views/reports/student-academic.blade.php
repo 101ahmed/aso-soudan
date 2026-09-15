@@ -5,20 +5,24 @@
     $t = [
         'ar' => [
             'org' => 'الرابطة السودانية برين',
-            'title' => 'تقرير أكاديمي مختصر',
+            'title' => 'نتيجة الامتحانات والدرجات',
             'name' => 'الطالب',
             'level' => 'المستوى',
             'year' => 'السنة الدراسية',
             'period' => 'الفترة',
-            'average' => 'متوسط الطالب',
-            'classAverage' => 'متوسط الفصل',
+            'average' => 'معدل الطالب',
+            'classAverage' => 'معدل الصف',
             'previous' => 'الفترة السابقة',
-            'subjects' => 'درجات المواد',
+            'subjects' => 'درجات الامتحانات حسب المادة',
             'exam' => 'الامتحان',
             'score' => 'الدرجة',
-            'max' => 'النهاية',
-            'pass' => 'النجاح',
+            'max' => 'الدرجة الكاملة',
+            'pass' => 'درجة النجاح',
             'percent' => 'النسبة',
+            'result' => 'النتيجة',
+            'absent' => 'غائب',
+            'passed' => 'ناجح',
+            'failed' => 'راسب',
             'progress' => 'تطور الطالب',
             'periods' => 'مقارنة الفترات',
             'empty' => '—',
@@ -30,7 +34,7 @@
         ],
         'fr' => [
             'org' => 'Association soudanaise de Rennes',
-            'title' => 'Rapport académique',
+            'title' => 'Résultats d’examens et notes',
             'name' => 'Élève',
             'level' => 'Niveau',
             'year' => 'Année scolaire',
@@ -38,12 +42,16 @@
             'average' => 'Moyenne de l’élève',
             'classAverage' => 'Moyenne de la classe',
             'previous' => 'Période précédente',
-            'subjects' => 'Notes par matière',
+            'subjects' => 'Notes d’examens par matière',
             'exam' => 'Examen',
             'score' => 'Note',
             'max' => 'Barème',
             'pass' => 'Seuil',
             'percent' => '%',
+            'result' => 'Résultat',
+            'absent' => 'Absent',
+            'passed' => 'Admis',
+            'failed' => 'Ajourné',
             'progress' => 'Évolution',
             'periods' => 'Comparaison des périodes',
             'empty' => '—',
@@ -55,7 +63,7 @@
         ],
         'en' => [
             'org' => 'Sudanese Association of Rennes',
-            'title' => 'Short academic report',
+            'title' => 'Exam results and grades',
             'name' => 'Student',
             'level' => 'Level',
             'year' => 'Academic year',
@@ -63,12 +71,16 @@
             'average' => 'Student average',
             'classAverage' => 'Class average',
             'previous' => 'Previous period',
-            'subjects' => 'Subject grades',
+            'subjects' => 'Exam grades by subject',
             'exam' => 'Exam',
             'score' => 'Score',
             'max' => 'Max',
             'pass' => 'Pass',
             'percent' => '%',
+            'result' => 'Result',
+            'absent' => 'Absent',
+            'passed' => 'Passed',
+            'failed' => 'Failed',
             'progress' => 'Progress',
             'periods' => 'Period comparison',
             'empty' => '—',
@@ -125,19 +137,28 @@
                     <th>{{ $t['exam'] }}</th>
                     <th>{{ $t['score'] }}</th>
                     <th>{{ $t['max'] }}</th>
+                    <th>{{ $t['pass'] }}</th>
                     <th>{{ $t['percent'] }}</th>
+                    <th>{{ $t['result'] }}</th>
                 </tr>
             </thead>
             <tbody>
                 @forelse(($subjectRow['exams'] ?? []) as $exam)
+                    @php
+                        $resultLabel = !empty($exam['is_absent'])
+                            ? $t['absent']
+                            : (($exam['passed'] ?? null) === true ? $t['passed'] : (($exam['passed'] ?? null) === false ? $t['failed'] : $t['empty']));
+                    @endphp
                     <tr>
                         <td>{{ $exam['title'] }}</td>
-                        <td>{{ $exam['is_absent'] ? $t['empty'] : ($exam['score'] ?? $t['empty']) }}</td>
+                        <td>{{ !empty($exam['is_absent']) ? $t['absent'] : ($exam['score'] ?? $t['empty']) }}</td>
                         <td>{{ $exam['max_score'] ?? $t['empty'] }}</td>
+                        <td>{{ $exam['pass_score'] ?? $t['empty'] }}</td>
                         <td>{{ $exam['percent'] ?? $t['empty'] }}</td>
+                        <td>{{ $resultLabel }}</td>
                     </tr>
                 @empty
-                    <tr><td colspan="4">{{ $t['empty'] }}</td></tr>
+                    <tr><td colspan="6">{{ $t['empty'] }}</td></tr>
                 @endforelse
             </tbody>
         </table>

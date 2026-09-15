@@ -126,7 +126,9 @@ onMounted(load)
         </thead>
         <tbody>
           <tr v-for="row in rows" :key="row.student_id" class="border-t">
-            <td class="px-4 py-3 font-medium">{{ row.full_name }}</td>
+            <td class="px-4 py-3 font-medium">
+              <RouterLink :to="`${base}/achievement/students/${row.student_id}`" class="hover:underline">{{ row.full_name }}</RouterLink>
+            </td>
             <td class="px-4 py-3">
               <input
                 v-model="row.score"

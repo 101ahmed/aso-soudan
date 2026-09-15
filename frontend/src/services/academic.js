@@ -366,9 +366,9 @@ export async function fetchStudentAcademicReport(id, params = {}) {
 }
 
 export async function downloadStudentAcademicReportPdf(id, params = {}) {
-  const { data, headers } = await api.get(`/admin/academic/students/${id}/academic-report/pdf`, {
+  await downloadAcademicPdf(
+    `/admin/academic/students/${id}/academic-report/pdf`,
     params,
-    responseType: 'blob',
-  })
-  return { blob: data, contentType: headers['content-type'] || data.type }
+    `academic-report-${id}.pdf`,
+  )
 }

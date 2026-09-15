@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import {
@@ -10,10 +11,13 @@ import {
   fetchStudents,
   updateStudent,
 } from '@/services/academic'
+import { academicBaseFromPath } from '@/utils/academicPaths'
 import { pickName } from '@/utils/localized'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
+const route = useRoute()
+const base = computed(() => academicBaseFromPath(route.path))
 const loading = ref(false)
 const saving = ref(false)
 const error = ref('')
@@ -33,6 +37,7 @@ const canView = computed(() => auth.hasPermission('student.view') || isTeacher.v
 const canCreate = computed(() => auth.hasPermission('student.create') || isTeacher.value)
 const canUpdate = computed(() => auth.hasPermission('student.update') || isTeacher.value)
 const canDelete = computed(() => auth.hasPermission('student.delete') || auth.hasPermission('student.update') || isTeacher.value)
+const canViewExams = computed(() => auth.hasPermission('exam.view'))
 const canManage = computed(() => (editingId.value ? canUpdate.value : canCreate.value))
 const levels = computed(() => {
   const stage = (catalog.value.stages || []).find((item) => String(item.id) === String(form.education_stage_id))
@@ -264,7 +269,12 @@ onMounted(async () => {
                     <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
                     <td class="px-4 py-3">{{ (item.subjects || []).map(label).join(' · ') || '—' }}</td>
                     <td class="px-4 py-3">{{ t(`academicStudents.statuses.${item.status}`) }}</td>
-                    <td class="px-4 py-3 flex gap-2">
+                    <td class="px-4 py-3 flex flex-wrap gap-2">
+                      <RouterLink
+                        v-if="canViewExams"
+                        :to="`${base}/achievement/students/${item.id}`"
+                        class="text-teal-800 hover:underline"
+                      >{{ t('academicStudents.examResults') }}</RouterLink>
                       <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
                       <button v-if="canDelete" type="button" class="text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
                     </td>
@@ -281,7 +291,12 @@ onMounted(async () => {
                   <tr v-for="item in unassignedItems" :key="item.id" class="border-t">
                     <td class="px-4 py-3 font-medium">{{ item.full_name }}</td>
                     <td class="px-4 py-3">{{ (item.subjects || []).map(label).join(' · ') || '—' }}</td>
-                    <td class="px-4 py-3 flex gap-2">
+                    <td class="px-4 py-3 flex flex-wrap gap-2">
+                      <RouterLink
+                        v-if="canViewExams"
+                        :to="`${base}/achievement/students/${item.id}`"
+                        class="text-teal-800 hover:underline"
+                      >{{ t('academicStudents.examResults') }}</RouterLink>
                       <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
                     </td>
                   </tr>
@@ -307,7 +322,12 @@ onMounted(async () => {
                 <td class="px-4 py-3">{{ label(item.level) || '—' }}</td>
                 <td class="px-4 py-3">{{ (item.subjects || []).map(label).join(' · ') || '—' }}</td>
                 <td class="px-4 py-3">{{ t(`academicStudents.statuses.${item.status}`) }}</td>
-                <td class="px-4 py-3 flex gap-2">
+                <td class="px-4 py-3 flex flex-wrap gap-2">
+                  <RouterLink
+                    v-if="canViewExams"
+                    :to="`${base}/achievement/students/${item.id}`"
+                    class="text-teal-800 hover:underline"
+                  >{{ t('academicStudents.examResults') }}</RouterLink>
                   <button v-if="canUpdate" type="button" class="text-teal-800 hover:underline" @click="edit(item)">{{ t('forms.edit') }}</button>
                   <button v-if="canDelete" type="button" class="text-rose-700 hover:underline" @click="remove(item)">{{ t('forms.delete') }}</button>
                 </td>

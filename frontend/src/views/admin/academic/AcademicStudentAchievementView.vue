@@ -1,8 +1,8 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import { RouterLink, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { downloadStudentAcademicReportPdf, fetchStudentAcademicReport } from '@/services/academic'
+import { downloadStudentAcademicReportPdf, fetchExamCatalog, fetchStudentAcademicReport } from '@/services/academic'
 import { academicBaseFromPath } from '@/utils/academicPaths'
 import { pickName } from '@/utils/localized'
 
@@ -10,11 +10,13 @@ const { t, locale } = useI18n()
 const route = useRoute()
 const base = computed(() => academicBaseFromPath(route.path))
 const studentId = computed(() => route.params.studentId)
-const period = computed(() => route.query.period || 'term1')
+const period = ref(route.query.period || 'term1')
 
 const loading = ref(true)
+const downloading = ref(false)
 const error = ref('')
 const report = ref(null)
+const catalog = ref({ periods: ['term1', 'term2', 'term3', 'annual'] })
 
 function label(item) {
   return pickName(item, locale.value)
@@ -27,31 +29,49 @@ function trendLabel(trend) {
   return '—'
 }
 
-async function downloadPdf() {
-  try {
-    const { blob, contentType } = await downloadStudentAcademicReportPdf(studentId.value, {
-      locale: locale.value,
-      period: period.value,
-    })
-    const url = URL.createObjectURL(new Blob([blob], { type: contentType }))
-    const link = document.createElement('a')
-    link.href = url
-    link.download = `academic-report-${studentId.value}.pdf`
-    link.click()
-    URL.revokeObjectURL(url)
-  } catch (e) {
-    error.value = e.response?.data?.message || e.message
-  }
+function resultLabel(exam) {
+  if (exam.is_absent) return t('academicExams.absent')
+  if (exam.passed === true) return t('academicExams.passed')
+  if (exam.passed === false) return t('academicExams.failed')
+  return '—'
 }
 
-onMounted(async () => {
+async function load() {
+  loading.value = true
+  error.value = ''
   try {
     report.value = await fetchStudentAcademicReport(studentId.value, { period: period.value })
   } catch (e) {
     error.value = e.response?.data?.message || e.message
+    report.value = null
   } finally {
     loading.value = false
   }
+}
+
+async function downloadPdf() {
+  downloading.value = true
+  error.value = ''
+  try {
+    await downloadStudentAcademicReportPdf(studentId.value, {
+      locale: locale.value,
+      period: period.value,
+    })
+  } catch (e) {
+    error.value = e.response?.data?.message || t('academicAchievement.downloadFailed')
+  } finally {
+    downloading.value = false
+  }
+}
+
+watch(period, load)
+onMounted(async () => {
+  try {
+    catalog.value = await fetchExamCatalog()
+  } catch {
+    /* keep defaults */
+  }
+  await load()
 })
 </script>
 
@@ -63,7 +83,14 @@ onMounted(async () => {
         <h2 class="mt-1 text-lg font-semibold text-[var(--rdp-forest)]">{{ t('academicAchievement.reportTitle') }}</h2>
         <p v-if="report" class="mt-1 text-sm text-slate-600">{{ report.student?.full_name }} · {{ label(report.student?.level) }}</p>
       </div>
-      <button type="button" class="rounded-md border px-3 py-2 text-sm" @click="downloadPdf">{{ t('academicAchievement.downloadPdf') }}</button>
+      <div class="flex flex-wrap gap-2">
+        <select v-model="period" class="rounded-md border px-3 py-2 text-sm">
+          <option v-for="item in catalog.periods" :key="item" :value="item">{{ t(`academicExams.periods.${item}`) }}</option>
+        </select>
+        <button type="button" class="rounded-md border px-3 py-2 text-sm" :disabled="downloading" @click="downloadPdf">
+          {{ downloading ? t('academicAchievement.downloading') : t('academicAchievement.downloadPdf') }}
+        </button>
+      </div>
     </div>
     <p v-if="error" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ error }}</p>
     <p v-if="loading" class="text-sm text-slate-500">{{ t('academicExams.loading') }}</p>
@@ -87,6 +114,7 @@ onMounted(async () => {
             <th class="px-4 py-2 font-medium">{{ t('academicExams.date') }}</th>
             <th class="px-4 py-2 font-medium">{{ t('academicExams.score') }}</th>
             <th class="px-4 py-2 font-medium">{{ t('academicExams.percent') }}</th>
+            <th class="px-4 py-2 font-medium">{{ t('academicExams.result') }}</th>
           </tr>
         </thead>
         <tbody>
@@ -95,6 +123,7 @@ onMounted(async () => {
             <td class="px-4 py-2">{{ exam.exam_date }}</td>
             <td class="px-4 py-2">{{ exam.is_absent ? t('academicExams.absent') : (exam.score ?? '—') }} / {{ exam.max_score }}</td>
             <td class="px-4 py-2">{{ exam.percent ?? '—' }}</td>
+            <td class="px-4 py-2">{{ resultLabel(exam) }}</td>
           </tr>
         </tbody>
       </table>

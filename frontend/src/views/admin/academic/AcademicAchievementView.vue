@@ -1,26 +1,45 @@
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
-import { RouterLink, useRoute } from 'vue-router'
+import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { downloadAchievementPdf, fetchAchievement, fetchExamCatalog } from '@/services/academic'
+import {
+  downloadAchievementPdf,
+  downloadStudentAcademicReportPdf,
+  fetchAchievement,
+  fetchExamCatalog,
+} from '@/services/academic'
 import { academicBaseFromPath } from '@/utils/academicPaths'
 import { pickName } from '@/utils/localized'
 
 const { t, locale } = useI18n()
 const route = useRoute()
+const router = useRouter()
 const base = computed(() => academicBaseFromPath(route.path))
 
 const loading = ref(false)
 const downloading = ref(false)
+const downloadingStudentId = ref(null)
 const error = ref('')
 const catalog = ref({ academic_years: [], levels: [], periods: ['term1', 'term2', 'term3', 'annual'], current_year: null })
 const report = ref(null)
+const studentQuery = ref('')
 
 const filters = reactive({
   academic_year_id: '',
   level_id: '',
   period: 'term1',
 })
+
+const filteredStudents = computed(() => {
+  const rows = report.value?.students || []
+  const q = studentQuery.value.trim().toLowerCase()
+  if (!q) return rows
+  return rows.filter((row) => String(row.full_name || '').toLowerCase().includes(q))
+})
+
+function studentResultPath(studentId) {
+  return `${base.value}/achievement/students/${studentId}?period=${filters.period}`
+}
 
 function label(item) {
   return pickName(item, locale.value)
@@ -49,6 +68,30 @@ async function downloadPdf() {
   } finally {
     downloading.value = false
   }
+}
+
+async function downloadStudentPdf(studentId) {
+  downloadingStudentId.value = studentId
+  error.value = ''
+  try {
+    await downloadStudentAcademicReportPdf(studentId, {
+      locale: locale.value,
+      period: filters.period,
+    })
+  } catch (e) {
+    error.value = e.response?.data?.message || t('academicAchievement.downloadFailed')
+  } finally {
+    downloadingStudentId.value = null
+  }
+}
+
+function openFirstMatch() {
+  const first = filteredStudents.value[0]
+  if (!first) {
+    error.value = t('academicAchievement.noStudentMatch')
+    return
+  }
+  router.push(studentResultPath(first.student_id))
 }
 
 async function load() {
@@ -107,6 +150,16 @@ onMounted(async () => {
         <option v-for="period in catalog.periods" :key="period" :value="period">{{ t(`academicExams.periods.${period}`) }}</option>
       </select>
       <RouterLink :to="`${base}/exams`" class="rounded-md border px-3 py-2 text-sm">{{ t('academicExams.title') }}</RouterLink>
+      <input
+        v-model="studentQuery"
+        type="search"
+        class="min-w-[14rem] flex-1 rounded-md border px-3 py-2 text-sm"
+        :placeholder="t('academicAchievement.searchStudent')"
+        @keyup.enter="openFirstMatch"
+      />
+      <button type="button" class="rounded-md border px-3 py-2 text-sm" @click="openFirstMatch">
+        {{ t('academicAchievement.findStudent') }}
+      </button>
     </div>
 
     <div v-if="report" class="rounded-xl border bg-white p-4 text-sm">
@@ -128,7 +181,7 @@ onMounted(async () => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in report?.students || []" :key="row.student_id" class="border-t">
+          <tr v-for="row in filteredStudents" :key="row.student_id" class="border-t">
             <td class="px-4 py-3 font-medium">{{ row.full_name }}</td>
             <td v-for="subject in report.subjects" :key="`${row.student_id}-${subject.id}`" class="px-4 py-3">
               {{ row.subjects?.[subject.id] ?? '—' }}
@@ -136,17 +189,27 @@ onMounted(async () => {
             <td class="px-4 py-3 font-semibold">{{ row.average ?? '—' }}</td>
             <td class="px-4 py-3">{{ row.previous_average ?? '—' }}</td>
             <td class="px-4 py-3">{{ trendLabel(row.trend) }}</td>
-            <td class="px-4 py-3 text-end">
+            <td class="px-4 py-3 text-end space-x-2 space-x-reverse">
               <RouterLink
-                :to="`${base}/achievement/students/${row.student_id}?period=${filters.period}`"
+                :to="studentResultPath(row.student_id)"
                 class="text-xs font-semibold text-[var(--rdp-forest)] hover:underline"
               >
                 {{ t('academicAchievement.report') }}
               </RouterLink>
+              <button
+                type="button"
+                class="text-xs text-slate-700 hover:underline"
+                :disabled="downloadingStudentId === row.student_id"
+                @click="downloadStudentPdf(row.student_id)"
+              >
+                {{ downloadingStudentId === row.student_id ? t('academicAchievement.downloading') : t('academicAchievement.downloadStudentPdf') }}
+              </button>
             </td>
           </tr>
-          <tr v-if="!loading && report && !report.students?.length">
-            <td :colspan="(report.subjects?.length || 0) + 5" class="px-4 py-8 text-center text-slate-500">{{ t('academicAchievement.empty') }}</td>
+          <tr v-if="!loading && report && !filteredStudents.length">
+            <td :colspan="(report.subjects?.length || 0) + 5" class="px-4 py-8 text-center text-slate-500">
+              {{ studentQuery ? t('academicAchievement.noStudentMatch') : t('academicAchievement.empty') }}
+            </td>
           </tr>
         </tbody>
       </table>
