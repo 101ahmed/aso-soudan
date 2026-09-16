@@ -11,6 +11,7 @@ use App\Models\CouncilMeeting;
 use App\Models\CouncilMember;
 use App\Models\ParentRegistration;
 use App\Models\ParentSurvey;
+use App\Support\MapUrl;
 use App\Support\StoredFileStore;
 use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
@@ -230,13 +231,7 @@ class AdminParentsController extends Controller
             'visibility' => ['nullable', Rule::in(['public', 'internal'])],
         ]);
 
-        $mapUrl = trim((string) ($data['map_url'] ?? ''));
-        $location = trim((string) ($data['location'] ?? ''));
-        if ($mapUrl === '' && $location !== '') {
-            $data['map_url'] = 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($location);
-        } elseif ($mapUrl !== '' && ! preg_match('#^https?://#i', $mapUrl)) {
-            $data['map_url'] = 'https://'.ltrim($mapUrl, '/');
-        }
+        $data['map_url'] = MapUrl::normalize($data['map_url'] ?? null, $data['location'] ?? null);
 
         return $data;
     }

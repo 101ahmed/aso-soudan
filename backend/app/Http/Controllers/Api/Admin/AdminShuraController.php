@@ -8,6 +8,7 @@ use App\Http\Resources\CouncilMemberResource;
 use App\Models\CouncilMeeting;
 use App\Models\CouncilMeetingAttendance;
 use App\Models\CouncilMember;
+use App\Support\MapUrl;
 use App\Support\StoredFileStore;
 use App\Support\UploadRules;
 use Illuminate\Http\JsonResponse;
@@ -181,7 +182,7 @@ class AdminShuraController extends Controller
 
     private function validatedMeeting(Request $request, ?CouncilMeeting $meeting = null): array
     {
-        return $request->validate([
+        $data = $request->validate([
             'reference' => ['nullable', 'string', 'max:50'],
             'title_ar' => [$meeting ? 'sometimes' : 'required', 'string', 'max:255'],
             'title_fr' => [$meeting ? 'sometimes' : 'required', 'string', 'max:255'],
@@ -195,6 +196,10 @@ class AdminShuraController extends Controller
             'minutes_fr' => ['nullable', 'string'],
             'visibility' => ['nullable', Rule::in(['public', 'internal'])],
         ]);
+
+        $data['map_url'] = MapUrl::normalize($data['map_url'] ?? null, $data['location'] ?? null);
+
+        return $data;
     }
 
     private function authorizePermission(Request $request, string $permission): void

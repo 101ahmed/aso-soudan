@@ -41,6 +41,7 @@ use App\Http\Controllers\Api\Public\PublicContentController;
 use App\Http\Controllers\Api\Public\PublicDepartmentPhotoController;
 use App\Http\Controllers\Api\Public\PublicExternalController;
 use App\Http\Controllers\Api\Public\PublicFinanceController;
+use App\Http\Controllers\Api\Public\PublicGeocodeController;
 use App\Http\Controllers\Api\Public\PublicHelpRequestController;
 use App\Http\Controllers\Api\Public\PublicMemberController;
 use App\Http\Controllers\Api\Public\PublicParentsController;
@@ -81,6 +82,7 @@ Route::prefix('public')->group(function () {
     Route::get('/shura/meetings', [PublicShuraController::class, 'meetings']);
     Route::get('/parents/members', [PublicParentsController::class, 'members']);
     Route::get('/parents/meetings', [PublicParentsController::class, 'meetings']);
+    Route::get('/geocode', PublicGeocodeController::class)->middleware('throttle:30,1');
     Route::get('/parents/surveys', [PublicParentsController::class, 'surveys']);
     Route::post('/parents/registrations', [PublicParentsController::class, 'storeRegistration']);
     Route::post('/parents/surveys/{survey}/responses', [PublicParentsController::class, 'storeSurveyResponse']);

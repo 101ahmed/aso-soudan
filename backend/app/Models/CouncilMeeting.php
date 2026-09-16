@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\MapUrl;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -57,20 +58,6 @@ class CouncilMeeting extends Model
 
     public function resolvedMapUrl(): ?string
     {
-        $url = trim((string) $this->map_url);
-        if ($url !== '') {
-            if (! preg_match('#^https?://#i', $url)) {
-                $url = 'https://'.ltrim($url, '/');
-            }
-
-            return $url;
-        }
-
-        $location = trim((string) $this->location);
-        if ($location === '') {
-            return null;
-        }
-
-        return 'https://www.google.com/maps/search/?api=1&query='.rawurlencode($location);
+        return MapUrl::normalize($this->map_url, $this->location);
     }
 }
