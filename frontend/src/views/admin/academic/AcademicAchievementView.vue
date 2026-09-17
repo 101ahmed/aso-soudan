@@ -27,6 +27,8 @@ const catalog = ref({ academic_years: [], levels: [], periods: ['term1', 'term2'
 const report = ref(null)
 const studentQuery = ref('')
 const draft = ref({})
+const passDraft = ref({})
+const previousDraft = ref({})
 
 const filters = reactive({
   academic_year_id: '',
@@ -35,7 +37,6 @@ const filters = reactive({
 })
 
 const scale = computed(() => report.value?.scale || 100)
-const passScore = computed(() => report.value?.pass_score || 50)
 const editable = computed(() => Boolean(report.value?.editable))
 
 const filteredStudents = computed(() => {
@@ -53,13 +54,6 @@ function label(item) {
   return pickName(item, locale.value)
 }
 
-function trendLabel(trend) {
-  if (trend === 'up') return t('academicAchievement.trendUp')
-  if (trend === 'down') return t('academicAchievement.trendDown')
-  if (trend === 'same') return t('academicAchievement.trendSame')
-  return '—'
-}
-
 function cellKey(studentId, subjectId) {
   return `${studentId}:${subjectId}`
 }
@@ -70,9 +64,24 @@ function subjectScore(row, subjectId) {
   return value === undefined || value === null || value === '' ? '' : value
 }
 
-function isPassed(score) {
+function subjectPassMark(subject) {
+  const raw = passDraft.value[subject.id]
+  const value = Number(raw)
+  if (Number.isFinite(value)) return value
+  const fallback = Number(subject.pass_score)
+  return Number.isFinite(fallback) ? fallback : 50
+}
+
+function isPassed(score, subject) {
   const value = Number(score)
-  return Number.isFinite(value) && value >= passScore.value
+  return Number.isFinite(value) && value >= subjectPassMark(subject)
+}
+
+function averagePassMark() {
+  const subjects = report.value?.subjects || []
+  if (!subjects.length) return 50
+  const total = subjects.reduce((sum, subject) => sum + subjectPassMark(subject), 0)
+  return Math.round((total / subjects.length) * 100) / 100
 }
 
 function draftAverage(row) {
@@ -84,14 +93,34 @@ function draftAverage(row) {
   return Math.round(avg * 100) / 100
 }
 
+function draftTrend(row) {
+  const current = Number(draftAverage(row))
+  const previous = Number(previousDraft.value[row.student_id])
+  if (!Number.isFinite(current) || !Number.isFinite(previous)) {
+    return { label: '—', delta: null, kind: null }
+  }
+  const delta = Math.round((current - previous) * 100) / 100
+  if (delta > 0) return { label: t('academicAchievement.trendUp'), delta, kind: 'up' }
+  if (delta < 0) return { label: t('academicAchievement.trendDown'), delta, kind: 'down' }
+  return { label: t('academicAchievement.trendSame'), delta: 0, kind: 'same' }
+}
+
 function hydrateDraft(payload) {
   const next = {}
+  const nextPass = {}
+  const nextPrevious = {}
+  for (const subject of payload?.subjects || []) {
+    nextPass[subject.id] = subject.pass_score ?? 50
+  }
   for (const row of payload?.students || []) {
+    nextPrevious[row.student_id] = row.previous_average ?? ''
     for (const subject of payload?.subjects || []) {
       next[cellKey(row.student_id, subject.id)] = subjectScore(row, subject.id)
     }
   }
   draft.value = next
+  passDraft.value = nextPass
+  previousDraft.value = nextPrevious
 }
 
 watch(report, (payload) => hydrateDraft(payload))
@@ -182,6 +211,19 @@ async function saveGrades() {
       level_id: filters.level_id,
       period: filters.period,
       grades,
+      pass_scores: (report.value?.subjects || [])
+        .filter((subject) => subject.can_grade)
+        .map((subject) => ({
+          subject_id: subject.id,
+          pass_score: subjectPassMark(subject),
+        })),
+      previous_averages: (report.value?.students || []).map((row) => {
+        const raw = previousDraft.value[row.student_id]
+        return {
+          student_id: row.student_id,
+          previous_average: raw === '' || raw === null || raw === undefined ? null : Number(raw),
+        }
+      }),
     })
     success.value = t('academicAchievement.gradesSaved')
   } catch (e) {
@@ -257,7 +299,7 @@ onMounted(async () => {
       · {{ t('academicAchievement.yearGrade') }}:
       <strong>{{ report.class_year_average ?? '—' }} / {{ scale }}</strong>
       · {{ t('academicAchievement.passMark') }}:
-      <strong>{{ passScore }} / {{ scale }}</strong>
+      <strong>{{ averagePassMark() }} / {{ scale }}</strong>
       · {{ label(report.level) }}
     </div>
 
@@ -268,11 +310,27 @@ onMounted(async () => {
             <th class="px-4 py-3 font-medium">{{ t('academicExams.student') }}</th>
             <th v-for="subject in report?.subjects || []" :key="subject.id" class="px-4 py-3 font-medium">
               {{ label(subject) }}
-              <span class="block font-normal text-[11px]">/ {{ scale }} · {{ t('academicAchievement.passMark') }} {{ passScore }}</span>
+              <span class="mt-1 block font-normal text-[11px]">/ {{ scale }}</span>
+              <label class="mt-2 flex flex-col gap-1 font-normal text-[11px] text-slate-600">
+                {{ t('academicAchievement.passMark') }}
+                <input
+                  v-if="editable && subject.can_grade"
+                  v-model="passDraft[subject.id]"
+                  type="number"
+                  min="0"
+                  :max="scale"
+                  step="0.01"
+                  class="w-24 rounded border px-2 py-1 text-sm text-slate-800"
+                />
+                <span v-else>{{ subject.pass_score ?? 50 }}</span>
+              </label>
             </th>
             <th class="px-4 py-3 font-medium">{{ t('academicAchievement.studentAverage') }}</th>
             <th class="px-4 py-3 font-medium">{{ t('academicAchievement.yearGrade') }}</th>
-            <th class="px-4 py-3 font-medium">{{ t('academicAchievement.previous') }}</th>
+            <th class="px-4 py-3 font-medium">
+              {{ t('academicAchievement.previous') }}
+              <span class="mt-1 block font-normal text-[11px]">{{ t('academicAchievement.previousHint') }}</span>
+            </th>
             <th class="px-4 py-3 font-medium">{{ t('academicAchievement.progress') }}</th>
             <th class="px-4 py-3"></th>
           </tr>
@@ -289,14 +347,14 @@ onMounted(async () => {
                 :max="scale"
                 step="0.01"
                 class="w-24 rounded border px-2 py-1 text-sm"
-                :class="isPassed(draft[cellKey(row.student_id, subject.id)]) ? 'border-emerald-300' : (draft[cellKey(row.student_id, subject.id)] === '' ? '' : 'border-rose-300')"
+                :class="isPassed(draft[cellKey(row.student_id, subject.id)], subject) ? 'border-emerald-300' : (draft[cellKey(row.student_id, subject.id)] === '' ? '' : 'border-rose-300')"
               />
               <span v-else>{{ subjectScore(row, subject.id) === '' ? '—' : subjectScore(row, subject.id) }}</span>
             </td>
             <td class="px-4 py-3 font-semibold">
               {{ draftAverage(row) }}
-              <span v-if="draftAverage(row) !== '—'" class="ms-1 text-xs font-normal" :class="isPassed(draftAverage(row)) ? 'text-emerald-700' : 'text-rose-700'">
-                {{ isPassed(draftAverage(row)) ? t('academicAchievement.passed') : t('academicAchievement.failed') }}
+              <span v-if="draftAverage(row) !== '—'" class="ms-1 text-xs font-normal" :class="Number(draftAverage(row)) >= averagePassMark() ? 'text-emerald-700' : 'text-rose-700'">
+                {{ Number(draftAverage(row)) >= averagePassMark() ? t('academicAchievement.passed') : t('academicAchievement.failed') }}
               </span>
             </td>
             <td class="px-4 py-3 font-semibold">
@@ -310,8 +368,33 @@ onMounted(async () => {
                 · {{ t('academicExams.periods.term3') }} {{ row.terms?.term3 ?? '—' }}
               </span>
             </td>
-            <td class="px-4 py-3">{{ row.previous_average ?? '—' }}</td>
-            <td class="px-4 py-3">{{ trendLabel(row.trend) }}</td>
+            <td class="px-4 py-3">
+              <input
+                v-if="editable"
+                v-model="previousDraft[row.student_id]"
+                type="number"
+                min="0"
+                :max="scale"
+                step="0.01"
+                class="w-24 rounded border px-2 py-1 text-sm"
+                :placeholder="t('academicAchievement.previous')"
+              />
+              <span v-else>{{ row.previous_average ?? '—' }}</span>
+            </td>
+            <td class="px-4 py-3">
+              <span
+                class="font-medium"
+                :class="{
+                  'text-emerald-700': draftTrend(row).kind === 'up',
+                  'text-rose-700': draftTrend(row).kind === 'down',
+                }"
+              >
+                {{ draftTrend(row).label }}
+              </span>
+              <span v-if="draftTrend(row).delta != null" class="ms-1 text-xs text-slate-500">
+                {{ draftTrend(row).delta > 0 ? '+' : '' }}{{ draftTrend(row).delta }}
+              </span>
+            </td>
             <td class="px-4 py-3 text-end space-x-2 space-x-reverse">
               <RouterLink
                 :to="studentResultPath(row.student_id)"

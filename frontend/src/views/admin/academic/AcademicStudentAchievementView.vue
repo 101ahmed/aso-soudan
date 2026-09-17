@@ -117,7 +117,10 @@ onMounted(async () => {
     <section v-for="subject in report?.subjects || []" :key="subject.subject.id" class="overflow-hidden rounded-xl border bg-white">
       <div class="border-b px-4 py-3">
         <h3 class="font-semibold text-[var(--rdp-forest)]">{{ label(subject.subject) }}</h3>
-        <p class="text-xs text-slate-500">{{ t('academicAchievement.studentAverage') }}: {{ subject.average ?? '—' }}</p>
+        <p class="text-xs text-slate-500">
+          {{ t('academicAchievement.studentAverage') }}: {{ subject.average ?? '—' }}
+          · {{ t('academicAchievement.passMark') }}: {{ subject.pass_score ?? report.pass_score ?? 50 }}
+        </p>
       </div>
       <table class="min-w-full text-sm">
         <thead class="bg-slate-50 text-xs text-slate-500">

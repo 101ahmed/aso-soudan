@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\AcademicExamResource;
 use App\Models\AcademicExam;
 use App\Models\AcademicExamGrade;
+use App\Models\AcademicStudentPeriodStat;
 use App\Models\AcademicYear;
 use App\Models\Level;
 use App\Models\Student;
@@ -274,6 +275,12 @@ class AdminAcademicExamController extends Controller
                 ->values()
             : collect();
         $previousGrades = $this->gradesForExams($previousExams);
+        $manualPrevious = AcademicStudentPeriodStat::query()
+            ->where('academic_year_id', $year->id)
+            ->where('period', $period)
+            ->whereIn('student_id', $this->achievement->levelStudents((int) $level->id, (int) $year->id)->pluck('id'))
+            ->get()
+            ->keyBy('student_id');
 
         $yearExams = $this->examsForAchievement($year->id, $level->id, 'annual', $subjects)
             ->map(fn (AcademicExam $exam) => $this->ensureTermExamScale($exam))
@@ -282,7 +289,7 @@ class AdminAcademicExamController extends Controller
 
         $user = $request->user();
         $students = $this->achievement->levelStudents((int) $level->id, (int) $year->id);
-        $rows = $students->map(function (Student $student) use ($exams, $grades, $subjects, $previousExams, $previousGrades, $yearExams, $yearGrades) {
+        $rows = $students->map(function (Student $student) use ($exams, $grades, $subjects, $previousExams, $previousGrades, $yearExams, $yearGrades, $manualPrevious) {
             $subjectMap = [];
             foreach ($subjects as $subject) {
                 $subjectMap[(string) $subject->id] = $this->achievement->subjectAverage(
@@ -293,26 +300,34 @@ class AdminAcademicExamController extends Controller
                 );
             }
             $current = $this->achievement->studentOverallAverage($student->id, $exams, $grades);
-            $previousAvg = $previousExams->isEmpty()
+            $computedPrevious = $previousExams->isEmpty()
                 ? null
                 : $this->achievement->studentOverallAverage($student->id, $previousExams, $previousGrades);
+            $manual = $manualPrevious->get($student->id);
+            $previousAvg = $manual?->previous_average !== null
+                ? (float) $manual->previous_average
+                : $computedPrevious;
             $yearGradesRow = $this->achievement->studentYearGrades($student->id, $yearExams, $yearGrades);
+            $termPass = $this->achievement->passThreshold($exams);
+            $yearPass = $this->achievement->passThreshold($yearExams);
 
             return [
                 'student_id' => $student->id,
                 'full_name' => $student->full_name,
                 'subjects' => $subjectMap,
                 'average' => $current,
-                'passed' => $current !== null && $current >= AcademicAchievementService::PASS_SCORE,
+                'passed' => $current !== null && $current >= $termPass,
                 'terms' => [
                     'term1' => $yearGradesRow['term1'],
                     'term2' => $yearGradesRow['term2'],
                     'term3' => $yearGradesRow['term3'],
                 ],
                 'year_average' => $yearGradesRow['year'],
-                'year_passed' => $yearGradesRow['year'] !== null && $yearGradesRow['year'] >= AcademicAchievementService::PASS_SCORE,
+                'year_passed' => $yearGradesRow['year'] !== null && $yearGradesRow['year'] >= $yearPass,
                 'previous_average' => $previousAvg,
+                'previous_entered' => $manual?->previous_average !== null,
                 'trend' => $this->achievement->trend($current, $previousAvg),
+                'trend_delta' => $this->achievement->trendDelta($current, $previousAvg),
             ];
         })->values();
 
@@ -321,13 +336,14 @@ class AdminAcademicExamController extends Controller
             'academic_year' => $year->only(['id', 'name']),
             'period' => $period,
             'scale' => AcademicAchievementService::SCALE,
-            'pass_score' => AcademicAchievementService::PASS_SCORE,
+            'pass_score' => $this->achievement->passThreshold($exams),
             'editable' => $period !== 'annual' && $this->canEnterAchievementGrades($user),
             'previous_period' => $previous,
-            'subjects' => $subjects->map(function (Subject $subject) use ($user, $level) {
+            'subjects' => $subjects->map(function (Subject $subject) use ($user, $level, $exams) {
                 return [
                     ...$subject->only(['id', 'code', 'name_ar', 'name_fr']),
                     'can_grade' => $this->canGradeSubject($user, (int) $subject->id, (int) $level->id),
+                    'pass_score' => $this->achievement->subjectPassScore($exams, (int) $subject->id),
                 ];
             })->values(),
             'students' => $rows,
@@ -348,10 +364,31 @@ class AdminAcademicExamController extends Controller
             'grades.*.student_id' => ['required', 'integer', 'exists:students,id'],
             'grades.*.subject_id' => ['required', 'integer', 'exists:subjects,id'],
             'grades.*.score' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'pass_scores' => ['nullable', 'array'],
+            'pass_scores.*.subject_id' => ['required', 'integer', 'exists:subjects,id'],
+            'pass_scores.*.pass_score' => ['required', 'numeric', 'min:0', 'max:100'],
+            'previous_averages' => ['nullable', 'array'],
+            'previous_averages.*.student_id' => ['required', 'integer', 'exists:students,id'],
+            'previous_averages.*.previous_average' => ['nullable', 'numeric', 'min:0', 'max:100'],
         ]);
 
         $coreIds = $this->achievement->coreSubjects()->pluck('id');
         $examsBySubject = [];
+
+        foreach ($payload['pass_scores'] ?? [] as $row) {
+            $subjectId = (int) $row['subject_id'];
+            abort_unless($coreIds->contains($subjectId), 422, 'Only Quran, Arabic and Maths grades are stored here.');
+            abort_unless($this->canGradeSubject($request->user(), $subjectId, (int) $data['level_id']), 403);
+            $exam = $this->firstOrCreateTermExam(
+                $request->user(),
+                (int) $data['academic_year_id'],
+                (int) $data['level_id'],
+                (string) $data['period'],
+                $subjectId
+            );
+            $exam->update(['pass_score' => (float) $row['pass_score']]);
+            $examsBySubject[$subjectId] = $exam->fresh();
+        }
         foreach ($payload['grades'] as $row) {
             $subjectId = (int) $row['subject_id'];
             abort_unless($coreIds->contains($subjectId), 422, 'Only Quran, Arabic and Maths grades are stored here.');
@@ -387,6 +424,23 @@ class AdminAcademicExamController extends Controller
                 [
                     'score' => $score,
                     'is_absent' => false,
+                    'updated_by' => $request->user()?->id,
+                ]
+            );
+        }
+
+        foreach ($payload['previous_averages'] ?? [] as $row) {
+            $previous = array_key_exists('previous_average', $row) && $row['previous_average'] !== null && $row['previous_average'] !== ''
+                ? (float) $row['previous_average']
+                : null;
+            AcademicStudentPeriodStat::query()->updateOrCreate(
+                [
+                    'academic_year_id' => (int) $data['academic_year_id'],
+                    'student_id' => (int) $row['student_id'],
+                    'period' => (string) $data['period'],
+                ],
+                [
+                    'previous_average' => $previous,
                     'updated_by' => $request->user()?->id,
                 ]
             );
@@ -542,6 +596,7 @@ class AdminAcademicExamController extends Controller
             return [
                 'subject' => $subject->only(['id', 'code', 'name_ar', 'name_fr']),
                 'average' => $this->achievement->subjectAverage($student->id, (int) $subject->id, $exams, $grades),
+                'pass_score' => $this->achievement->subjectPassScore($exams, (int) $subject->id),
                 'exams' => $examRows,
             ];
         })->values();
@@ -619,10 +674,10 @@ class AdminAcademicExamController extends Controller
             ],
             'period' => $period,
             'scale' => AcademicAchievementService::SCALE,
-            'pass_score' => AcademicAchievementService::PASS_SCORE,
+            'pass_score' => $this->achievement->passThreshold($exams),
             'overall_average' => $current,
             'year_average' => $yearGradesRow['year'],
-            'year_passed' => $yearGradesRow['year'] !== null && $yearGradesRow['year'] >= AcademicAchievementService::PASS_SCORE,
+            'year_passed' => $yearGradesRow['year'] !== null && $yearGradesRow['year'] >= $this->achievement->passThreshold($yearExams),
             'terms' => [
                 'term1' => $yearGradesRow['term1'],
                 'term2' => $yearGradesRow['term2'],
@@ -688,7 +743,6 @@ class AdminAcademicExamController extends Controller
     private function ensureTermExamScale(AcademicExam $exam): AcademicExam
     {
         $target = AcademicAchievementService::SCALE;
-        $pass = AcademicAchievementService::PASS_SCORE;
         $max = (float) $exam->max_score;
 
         if ($max > 0 && abs($max - $target) >= 0.01) {
@@ -701,10 +755,7 @@ class AdminAcademicExamController extends Controller
                     $grade->update(['score' => round((float) $grade->score * $factor, 2)]);
                 });
             $exam->max_score = $target;
-        }
-
-        $exam->pass_score = $pass;
-        if ($exam->isDirty()) {
+            $exam->pass_score = round((float) $exam->pass_score * $factor, 2);
             $exam->save();
         }
 

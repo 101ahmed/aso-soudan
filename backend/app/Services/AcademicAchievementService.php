@@ -108,6 +108,26 @@ class AcademicAchievementService
         return $this->round($values->avg());
     }
 
+    public function passThreshold(Collection $exams): float
+    {
+        $values = $exams
+            ->map(fn (AcademicExam $exam) => (float) $exam->pass_score)
+            ->filter(fn (float $value) => $value > 0)
+            ->values();
+        if ($values->isEmpty()) {
+            return self::PASS_SCORE;
+        }
+
+        return $this->round($values->avg()) ?? self::PASS_SCORE;
+    }
+
+    public function subjectPassScore(Collection $exams, int $subjectId): float
+    {
+        $exam = $exams->where('subject_id', $subjectId)->sortByDesc('id')->first();
+
+        return $exam ? (float) $exam->pass_score : self::PASS_SCORE;
+    }
+
     /**
      * @param  Collection<int, AcademicExam>  $yearExams
      * @param  Collection<int, AcademicExamGrade>  $yearGrades
@@ -159,6 +179,15 @@ class AcademicAchievementService
         }
 
         return 'same';
+    }
+
+    public function trendDelta(?float $current, ?float $previous): ?float
+    {
+        if ($current === null || $previous === null) {
+            return null;
+        }
+
+        return $this->round($current - $previous);
     }
 
     public function levelStudents(int $levelId, ?int $yearId = null): Collection

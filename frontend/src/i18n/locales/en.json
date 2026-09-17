@@ -881,7 +881,7 @@
   },
   "academicAchievement": {
     "title": "Academic results",
-    "hint": "Enter grades for the three subjects (Quran, Arabic, maths) out of 100. The pass mark for each subject is 50, and the average is the mean of the three grades.",
+    "hint": "Enter the three subject grades out of 100 and the pass mark for each subject. The average is the mean of the grades; the year grade is the mean of the terms.",
     "classAverage": "Class average",
     "studentAverage": "Period average",
     "yearGrade": "Academic year grade",
@@ -892,6 +892,7 @@
     "passed": "Pass",
     "failed": "Fail",
     "previous": "Previous period",
+    "previousHint": "Enter the previous period average to calculate progress.",
     "progress": "Progress",
     "trendUp": "Up",
     "trendDown": "Down",
