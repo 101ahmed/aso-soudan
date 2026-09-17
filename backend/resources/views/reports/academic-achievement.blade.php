@@ -12,7 +12,8 @@
             'period' => 'الفترة',
             'classAverage' => 'معدل الصف',
             'student' => 'الطالب',
-            'average' => 'المعدل',
+            'average' => 'معدل الفترة',
+            'yearGrade' => 'درجة السنة',
             'previous' => 'الفترة السابقة',
             'progress' => 'التطور',
             'up' => 'ارتفاع',
@@ -34,7 +35,8 @@
             'period' => 'Période',
             'classAverage' => 'Moyenne de la classe',
             'student' => 'Élève',
-            'average' => 'Moyenne',
+            'average' => 'Moyenne de période',
+            'yearGrade' => 'Note annuelle',
             'previous' => 'Période précédente',
             'progress' => 'Évolution',
             'up' => 'En hausse',
@@ -56,7 +58,8 @@
             'period' => 'Period',
             'classAverage' => 'Class average',
             'student' => 'Student',
-            'average' => 'Average',
+            'average' => 'Period average',
+            'yearGrade' => 'Year grade',
             'previous' => 'Previous period',
             'progress' => 'Progress',
             'up' => 'Up',
@@ -120,6 +123,7 @@
                     <th>{{ $name($subject) }}</th>
                 @endforeach
                 <th>{{ $t['average'] }}</th>
+                <th>{{ $t['yearGrade'] }}</th>
                 <th>{{ $t['previous'] }}</th>
                 <th>{{ $t['progress'] }}</th>
             </tr>
@@ -132,11 +136,12 @@
                         <td>{{ $cell($row, $subject['id'] ?? null) }}</td>
                     @endforeach
                     <td>{{ $row['average'] ?? $t['dash'] }}</td>
+                    <td>{{ $row['year_average'] ?? $t['dash'] }}</td>
                     <td>{{ $row['previous_average'] ?? $t['dash'] }}</td>
                     <td>{{ $trend($row['trend'] ?? null) }}</td>
                 </tr>
             @empty
-                <tr><td colspan="{{ count($subjects) + 4 }}">{{ $t['empty'] }}</td></tr>
+                <tr><td colspan="{{ count($subjects) + 5 }}">{{ $t['empty'] }}</td></tr>
             @endforelse
         </tbody>
     </table>

@@ -271,6 +271,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
         Route::get('/class-results', [AdminAcademicExamController::class, 'classSheet']);
         Route::get('/achievement/pdf', [AdminAcademicExamController::class, 'achievementPdf']);
         Route::get('/achievement', [AdminAcademicExamController::class, 'achievement']);
+        Route::post('/achievement/grades', [AdminAcademicExamController::class, 'saveAchievementGrades']);
         Route::get('/students/{student}/academic-report/pdf', [AdminAcademicExamController::class, 'studentReportPdf']);
         Route::get('/students/{student}/academic-report', [AdminAcademicExamController::class, 'studentReport']);
     });

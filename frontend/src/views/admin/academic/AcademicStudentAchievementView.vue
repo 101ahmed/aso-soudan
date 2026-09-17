@@ -95,8 +95,20 @@ onMounted(async () => {
     <p v-if="error" class="rounded border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{{ error }}</p>
     <p v-if="loading" class="text-sm text-slate-500">{{ t('academicExams.loading') }}</p>
 
-    <div v-if="report" class="grid gap-3 md:grid-cols-4">
-      <div class="rounded-xl border bg-white p-4 text-sm">{{ t('academicAchievement.studentAverage') }}: <strong>{{ report.overall_average ?? '—' }}</strong></div>
+    <div v-if="report" class="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
+      <div class="rounded-xl border bg-white p-4 text-sm">{{ t('academicAchievement.studentAverage') }}: <strong>{{ report.overall_average ?? '—' }}</strong> / {{ report.scale || 100 }}</div>
+      <div class="rounded-xl border-2 border-[var(--rdp-forest)] bg-white p-4 text-sm">
+        {{ t('academicAchievement.yearGrade') }}:
+        <strong>{{ report.year_average ?? '—' }}</strong> / {{ report.scale || 100 }}
+        <span v-if="report.year_average != null" class="ms-1 text-xs" :class="report.year_passed ? 'text-emerald-700' : 'text-rose-700'">
+          {{ report.year_passed ? t('academicAchievement.passed') : t('academicAchievement.failed') }}
+        </span>
+        <p class="mt-1 text-xs text-slate-500">
+          {{ t('academicExams.periods.term1') }} {{ report.terms?.term1 ?? '—' }}
+          · {{ t('academicExams.periods.term2') }} {{ report.terms?.term2 ?? '—' }}
+          · {{ t('academicExams.periods.term3') }} {{ report.terms?.term3 ?? '—' }}
+        </p>
+      </div>
       <div class="rounded-xl border bg-white p-4 text-sm">{{ t('academicAchievement.classAverage') }}: <strong>{{ report.class_average ?? '—' }}</strong></div>
       <div class="rounded-xl border bg-white p-4 text-sm">{{ t('academicAchievement.previous') }}: <strong>{{ report.previous_average ?? '—' }}</strong></div>
       <div class="rounded-xl border bg-white p-4 text-sm">{{ t('academicAchievement.progress') }}: <strong>{{ trendLabel(report.trend) }}</strong></div>

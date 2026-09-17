@@ -355,6 +355,11 @@ export async function fetchAchievement(params) {
   return data
 }
 
+export async function saveAchievementGrades(payload) {
+  const { data } = await api.post('/admin/academic/achievement/grades', payload)
+  return data
+}
+
 export async function fetchClassResults(params) {
   const { data } = await api.get('/admin/academic/class-results', { params })
   return data
