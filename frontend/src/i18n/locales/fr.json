@@ -881,7 +881,7 @@
   },
   "academicAchievement": {
     "title": "Résultats scolaires",
-    "hint": "Saisissez les notes des trois matières sur 100 et la note de réussite de chaque matière. La moyenne est celle des notes, la note annuelle celle des trimestres.",
+    "hint": "Saisissez la note maximale et la note de réussite de chaque matière, puis les notes des élèves. La moyenne est celle des notes, la note annuelle celle des trimestres.",
     "classAverage": "Moyenne de la classe",
     "studentAverage": "Moyenne de la période",
     "yearGrade": "Note de l’année scolaire",

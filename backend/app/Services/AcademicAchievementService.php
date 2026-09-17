@@ -31,6 +31,15 @@ class AcademicAchievementService
             ->values();
     }
 
+    public function recordedScore(?AcademicExamGrade $grade): ?float
+    {
+        if (! $grade || $grade->is_absent || $grade->score === null) {
+            return null;
+        }
+
+        return $this->round((float) $grade->score);
+    }
+
     public function scaledScore(?AcademicExamGrade $grade, AcademicExam $exam, float $outOf = self::SCALE): ?float
     {
         if (! $grade || $grade->is_absent || $grade->score === null) {
@@ -60,7 +69,7 @@ class AcademicAchievementService
         foreach ($exams as $exam) {
             $grade = $grades->first(fn (AcademicExamGrade $row) => (int) $row->academic_exam_id === (int) $exam->id
                 && (int) $row->student_id === $studentId);
-            $score = $this->scaledScore($grade, $exam);
+            $score = $this->recordedScore($grade);
             if ($score === null) {
                 continue;
             }
@@ -85,7 +94,7 @@ class AcademicAchievementService
         foreach ($exams->where('subject_id', $subjectId) as $exam) {
             $grade = $grades->first(fn (AcademicExamGrade $row) => (int) $row->academic_exam_id === (int) $exam->id
                 && (int) $row->student_id === $studentId);
-            $score = $this->scaledScore($grade, $exam);
+            $score = $this->recordedScore($grade);
             if ($score !== null) {
                 $percents[] = $score;
             }
@@ -126,6 +135,27 @@ class AcademicAchievementService
         $exam = $exams->where('subject_id', $subjectId)->sortByDesc('id')->first();
 
         return $exam ? (float) $exam->pass_score : self::PASS_SCORE;
+    }
+
+    public function subjectMaxScore(Collection $exams, int $subjectId): float
+    {
+        $exam = $exams->where('subject_id', $subjectId)->sortByDesc('id')->first();
+        $max = $exam ? (float) $exam->max_score : 0;
+
+        return $max > 0 ? $max : self::SCALE;
+    }
+
+    public function classScale(Collection $exams): float
+    {
+        $values = $exams
+            ->map(fn (AcademicExam $exam) => (float) $exam->max_score)
+            ->filter(fn (float $value) => $value > 0)
+            ->values();
+        if ($values->isEmpty()) {
+            return self::SCALE;
+        }
+
+        return $this->round($values->avg()) ?? self::SCALE;
     }
 
     /**

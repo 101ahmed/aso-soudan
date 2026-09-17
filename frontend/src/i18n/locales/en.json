@@ -881,7 +881,7 @@
   },
   "academicAchievement": {
     "title": "Academic results",
-    "hint": "Enter the three subject grades out of 100 and the pass mark for each subject. The average is the mean of the grades; the year grade is the mean of the terms.",
+    "hint": "Enter the full mark and pass mark for each subject, then the student grades. The average is the mean of the grades; the year grade is the mean of the terms.",
     "classAverage": "Class average",
     "studentAverage": "Period average",
     "yearGrade": "Academic year grade",

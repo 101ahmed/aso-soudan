@@ -28,6 +28,7 @@ const report = ref(null)
 const studentQuery = ref('')
 const draft = ref({})
 const passDraft = ref({})
+const maxDraft = ref({})
 const previousDraft = ref({})
 
 const filters = reactive({
@@ -36,7 +37,12 @@ const filters = reactive({
   period: 'term1',
 })
 
-const scale = computed(() => report.value?.scale || 100)
+const scale = computed(() => {
+  const subjects = report.value?.subjects || []
+  if (!subjects.length) return Number(report.value?.scale) || 100
+  const total = subjects.reduce((sum, subject) => sum + subjectMaxMark(subject), 0)
+  return Math.round((total / subjects.length) * 100) / 100
+})
 const editable = computed(() => Boolean(report.value?.editable))
 
 const filteredStudents = computed(() => {
@@ -64,12 +70,20 @@ function subjectScore(row, subjectId) {
   return value === undefined || value === null || value === '' ? '' : value
 }
 
+function subjectMaxMark(subject) {
+  const raw = maxDraft.value[subject.id]
+  const value = Number(raw)
+  if (Number.isFinite(value) && value > 0) return value
+  const fallback = Number(subject.max_score)
+  return Number.isFinite(fallback) && fallback > 0 ? fallback : 100
+}
+
 function subjectPassMark(subject) {
   const raw = passDraft.value[subject.id]
   const value = Number(raw)
   if (Number.isFinite(value)) return value
   const fallback = Number(subject.pass_score)
-  return Number.isFinite(fallback) ? fallback : 50
+  return Number.isFinite(fallback) ? fallback : Math.round(subjectMaxMark(subject) * 0.5 * 100) / 100
 }
 
 function isPassed(score, subject) {
@@ -108,8 +122,10 @@ function draftTrend(row) {
 function hydrateDraft(payload) {
   const next = {}
   const nextPass = {}
+  const nextMax = {}
   const nextPrevious = {}
   for (const subject of payload?.subjects || []) {
+    nextMax[subject.id] = subject.max_score ?? 100
     nextPass[subject.id] = subject.pass_score ?? 50
   }
   for (const row of payload?.students || []) {
@@ -120,6 +136,7 @@ function hydrateDraft(payload) {
   }
   draft.value = next
   passDraft.value = nextPass
+  maxDraft.value = nextMax
   previousDraft.value = nextPrevious
 }
 
@@ -213,9 +230,17 @@ async function saveGrades() {
       grades,
       pass_scores: (report.value?.subjects || [])
         .filter((subject) => subject.can_grade)
+        .map((subject) => {
+          const max = subjectMaxMark(subject)
+          let pass = subjectPassMark(subject)
+          if (pass > max) pass = Math.round(max * 0.5 * 100) / 100
+          return { subject_id: subject.id, pass_score: pass }
+        }),
+      max_scores: (report.value?.subjects || [])
+        .filter((subject) => subject.can_grade)
         .map((subject) => ({
           subject_id: subject.id,
-          pass_score: subjectPassMark(subject),
+          max_score: subjectMaxMark(subject),
         })),
       previous_averages: (report.value?.students || []).map((row) => {
         const raw = previousDraft.value[row.student_id]
@@ -310,7 +335,19 @@ onMounted(async () => {
             <th class="px-4 py-3 font-medium">{{ t('academicExams.student') }}</th>
             <th v-for="subject in report?.subjects || []" :key="subject.id" class="px-4 py-3 font-medium">
               {{ label(subject) }}
-              <span class="mt-1 block font-normal text-[11px]">/ {{ scale }}</span>
+              <label class="mt-2 flex flex-col gap-1 font-normal text-[11px] text-slate-600">
+                {{ t('academicExams.maxScore') }}
+                <input
+                  v-if="editable && subject.can_grade"
+                  v-model="maxDraft[subject.id]"
+                  type="number"
+                  min="0.01"
+                  max="1000"
+                  step="0.01"
+                  class="w-24 rounded border px-2 py-1 text-sm text-slate-800"
+                />
+                <span v-else>{{ subject.max_score ?? scale }}</span>
+              </label>
               <label class="mt-2 flex flex-col gap-1 font-normal text-[11px] text-slate-600">
                 {{ t('academicAchievement.passMark') }}
                 <input
@@ -318,7 +355,7 @@ onMounted(async () => {
                   v-model="passDraft[subject.id]"
                   type="number"
                   min="0"
-                  :max="scale"
+                  :max="subjectMaxMark(subject)"
                   step="0.01"
                   class="w-24 rounded border px-2 py-1 text-sm text-slate-800"
                 />
@@ -344,7 +381,7 @@ onMounted(async () => {
                 v-model="draft[cellKey(row.student_id, subject.id)]"
                 type="number"
                 min="0"
-                :max="scale"
+                :max="subjectMaxMark(subject)"
                 step="0.01"
                 class="w-24 rounded border px-2 py-1 text-sm"
                 :class="isPassed(draft[cellKey(row.student_id, subject.id)], subject) ? 'border-emerald-300' : (draft[cellKey(row.student_id, subject.id)] === '' ? '' : 'border-rose-300')"

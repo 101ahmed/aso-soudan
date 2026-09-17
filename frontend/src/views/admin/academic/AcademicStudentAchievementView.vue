@@ -118,7 +118,8 @@ onMounted(async () => {
       <div class="border-b px-4 py-3">
         <h3 class="font-semibold text-[var(--rdp-forest)]">{{ label(subject.subject) }}</h3>
         <p class="text-xs text-slate-500">
-          {{ t('academicAchievement.studentAverage') }}: {{ subject.average ?? '—' }}
+          · {{ t('academicAchievement.studentAverage') }}: {{ subject.average ?? '—' }}
+          · {{ t('academicExams.maxScore') }}: {{ subject.max_score ?? report.scale ?? 100 }}
           · {{ t('academicAchievement.passMark') }}: {{ subject.pass_score ?? report.pass_score ?? 50 }}
         </p>
       </div>
