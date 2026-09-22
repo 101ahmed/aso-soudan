@@ -14,12 +14,8 @@ import {
 import { fetchPublicAlbums, fetchPublicAnnouncements, fetchPublicDecisions, fetchPublicEvents, fetchPublicNews, fetchPublicStats, mapPublicEvent } from '@/services/content'
 import { albumsToSlides } from '@/utils/gallerySlides'
 import { mergePublicStats } from '@/utils/publicStats'
-import { useAuthStore } from '@/stores/auth'
-import { resolveAdminEntryPath } from '@/utils/roleRedirect'
 
 const { t, locale } = useI18n()
-const auth = useAuthStore()
-const adminPath = computed(() => resolveAdminEntryPath(auth.user))
 const apiNews = ref([])
 const apiAnnouncements = ref([])
 const apiAlbums = ref([])
@@ -353,31 +349,5 @@ onMounted(async () => {
       </div>
       <PhotoCarousel :slides="homeSlides" :interval="5000" />
     </section>
-
-    <footer class="bg-[var(--rdp-forest)] text-white">
-      <div class="mx-auto grid max-w-6xl gap-8 px-5 py-12 md:grid-cols-3 md:px-8">
-        <div>
-          <div class="flex items-center gap-3">
-            <img src="/logo.png" :alt="t('app.name')" class="h-14 w-auto rounded-md bg-white object-contain px-2 py-1" />
-            <p class="font-semibold">{{ t('app.name') }}</p>
-          </div>
-          <p class="mt-3 text-sm text-white/75">{{ t('home.footerPlace') }}</p>
-        </div>
-        <div class="text-sm text-white/80">
-          <p class="mb-2 font-semibold text-white">{{ t('nav.contact') }}</p>
-          <a href="mailto:hima171221@gmail.com" class="block hover:text-[var(--rdp-gold)]">hima171221@gmail.com</a>
-          <RouterLink to="/contact" class="mt-1 inline-flex hover:text-[var(--rdp-gold)]">{{ t('home.footerContact') }}</RouterLink>
-        </div>
-        <div class="text-sm text-white/70">
-          <p>{{ t('home.footerNote') }}</p>
-          <RouterLink
-            :to="auth.isAuthenticated ? adminPath : '/login'"
-            class="mt-3 inline-flex text-[var(--rdp-gold)] hover:underline"
-          >
-            {{ auth.isAuthenticated ? t('nav.admin') : t('nav.login') }}
-          </RouterLink>
-        </div>
-      </div>
-    </footer>
   </div>
 </template>

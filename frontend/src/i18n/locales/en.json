@@ -133,10 +133,9 @@
     },
     "contact": {
       "subtitle": "Write to us without creating an account",
-      "success": "Message sent to hima171221@gmail.com. A representative will reply soon.",
+      "success": "Your message has been received. A representative will reply soon.",
       "error": "Unable to send the message at the moment.",
-      "sending": "Sending…",
-      "emailLabel": "Contact messages are received at"
+      "sending": "Sending…"
     }
   },
   "about": {

@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, reactive, ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import PageHero from '@/components/public/PageHero.vue'
 import api from '@/services/api'
@@ -8,7 +8,6 @@ const { t } = useI18n()
 const sent = ref(false)
 const sending = ref(false)
 const error = ref('')
-const contactEmail = ref('hima171221@gmail.com')
 
 const form = reactive({
   name: '',
@@ -16,15 +15,6 @@ const form = reactive({
   phone: '',
   subject: '',
   message: '',
-})
-
-onMounted(async () => {
-  try {
-    const { data } = await api.get('/public/contact')
-    if (data?.email) contactEmail.value = data.email
-  } catch {
-    // keep default
-  }
 })
 
 async function submit() {
@@ -45,13 +35,6 @@ async function submit() {
   <div>
     <PageHero :title="t('nav.contact')" :subtitle="t('pages.contact.subtitle')" />
     <section class="mx-auto max-w-2xl space-y-6 px-5 py-12 md:px-8">
-      <div class="rounded-xl border border-[var(--rdp-forest)]/15 bg-white p-5 text-sm text-slate-700 shadow-sm">
-        <p class="font-medium text-[var(--rdp-forest)]">{{ t('pages.contact.emailLabel') }}</p>
-        <a :href="`mailto:${contactEmail}`" class="mt-1 inline-flex text-lg font-semibold text-[var(--rdp-ink)] hover:underline" dir="ltr">
-          {{ contactEmail }}
-        </a>
-      </div>
-
       <p v-if="sent" class="rounded-xl bg-white p-6 text-[var(--rdp-forest)] shadow-sm">
         {{ t('pages.contact.success') }}
       </p>

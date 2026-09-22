@@ -133,10 +133,9 @@
     },
     "contact": {
       "subtitle": "Écrivez-nous sans créer de compte",
-      "success": "Message envoyé à hima171221@gmail.com. Un responsable vous répondra prochainement.",
+      "success": "Votre message a bien été envoyé. Un responsable vous répondra prochainement.",
       "error": "Impossible d’envoyer le message pour le moment.",
-      "sending": "Envoi…",
-      "emailLabel": "Les messages de contact sont reçus sur"
+      "sending": "Envoi…"
     }
   },
   "about": {
