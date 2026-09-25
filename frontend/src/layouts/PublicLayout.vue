@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { RouterLink, RouterView, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
@@ -7,6 +7,7 @@ import { resolveAdminEntryPath } from '@/utils/roleRedirect'
 import LanguageSwitcher from '@/components/LanguageSwitcher.vue'
 import PublicLoginForm from '@/components/PublicLoginForm.vue'
 import SocialIcons from '@/components/public/SocialIcons.vue'
+import { pingSiteVisit } from '@/services/siteVisits'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -38,6 +39,10 @@ function toggleLogin() {
   if (auth.isAuthenticated) return
   loginOpen.value = !loginOpen.value
 }
+
+onMounted(() => {
+  pingSiteVisit().catch(() => {})
+})
 </script>
 
 <template>

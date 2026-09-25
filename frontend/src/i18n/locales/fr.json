@@ -1533,7 +1533,15 @@
       "inboxesTitle": "Boîte de réception par amanah",
       "inboxesHint": "Chaque secrétariat a sa propre boîte de réception. Les messages viennent du formulaire public de sa page.",
       "unread": "{count} nouveau(x) message(s)",
-      "noUnread": "Aucun nouveau message"
+      "noUnread": "Aucun nouveau message",
+      "visitsTitle": "Visites du site",
+      "visitsHint": "Nombre de personnes qui ont ouvert le site public.",
+      "todayVisitors": "Visiteurs aujourd’hui",
+      "todayViews": "{count} vues aujourd’hui",
+      "weekVisitors": "Visiteurs cette semaine",
+      "weekViews": "{count} vues cette semaine",
+      "totalVisitors": "Total des visiteurs",
+      "totalViews": "{count} vues au total"
     },
     "users": {
       "title": "Utilisateurs",

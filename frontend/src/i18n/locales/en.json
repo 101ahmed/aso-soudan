@@ -1533,7 +1533,15 @@
       "inboxesTitle": "Inbox for each secretariat",
       "inboxesHint": "Each secretariat has its own inbox. Messages come from the public contact form on its page.",
       "unread": "{count} new message(s)",
-      "noUnread": "No new messages"
+      "noUnread": "No new messages",
+      "visitsTitle": "Site visits",
+      "visitsHint": "How many people opened the public website.",
+      "todayVisitors": "Visitors today",
+      "todayViews": "{count} views today",
+      "weekVisitors": "Visitors this week",
+      "weekViews": "{count} views this week",
+      "totalVisitors": "Total visitors",
+      "totalViews": "{count} views in total"
     },
     "users": {
       "title": "Users",

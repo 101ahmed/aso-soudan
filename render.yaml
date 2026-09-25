@@ -1,4 +1,4 @@
-﻿# Blueprint Render â€” https://render.com/docs/blueprint-spec
+# Blueprint Render â€” https://render.com/docs/blueprint-spec
 # Web Service Docker (Vue SPA + API Laravel) + PostgreSQL (free)
 
 databases:
@@ -19,7 +19,7 @@ services:
     healthCheckPath: /api/health
     envVars:
       - key: APP_NAME
-        value: Ø§Ù„Ø±Ø§Ø¨Ø·Ø© Ø§Ù„Ø³ÙˆØ¯Ø§Ù†ÙŠØ© Ø¨Ø±ÙŠÙ†
+        value: الرابطة السودانية برين
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
@@ -81,7 +81,7 @@ services:
       - key: MAIL_FROM_ADDRESS
         sync: false
       - key: MAIL_FROM_NAME
-        value: Rabta ACS Rennes
+        value: الرابطة السودانية برين
       - key: CONTACT_EMAIL
         value: hima171221@gmail.com
 

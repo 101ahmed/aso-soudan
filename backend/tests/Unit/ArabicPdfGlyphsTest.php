@@ -23,14 +23,14 @@ class ArabicPdfGlyphsTest extends TestCase
         $this->assertMatchesRegularExpression('/[\x{FE70}-\x{FEFF}]/u', $shaped);
     }
 
-    public function test_association_name_is_shaped_and_keeps_rennes(): void
+    public function test_association_name_is_shaped_and_keeps_identity(): void
     {
         $logical = 'الرابطة السودانية برين';
         $shaped = ArabicPdfGlyphs::shape($logical);
-        $berlin = ArabicPdfGlyphs::shape('الرابطة السودانية برلين');
+        $other = ArabicPdfGlyphs::shape('الرابطة السودانية برين برلين');
 
         $this->assertNotSame($logical, $shaped);
-        $this->assertNotSame($berlin, $shaped);
+        $this->assertNotSame($other, $shaped);
         $this->assertStringNotContainsString('برلين', $shaped);
     }
 

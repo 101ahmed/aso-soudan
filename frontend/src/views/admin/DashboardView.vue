@@ -4,12 +4,14 @@ import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useAuthStore } from '@/stores/auth'
 import { fetchMyDepartments } from '@/services/content'
+import { fetchSiteVisitSummary } from '@/services/siteVisits'
 import { canAccessDepartment, isSecretariatCode, SECRETARIAT_NAME_KEYS } from '@/utils/departmentAccess'
 import { pickName } from '@/utils/localized'
 
 const { t, locale } = useI18n()
 const auth = useAuthStore()
 const departments = ref([])
+const visitStats = ref(null)
 
 const canSeeInbox = computed(() => auth.hasPermission('inbox.view'))
 const canManageContent = computed(
@@ -26,6 +28,11 @@ const secretariats = computed(() =>
 )
 
 onMounted(async () => {
+  try {
+    visitStats.value = await fetchSiteVisitSummary()
+  } catch {
+    visitStats.value = null
+  }
   if (!canSeeInbox.value) return
   try {
     departments.value = await fetchMyDepartments()
@@ -40,6 +47,34 @@ onMounted(async () => {
     <div>
       <h1 class="text-2xl font-semibold">{{ t('admin.dashboard.title') }}</h1>
       <p class="text-slate-600">{{ t('admin.dashboard.welcome', { name: auth.fullName }) }}</p>
+    </div>
+
+    <div v-if="visitStats" class="space-y-2">
+      <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('admin.dashboard.visitsTitle') }}</h2>
+      <p class="text-sm text-slate-600">{{ t('admin.dashboard.visitsHint') }}</p>
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="rounded-xl border border-slate-200 bg-white p-5">
+          <p class="text-sm text-slate-500">{{ t('admin.dashboard.todayVisitors') }}</p>
+          <p class="mt-2 text-2xl font-semibold text-[var(--rdp-forest)]">{{ visitStats.today_visitors }}</p>
+          <p class="mt-1 text-xs text-slate-500">
+            {{ t('admin.dashboard.todayViews', { count: visitStats.today_views }) }}
+          </p>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-white p-5">
+          <p class="text-sm text-slate-500">{{ t('admin.dashboard.weekVisitors') }}</p>
+          <p class="mt-2 text-2xl font-semibold text-[var(--rdp-forest)]">{{ visitStats.week_visitors }}</p>
+          <p class="mt-1 text-xs text-slate-500">
+            {{ t('admin.dashboard.weekViews', { count: visitStats.week_views }) }}
+          </p>
+        </div>
+        <div class="rounded-xl border border-slate-200 bg-white p-5">
+          <p class="text-sm text-slate-500">{{ t('admin.dashboard.totalVisitors') }}</p>
+          <p class="mt-2 text-2xl font-semibold text-[var(--rdp-forest)]">{{ visitStats.total_visitors }}</p>
+          <p class="mt-1 text-xs text-slate-500">
+            {{ t('admin.dashboard.totalViews', { count: visitStats.total_views }) }}
+          </p>
+        </div>
+      </div>
     </div>
 
     <div class="grid gap-4 md:grid-cols-3">

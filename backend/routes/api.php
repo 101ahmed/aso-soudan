@@ -27,6 +27,7 @@ use App\Http\Controllers\Api\Admin\AdminSecretariatMessageController;
 use App\Http\Controllers\Api\Admin\AdminSecretariatReportController;
 use App\Http\Controllers\Api\Admin\AdminShuraController;
 use App\Http\Controllers\Api\Admin\AdminSiteContentController;
+use App\Http\Controllers\Api\Admin\AdminSiteVisitController;
 use App\Http\Controllers\Api\Admin\AdminSocialHelpRequestController;
 use App\Http\Controllers\Api\Admin\AdminSocialVisitController;
 use App\Http\Controllers\Api\Admin\AdminSportsController;
@@ -49,6 +50,7 @@ use App\Http\Controllers\Api\Public\PublicPresidentController;
 use App\Http\Controllers\Api\Public\PublicSecretariatMeetingOutputController;
 use App\Http\Controllers\Api\Public\PublicSecretariatMessageController;
 use App\Http\Controllers\Api\Public\PublicShuraController;
+use App\Http\Controllers\Api\Public\PublicSiteVisitController;
 use App\Http\Controllers\Api\Public\PublicSportsController;
 use App\Http\Controllers\Api\Public\PublicStoredFileController;
 use App\Http\Controllers\Api\RoleController;
@@ -87,6 +89,7 @@ Route::prefix('public')->group(function () {
     Route::post('/parents/registrations', [PublicParentsController::class, 'storeRegistration']);
     Route::post('/parents/surveys/{survey}/responses', [PublicParentsController::class, 'storeSurveyResponse']);
     Route::get('/contact', [PublicContactController::class, 'info']);
+    Route::get('/visit', [PublicSiteVisitController::class, 'store'])->middleware('throttle:30,1');
     Route::post('/contact', [PublicContactController::class, 'store']);
     Route::post('/members', [PublicMemberController::class, 'store']);
     Route::post('/help-requests', [PublicHelpRequestController::class, 'store']);
@@ -132,6 +135,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
 
     Route::get('/admin/departments', [AdminDepartmentController::class, 'index']);
     Route::get('/admin/reports', [AdminSecretariatReportController::class, 'index']);
+    Route::get('/admin/site-visits', [AdminSiteVisitController::class, 'summary']);
 
     Route::prefix('admin/content')->group(function () {
         Route::get('/news', [AdminSiteContentController::class, 'newsIndex'])->middleware('permission:news.view');

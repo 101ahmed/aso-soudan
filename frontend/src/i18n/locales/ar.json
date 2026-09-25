@@ -1533,7 +1533,15 @@
       "inboxesTitle": "البريد الوارد لكل أمانة",
       "inboxesHint": "كل أمانة لها بريد وارد مستقل. الرسائل تصل من نموذج التواصل في صفحتها العامة.",
       "unread": "{count} رسالة جديدة",
-      "noUnread": "لا توجد رسائل جديدة"
+      "noUnread": "لا توجد رسائل جديدة",
+      "visitsTitle": "زيارات الموقع",
+      "visitsHint": "عدد الزوار الذين فتحوا الموقع العام.",
+      "todayVisitors": "زوار اليوم",
+      "todayViews": "{count} مشاهدة اليوم",
+      "weekVisitors": "زوار الأسبوع",
+      "weekViews": "{count} مشاهدة هذا الأسبوع",
+      "totalVisitors": "إجمالي الزوار",
+      "totalViews": "{count} مشاهدة إجمالية"
     },
     "users": {
       "title": "المستخدمون",
