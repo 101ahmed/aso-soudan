@@ -234,62 +234,6 @@ onMounted(async () => {
         </article>
       </section>
 
-      <!-- Initiatives -->
-      <section>
-        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('president.initiatives') }}</h2>
-        <div class="mt-4 flex flex-wrap gap-2">
-          <span
-            v-for="(item, index) in list(page.initiatives)"
-            :key="index"
-            class="bg-[var(--rdp-forest)]/8 px-3 py-1.5 text-sm text-[var(--rdp-forest)]"
-          >
-            {{ item }}
-          </span>
-        </div>
-      </section>
-
-      <!-- Actualités -->
-      <section>
-        <div class="flex flex-wrap items-end justify-between gap-3">
-          <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('president.news') }}</h2>
-          <RouterLink to="/news" class="text-sm font-medium text-[var(--rdp-forest)] hover:underline">
-            {{ t('home.seeAll') }}
-          </RouterLink>
-        </div>
-        <div class="mt-5 grid gap-4 md:grid-cols-3">
-          <article
-            v-for="item in page.news"
-            :key="item.slug"
-            class="bg-white p-5 shadow-sm"
-          >
-            <p class="text-xs tracking-wide text-slate-500 uppercase">{{ item.date }}</p>
-            <h3 class="mt-2 font-semibold text-[var(--rdp-ink)]">{{ localized(item.title) }}</h3>
-            <p class="mt-2 text-sm text-slate-600">{{ localized(item.text) }}</p>
-          </article>
-        </div>
-      </section>
-
-      <!-- Rencontres -->
-      <section>
-        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('president.meetings') }}</h2>
-        <div class="mt-5 space-y-4">
-          <article
-            v-for="(item, index) in page.meetings"
-            :key="index"
-            class="grid gap-2 border-s-2 border-[var(--rdp-gold)] bg-white/80 py-4 ps-5 md:grid-cols-[8rem_1fr]"
-          >
-            <p class="text-sm font-medium text-[var(--rdp-forest)]">{{ item.date }}</p>
-            <div>
-              <h3 class="font-semibold">{{ localized(item.title) }}</h3>
-              <p class="mt-1 text-sm text-slate-500">
-                {{ localized(item.place) }} · {{ localized(item.partner) }}
-              </p>
-              <p class="mt-2 text-sm text-slate-700">{{ localized(item.text) }}</p>
-            </div>
-          </article>
-        </div>
-      </section>
-
       <PhotoGallerySection
         :title="t('nav.gallery')"
         :albums="albums"
