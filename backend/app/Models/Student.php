@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Student extends Model
 {
@@ -83,5 +84,46 @@ class Student extends Model
         return $this->belongsToMany(ClassGroup::class, 'class_students')
             ->withPivot(['status', 'enrolled_on', 'left_on'])
             ->withTimestamps();
+    }
+
+    public function guardians(): BelongsToMany
+    {
+        return $this->belongsToMany(Guardian::class, 'student_guardians')
+            ->withPivot(['relationship', 'is_primary'])
+            ->withTimestamps();
+    }
+
+    public function enrollInActiveLevelClasses(array $subjectIds = []): void
+    {
+        if (! $this->level_id || ! $this->academic_year_id) {
+            return;
+        }
+
+        $otherClassIds = ClassGroup::query()
+            ->where('academic_year_id', $this->academic_year_id)
+            ->where('level_id', '!=', $this->level_id)
+            ->pluck('id');
+        if ($otherClassIds->isNotEmpty()) {
+            DB::table('class_students')
+                ->where('student_id', $this->id)
+                ->whereIn('class_group_id', $otherClassIds)
+                ->update(['status' => 'inactive', 'updated_at' => now()]);
+        }
+
+        $classes = ClassGroup::query()
+            ->where('academic_year_id', $this->academic_year_id)
+            ->where('level_id', $this->level_id)
+            ->where('status', 'active')
+            ->when($subjectIds !== [], fn ($q) => $q->whereIn('subject_id', $subjectIds))
+            ->get();
+
+        foreach ($classes as $class) {
+            $this->classGroups()->syncWithoutDetaching([
+                $class->id => [
+                    'status' => 'active',
+                    'enrolled_on' => now()->toDateString(),
+                ],
+            ]);
+        }
     }
 }

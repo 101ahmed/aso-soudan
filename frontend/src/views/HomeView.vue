@@ -263,7 +263,9 @@ onMounted(async () => {
       </div>
       <div class="grid gap-6 md:grid-cols-3">
         <article v-for="item in latestNews" :key="item.id" class="overflow-hidden rounded-xl bg-white shadow-sm">
-          <img :src="item.image" alt="" class="h-44 w-full object-cover" />
+          <div class="flex min-h-44 items-center justify-center bg-[var(--rdp-cream)]">
+            <img :src="item.image" alt="" class="max-h-56 w-full object-contain" />
+          </div>
           <div class="space-y-2 p-5">
             <p class="text-xs text-slate-500">{{ item.date }}</p>
             <h3 class="text-lg font-semibold text-[var(--rdp-ink)]">{{ localized(item.title) }}</h3>

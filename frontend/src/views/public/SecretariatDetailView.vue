@@ -743,7 +743,9 @@ watch(
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('secretariat.news') }}</h2>
         <div class="mt-4 grid gap-4 md:grid-cols-3">
           <article v-for="item in news" :key="item.id" class="overflow-hidden rounded-xl bg-white shadow-sm">
-            <img :src="item.image" alt="" class="h-36 w-full object-cover" />
+            <div class="flex min-h-36 items-center justify-center bg-[var(--rdp-cream)]">
+              <img :src="item.image" alt="" class="max-h-52 w-full object-contain" />
+            </div>
             <div class="space-y-1 p-4">
               <p class="text-xs text-slate-500">{{ item.date }}</p>
               <h3 class="font-semibold">{{ localized(item.title) }}</h3>

@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StudentResource;
 use App\Models\AcademicYear;
-use App\Models\ClassGroup;
 use App\Models\ClassStaffAssignment;
 use App\Models\EducationStage;
 use App\Models\Student;
@@ -91,7 +90,7 @@ class AdminAcademicStudentController extends Controller
             ]);
 
             $this->syncSubjects($student, $data['subject_ids'] ?? []);
-            $this->enrollInLevelClasses($student, $data['subject_ids'] ?? []);
+            $student->enrollInActiveLevelClasses($data['subject_ids'] ?? []);
 
             $student = $student->load(['academicYear', 'educationStage', 'level', 'subjects']);
             ClassStaffAssignment::attachToStudents([$student]);
@@ -140,7 +139,7 @@ class AdminAcademicStudentController extends Controller
             if (array_key_exists('subject_ids', $data)) {
                 $this->syncSubjects($student, $data['subject_ids'] ?? []);
             }
-            $this->enrollInLevelClasses($student, $data['subject_ids'] ?? $student->subjects()->pluck('subjects.id')->all());
+            $student->enrollInActiveLevelClasses($data['subject_ids'] ?? $student->subjects()->pluck('subjects.id')->all());
 
             $student = $student->fresh()->load(['academicYear', 'educationStage', 'level', 'subjects']);
             ClassStaffAssignment::attachToStudents([$student]);
@@ -338,43 +337,9 @@ class AdminAcademicStudentController extends Controller
         $student->subjects()->sync($sync);
     }
 
-    private function enrollInLevelClasses(Student $student, array $subjectIds): void
-    {
-        if (! $student->level_id || ! $student->academic_year_id) {
-            return;
-        }
-
-        $otherClassIds = ClassGroup::query()
-            ->where('academic_year_id', $student->academic_year_id)
-            ->where('level_id', '!=', $student->level_id)
-            ->pluck('id');
-        if ($otherClassIds->isNotEmpty()) {
-            DB::table('class_students')
-                ->where('student_id', $student->id)
-                ->whereIn('class_group_id', $otherClassIds)
-                ->update(['status' => 'inactive', 'updated_at' => now()]);
-        }
-
-        $classes = ClassGroup::query()
-            ->where('academic_year_id', $student->academic_year_id)
-            ->where('level_id', $student->level_id)
-            ->where('status', 'active')
-            ->when($subjectIds !== [], fn ($q) => $q->whereIn('subject_id', $subjectIds))
-            ->get();
-
-        foreach ($classes as $class) {
-            $student->classGroups()->syncWithoutDetaching([
-                $class->id => [
-                    'status' => 'active',
-                    'enrolled_on' => now()->toDateString(),
-                ],
-            ]);
-        }
-    }
-
     private function enrollInTeacherClasses(Student $student, User $user, array $subjectIds): void
     {
-        $this->enrollInLevelClasses($student, $subjectIds);
+        $student->enrollInActiveLevelClasses($subjectIds);
     }
 
     private function authorizePermission(Request $request, string $permission): void

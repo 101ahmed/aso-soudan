@@ -318,7 +318,9 @@ onMounted(async () => {
             :key="item.slug"
             class="overflow-hidden rounded-xl bg-white shadow-sm"
           >
-            <img :src="item.image" alt="" class="h-40 w-full object-cover" />
+            <div class="flex min-h-40 items-center justify-center bg-[var(--rdp-cream)]">
+              <img :src="item.image" alt="" class="max-h-52 w-full object-contain" />
+            </div>
             <div class="space-y-2 p-4">
               <p class="text-xs text-slate-500">{{ item.date }}</p>
               <h3 class="font-semibold">{{ localized(item.title) }}</h3>

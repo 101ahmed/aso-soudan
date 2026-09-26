@@ -54,7 +54,9 @@ onMounted(() => {})
   <div v-if="item">
     <PageHero :title="localized(item.title)" :subtitle="item.date" />
     <section class="mx-auto max-w-3xl px-5 py-12 md:px-8">
-      <img :src="item.image" alt="" class="mb-6 h-72 w-full rounded-xl object-cover" />
+      <div class="mb-6 flex items-center justify-center rounded-xl bg-[var(--rdp-cream)]">
+        <img :src="item.image" alt="" class="max-h-[28rem] w-full rounded-xl object-contain" />
+      </div>
       <p class="whitespace-pre-line leading-relaxed text-slate-700">
         {{ localized(item.content || item.excerpt) }}
       </p>

@@ -50,6 +50,7 @@ use App\Http\Controllers\Api\Public\PublicPresidentController;
 use App\Http\Controllers\Api\Public\PublicSecretariatMeetingOutputController;
 use App\Http\Controllers\Api\Public\PublicSecretariatMessageController;
 use App\Http\Controllers\Api\Public\PublicShuraController;
+use App\Http\Controllers\Api\Public\PublicAcademicStudentController;
 use App\Http\Controllers\Api\Public\PublicSiteVisitController;
 use App\Http\Controllers\Api\Public\PublicSportsController;
 use App\Http\Controllers\Api\Public\PublicStoredFileController;
@@ -92,6 +93,8 @@ Route::prefix('public')->group(function () {
     Route::get('/visit', [PublicSiteVisitController::class, 'store'])->middleware('throttle:30,1');
     Route::post('/contact', [PublicContactController::class, 'store']);
     Route::post('/members', [PublicMemberController::class, 'store']);
+    Route::get('/student-catalog', [PublicAcademicStudentController::class, 'catalog']);
+    Route::post('/students', [PublicAcademicStudentController::class, 'store'])->middleware('throttle:8,1');
     Route::post('/help-requests', [PublicHelpRequestController::class, 'store']);
     Route::get('/sports', [PublicSportsController::class, 'overview']);
     Route::get('/sports/national', [PublicSportsController::class, 'national']);

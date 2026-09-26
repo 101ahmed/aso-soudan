@@ -46,12 +46,14 @@ const levels = computed(() => {
 const catalogLevels = computed(() => (catalog.value.stages || []).flatMap((stage) => stage.levels || []))
 const groupedItems = computed(() => {
   if (filters.level_id) return null
+  if (!catalogLevels.value.length) return null
   return catalogLevels.value.map((level) => ({
     level,
     items: items.value.filter((item) => String(item.level_id) === String(level.id)),
   }))
 })
-const unassignedItems = computed(() => items.value.filter((item) => !item.level_id))
+const catalogLevelIds = computed(() => new Set(catalogLevels.value.map((level) => String(level.id))))
+const unassignedItems = computed(() => items.value.filter((item) => !item.level_id || !catalogLevelIds.value.has(String(item.level_id))))
 
 function levelCount(id) {
   const counts = catalog.value.level_counts || {}
