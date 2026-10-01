@@ -160,14 +160,6 @@ onMounted(async () => {
         </div>
       </section>
 
-      <!-- Mot du président -->
-      <section>
-        <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('president.message') }}</h2>
-        <div class="mt-5 max-w-4xl whitespace-pre-line leading-relaxed text-slate-700">
-          {{ localized(page.message) }}
-        </div>
-      </section>
-
       <!-- Vision -->
       <section>
         <h2 class="text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('president.vision') }}</h2>
