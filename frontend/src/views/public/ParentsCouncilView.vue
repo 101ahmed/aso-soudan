@@ -224,9 +224,13 @@ onMounted(async () => {
 
 <template>
   <div>
-    <section class="relative min-h-[48vh] overflow-hidden">
-      <img :src="parentsCouncil.banner" alt="" class="absolute inset-0 h-full w-full object-cover" />
-      <div class="absolute inset-0 bg-[linear-gradient(115deg,rgba(18,40,28,0.92),rgba(18,40,28,0.55))]" />
+    <section class="relative min-h-[48vh] overflow-hidden bg-black">
+      <img
+        :src="parentsCouncil.banner"
+        alt=""
+        class="absolute inset-0 h-full w-full object-contain object-center"
+      />
+      <div class="absolute inset-0 bg-[linear-gradient(115deg,rgba(18,40,28,0.72),rgba(18,40,28,0.35))]" />
       <div class="relative z-10 mx-auto flex min-h-[48vh] max-w-6xl flex-col justify-end gap-4 px-5 py-12 md:px-8">
         <img
           src="/logo.png"

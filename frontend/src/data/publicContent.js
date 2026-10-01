@@ -74,13 +74,6 @@ export const newsItems = [
   },
 ]
 
-export const recentActivities = [
-  { key: 'academic', image: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=900&q=80' },
-  { key: 'social', image: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=900&q=80' },
-  { key: 'womenChildren', image: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=900&q=80' },
-  { key: 'cultural', image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=900&q=80' },
-]
-
 export const galleryAlbums = [
   {
     slug: 'ramadan-2026',

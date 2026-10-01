@@ -3,7 +3,7 @@
  * Remplacer name/photo/mandate après validation de publication.
  */
 export const presidentPage = {
-  banner: '/hero-home.png',
+  banner: '/heroes/president.png',
   tagline: {
     ar: 'القيادة – المسؤولية – العمل المؤسسي – خدمة المجتمع',
     fr: 'Leadership – responsabilité – action institutionnelle – service à la communauté',

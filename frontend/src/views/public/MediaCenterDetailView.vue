@@ -57,7 +57,7 @@ watch(
 
 <template>
   <div v-if="item">
-    <PageHero :title="title" :subtitle="t(`mediaCenter.kinds.${item.kind}`)" />
+    <PageHero :title="title" :subtitle="t(`mediaCenter.kinds.${item.kind}`)" image="/heroes/media.png" />
     <section class="mx-auto max-w-3xl space-y-5 px-5 py-12 md:px-8">
       <p class="text-sm text-slate-500">
         {{ KIND_ICONS[item.kind] }} {{ t(`mediaCenter.kinds.${item.kind}`) }}

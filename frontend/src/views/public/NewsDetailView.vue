@@ -52,7 +52,7 @@ onMounted(() => {})
 
 <template>
   <div v-if="item">
-    <PageHero :title="localized(item.title)" :subtitle="item.date" />
+    <PageHero :title="localized(item.title)" :subtitle="item.date" image="/news-hero.png" />
     <section class="mx-auto max-w-3xl px-5 py-12 md:px-8">
       <div class="mb-6 flex items-center justify-center rounded-xl bg-[var(--rdp-cream)]">
         <img :src="item.image" alt="" class="max-h-[28rem] w-full rounded-xl object-contain" />

@@ -25,7 +25,7 @@ export const secretariats = [
       ar: 'تشرف الأمانة العامة على تنسيق العمل الإداري والتنظيمي ومتابعة القرارات والمراسلات داخل الرابطة.',
       fr: 'Le secrétariat général coordonne le travail administratif, le suivi des décisions et la correspondance officielle.',
     },
-    banner: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1600&q=80',
+    banner: '/heroes/general.png',
     vision: {
       ar: 'إدارة مؤسسية منسقة وشفافة تدعم استقرار الرابطة.',
       fr: 'Une gouvernance institutionnelle coordonnée et transparente.',
@@ -98,7 +98,7 @@ export const secretariats = [
       ar: 'تدير الأمانة الأكاديمية البرامج التعليمية ومتابعة الطلاب والمعلمين والفصول.',
       fr: 'Le secrétariat académique gère les programmes éducatifs, les élèves, les enseignants et les classes.',
     },
-    banner: 'https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&w=1600&q=80',
+    banner: '/heroes/academic.png',
     vision: {
       ar: 'تعليم منظم يعزز الهوية والتميز الأكاديمي لأبناء الجالية.',
       fr: 'Une offre éducative structurée au service de l’identité et de la réussite.',
@@ -178,7 +178,7 @@ export const secretariats = [
       ar: 'تعمل الأمانة الاجتماعية على تعزيز التواصل والتكافل الاجتماعي بين أعضاء الجالية.',
       fr: 'Le secrétariat social développe le lien et la solidarité au sein de la communauté.',
     },
-    banner: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=1600&q=80',
+    banner: '/heroes/social.png',
     vision: {
       ar: 'مجتمع متكافل ومترابط يسند بعضه بعضاً.',
       fr: 'Une communauté solidaire et soudée.',
@@ -264,7 +264,7 @@ export const secretariats = [
       ar: 'تشرف الأمانة المالية على الاشتراكات والمصروفات وإعداد التقارير المالية وفق ضوابط الرابطة.',
       fr: 'Le secrétariat financier gère les cotisations, les dépenses et les rapports financiers selon les règles de la Rabta.',
     },
-    banner: 'https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1600&q=80',
+    banner: '/heroes/finance.png',
     vision: {
       ar: 'موارد منظمة وشفافة تدعم برامج الرابطة واستقرارها.',
       fr: 'Des ressources organisées et transparentes au service des programmes de la Rabta.',
@@ -331,7 +331,7 @@ export const secretariats = [
       ar: 'تتولى الأمانة الإعلامية توثيق أعمال الرابطة ونشر الأخبار وإدارة المحتوى الإعلامي.',
       fr: 'Le secrétariat médias documente les actions, publie l’actualité et gère le contenu de communication.',
     },
-    banner: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?auto=format&fit=crop&w=1600&q=80',
+    banner: '/heroes/media.png',
     vision: {
       ar: 'حضور إعلامي واضح ومهني يعكس أنشطة الرابطة.',
       fr: 'Une présence médiatique claire et professionnelle.',
@@ -400,7 +400,7 @@ export const secretariats = [
       ar: 'ينظم القسم البرامج والمبادرات المتعلقة بالمرأة والأسرة والطفل مع مراعاة الخصوصية والموافقات.',
       fr: 'Ce pôle organise les programmes femmes, famille et enfants, dans le respect de la vie privée et des consentements.',
     },
-    banner: 'https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&w=1600&q=80',
+    banner: '/heroes/women-children.png',
     vision: {
       ar: 'أسرة متماسكة وبرامج تربوية واجتماعية هادفة.',
       fr: 'Des familles soutenues par des programmes éducatifs et sociaux.',
@@ -470,7 +470,7 @@ export const secretariats = [
       ar: 'تجمع أمانة الإحصاء البيانات وتعد المؤشرات والتقارير لدعم اتخاذ القرار داخل الرابطة.',
       fr: 'Le secrétariat statistiques collecte les données et produit indicateurs et rapports d’aide à la décision.',
     },
-    banner: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1600&q=80',
+    banner: '/heroes/statistics.png',
     vision: {
       ar: 'معلومات موثوقة تدعم التخطيط المؤسسي.',
       fr: 'Une information fiable au service du pilotage.',
@@ -544,7 +544,7 @@ export const secretariats = [
       ar: 'تبني الأمانة الخارجية العلاقات والشراكات مع المؤسسات والجمعيات والجهات المحلية.',
       fr: 'Le secrétariat des relations extérieures développe partenariats et relations institutionnelles.',
     },
-    banner: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=1600&q=80',
+    banner: '/heroes/external-relations.png',
     vision: {
       ar: 'شبكة شراكات فاعلة تعزز حضور الرابطة.',
       fr: 'Un réseau de partenariats actifs pour la Rabta.',
@@ -617,7 +617,7 @@ export const secretariats = [
       ar: 'تشرف الأمانة الرياضية على تنظيم الأنشطة والبطولات والبرامج الرياضية لأبناء الجالية، وتعزيز المشاركة الصحية والمجتمعية.',
       fr: 'Le secrétariat sportif organise activités, tournois et programmes sportifs pour la communauté, au service de la santé et du lien social.',
     },
-    banner: 'https://images.unsplash.com/photo-1461896836934-ffe607ba6856?auto=format&fit=crop&w=1600&q=80',
+    banner: '/heroes/sports.png',
     vision: {
       ar: 'مجتمع نشيط وصحّي يتشارك الرياضة بروح الاحترام والتعاون.',
       fr: 'Une communauté active et en bonne santé, unie par le sport dans le respect et la coopération.',

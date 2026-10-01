@@ -61,7 +61,7 @@ async function submit() {
 
 <template>
   <div>
-    <PageHero :title="t('socialHelp.publicTitle')" :subtitle="t('socialHelp.publicSubtitle')" />
+    <PageHero :title="t('socialHelp.publicTitle')" :subtitle="t('socialHelp.publicSubtitle')" image="/heroes/help.png" />
     <section class="mx-auto max-w-2xl px-5 py-12 md:px-8">
       <div v-if="submitted" class="rounded-xl bg-white p-6 text-[var(--rdp-forest)]">
         <p class="font-semibold">{{ t('socialHelp.successTitle') }}</p>

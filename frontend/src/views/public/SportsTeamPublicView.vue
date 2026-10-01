@@ -24,7 +24,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHero :title="title" :subtitle="team ? t(`sportsAmanah.ages.${team.age_category}`) : ''" />
+    <PageHero :title="title" :subtitle="team ? t(`sportsAmanah.ages.${team.age_category}`) : ''" image="/heroes/sports.png" />
     <div class="mx-auto max-w-6xl space-y-10 px-5 py-10 md:px-8">
       <p v-if="error" class="text-rose-700">{{ error }}</p>
       <template v-if="team">

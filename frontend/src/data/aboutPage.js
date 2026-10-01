@@ -1,5 +1,5 @@
 export const aboutPage = {
-  banner: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1800&q=80',
+  banner: '/heroes/about.png',
   tagline: {
     ar: 'معاً لبناء مجتمع مترابط، متعلم وفاعل.',
     fr: 'Ensemble pour une communauté unie, apprenante et engagée.',

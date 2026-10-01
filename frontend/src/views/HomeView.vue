@@ -9,7 +9,6 @@ import {
   newsItems,
   orgUnits,
   publicStats,
-  recentActivities,
 } from '@/data/publicContent'
 import { fetchPublicAlbums, fetchPublicAnnouncements, fetchPublicDecisions, fetchPublicEvents, fetchPublicNews, fetchPublicStats, mapPublicEvent } from '@/services/content'
 import { albumsToSlides } from '@/utils/gallerySlides'
@@ -324,20 +323,6 @@ onMounted(async () => {
         <div v-for="stat in displayedStats" :key="stat.key" class="rounded-xl bg-white px-4 py-6 text-center shadow-sm">
           <p class="text-3xl font-bold text-[var(--rdp-forest)]">{{ stat.value }}</p>
           <p class="mt-2 text-sm text-slate-600">{{ t(`home.stats.${stat.key}`) }}</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="bg-white/70 py-16">
-      <div class="mx-auto max-w-6xl px-5 md:px-8">
-        <SectionHeading :title="t('home.activitiesTitle')" />
-        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <div v-for="activity in recentActivities" :key="activity.key" class="overflow-hidden rounded-xl">
-            <img :src="activity.image" alt="" class="h-40 w-full object-cover" />
-            <p class="bg-[var(--rdp-forest)] px-4 py-3 text-sm font-medium text-white">
-              {{ t(`home.activities.${activity.key}`) }}
-            </p>
-          </div>
         </div>
       </div>
     </section>

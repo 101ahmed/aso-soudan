@@ -276,9 +276,9 @@ watch(
 <template>
   <div v-if="secretariat">
     <!-- Banner -->
-    <section class="relative min-h-[42vh] overflow-hidden">
-      <img :src="secretariat.banner" alt="" class="absolute inset-0 h-full w-full object-cover" />
-      <div class="absolute inset-0 bg-[linear-gradient(115deg,rgba(18,40,28,0.9),rgba(18,40,28,0.55))]" />
+    <section class="relative min-h-[42vh] overflow-hidden bg-black">
+      <img :src="secretariat.banner" alt="" class="absolute inset-0 h-full w-full object-contain object-center" />
+      <div class="absolute inset-0 bg-[linear-gradient(115deg,rgba(18,40,28,0.72),rgba(18,40,28,0.35))]" />
       <div class="relative z-10 mx-auto flex min-h-[42vh] max-w-6xl flex-col justify-end px-5 py-12 md:px-8">
         <p class="text-sm text-[var(--rdp-gold)]">
           <RouterLink to="/secretariats" class="hover:underline">{{ t('nav.secretariats') }}</RouterLink>

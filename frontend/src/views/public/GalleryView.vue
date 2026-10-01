@@ -42,7 +42,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHero :title="t('nav.gallery')" :subtitle="t('pages.gallery.subtitle')" />
+    <PageHero :title="t('nav.gallery')" :subtitle="t('pages.gallery.subtitle')" image="/heroes/gallery.png" />
 
     <section class="mx-auto max-w-6xl space-y-10 px-5 py-12 md:px-8">
       <p v-if="loading" class="text-sm text-slate-500">…</p>

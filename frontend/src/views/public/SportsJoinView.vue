@@ -66,7 +66,7 @@ async function submit() {
 
 <template>
   <div>
-    <PageHero :title="t('sportsAmanah.joinTitle')" :subtitle="t('sportsAmanah.joinSubtitle')" />
+    <PageHero :title="t('sportsAmanah.joinTitle')" :subtitle="t('sportsAmanah.joinSubtitle')" image="/heroes/sports.png" />
     <section class="mx-auto max-w-2xl px-5 py-12 md:px-8">
       <div v-if="submitted" class="rounded-xl bg-white p-6 text-[var(--rdp-forest)]">
         <p class="font-semibold">{{ t('sportsAmanah.joinSuccessTitle') }}</p>

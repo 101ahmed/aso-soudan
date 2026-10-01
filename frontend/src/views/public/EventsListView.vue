@@ -39,7 +39,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHero :title="t('nav.events')" :subtitle="t('pages.events.subtitle')" />
+    <PageHero :title="t('nav.events')" :subtitle="t('pages.events.subtitle')" image="/heroes/events.png" />
 
     <section v-if="eventSlides.length" class="mx-auto max-w-6xl px-5 py-10 md:px-8">
       <h2 class="mb-5 text-2xl font-semibold text-[var(--rdp-forest)]">{{ t('nav.gallery') }}</h2>

@@ -186,6 +186,14 @@ onMounted(() => {
           <p class="mb-3 font-semibold text-white">{{ t('secretariat.social') }}</p>
           <SocialIcons />
           <p class="mt-4">{{ t('home.footerNote') }}</p>
+          <a
+            href="https://storyset.com/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="mt-2 block text-xs text-white/60 hover:text-[var(--rdp-gold)]"
+          >
+            {{ t('home.storysetCredit') }}
+          </a>
           <RouterLink
             :to="auth.isAuthenticated ? adminPath : '/login'"
             class="mt-3 inline-flex text-[var(--rdp-gold)] hover:underline"

@@ -33,7 +33,7 @@ async function submit() {
 
 <template>
   <div>
-    <PageHero :title="t('nav.contact')" :subtitle="t('pages.contact.subtitle')" />
+    <PageHero :title="t('nav.contact')" :subtitle="t('pages.contact.subtitle')" image="/heroes/contact.png" />
     <section class="mx-auto max-w-2xl space-y-6 px-5 py-12 md:px-8">
       <p v-if="sent" class="rounded-xl bg-white p-6 text-[var(--rdp-forest)] shadow-sm">
         {{ t('pages.contact.success') }}

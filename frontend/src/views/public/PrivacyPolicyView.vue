@@ -7,7 +7,7 @@ const { t } = useI18n()
 
 <template>
   <div>
-    <PageHero :title="t('about.privacy')" :subtitle="t('privacy.subtitle')" />
+    <PageHero :title="t('about.privacy')" :subtitle="t('privacy.subtitle')" image="/heroes/security.png" />
     <section class="mx-auto max-w-3xl space-y-4 px-5 py-12 text-slate-700 md:px-8">
       <p>{{ t('privacy.p1') }}</p>
       <p>{{ t('privacy.p2') }}</p>

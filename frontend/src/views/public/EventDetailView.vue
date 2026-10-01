@@ -67,6 +67,7 @@ watch(() => route.params.slug, load)
     <PageHero
       :title="localized(event.title)"
       :subtitle="[event.type ? t(`secretariat.eventTypes.${event.type}`) : '', event.date, event.time].filter(Boolean).join(' · ')"
+      image="/heroes/events.png"
     />
     <section class="mx-auto max-w-3xl space-y-4 px-5 py-12 md:px-8">
       <img :src="event.image" alt="" class="h-72 w-full rounded-xl object-cover" />

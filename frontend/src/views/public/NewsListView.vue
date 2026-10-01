@@ -37,7 +37,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHero :title="t('nav.news')" :subtitle="t('pages.news.subtitle')" />
+    <PageHero :title="t('nav.news')" :subtitle="t('pages.news.subtitle')" image="/news-hero.png" />
     <section class="mx-auto grid max-w-6xl gap-6 px-5 py-12 md:grid-cols-3 md:px-8">
       <article v-for="item in items" :key="item.id" class="overflow-hidden rounded-xl bg-white shadow-sm">
         <div class="flex min-h-44 items-center justify-center bg-[var(--rdp-cream)]">

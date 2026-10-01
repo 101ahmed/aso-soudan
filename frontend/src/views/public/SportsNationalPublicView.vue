@@ -21,7 +21,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHero :title="t('sportsAmanah.nationalPublicTitle')" :subtitle="t('sportsAmanah.nationalPublicSubtitle')" />
+    <PageHero :title="t('sportsAmanah.nationalPublicTitle')" :subtitle="t('sportsAmanah.nationalPublicSubtitle')" image="/heroes/sports.png" />
     <div class="mx-auto max-w-6xl space-y-10 px-5 py-10 md:px-8">
       <p>
         <RouterLink to="/secretariats/sports" class="text-sm text-[var(--rdp-forest)] hover:underline">{{ t('sportsAmanah.backPublic') }}</RouterLink>

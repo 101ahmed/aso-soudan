@@ -1,7 +1,7 @@
 export const parentsCouncil = {
   slug: 'parents',
   nameKey: 'org.parents',
-  banner: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&w=1600&q=80',
+  banner: '/parents-council.png',
   tagline: {
     ar: 'تواصل – مشاركة – دعم – تطوير',
     fr: 'Communication – Participation – Soutien – Développement',

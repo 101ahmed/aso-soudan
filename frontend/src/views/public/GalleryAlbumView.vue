@@ -65,7 +65,7 @@ watch(() => route.params.slug, load)
 <template>
   <div v-if="loading" class="mx-auto max-w-3xl px-5 py-20 text-sm text-slate-500">…</div>
   <div v-else-if="album">
-    <PageHero :title="localized(album.title)" />
+    <PageHero :title="localized(album.title)" image="/heroes/gallery.png" />
     <section class="mx-auto max-w-6xl px-5 py-12 md:px-8">
       <PhotoCarousel v-if="slides.length" :slides="slides" :interval="4500" />
       <p v-else class="text-sm text-slate-500">{{ t('pages.gallery.empty') }}</p>

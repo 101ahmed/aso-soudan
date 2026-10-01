@@ -2,6 +2,7 @@
 import { computed, onMounted, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import PageHero from '@/components/public/PageHero.vue'
 import { secretariats } from '@/data/secretariats'
 import { fetchPublicDepartments } from '@/services/content'
 
@@ -56,16 +57,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <section class="relative overflow-hidden bg-[var(--rdp-forest)] px-5 py-16 text-white md:px-8">
-      <div class="mx-auto max-w-6xl">
-        <h1 class="font-[family-name:var(--font-display)] text-4xl font-bold md:text-5xl">
-          {{ t('nav.secretariats') }}
-        </h1>
-        <p class="mt-4 max-w-3xl text-white/85">
-          {{ t('pages.secretariats.subtitle') }}
-        </p>
-      </div>
-    </section>
+    <PageHero :title="t('nav.secretariats')" :subtitle="t('pages.secretariats.subtitle')" image="/heroes/secretariats.png" />
 
     <section class="mx-auto grid max-w-6xl gap-5 px-5 py-12 md:grid-cols-2 lg:grid-cols-3 md:px-8">
       <article
@@ -73,7 +65,9 @@ onMounted(async () => {
         :key="item.slug"
         class="flex flex-col overflow-hidden rounded-2xl border border-[var(--rdp-forest)]/10 bg-white shadow-sm"
       >
-        <img :src="item.banner" alt="" class="h-40 w-full object-cover" />
+        <div class="flex h-40 items-center justify-center bg-[var(--rdp-cream)]">
+          <img :src="item.banner" alt="" class="h-full w-full object-contain" />
+        </div>
         <div class="flex flex-1 flex-col p-5">
           <h2 class="text-xl font-semibold text-[var(--rdp-forest)]">
             {{ t(item.nameKey) }}

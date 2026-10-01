@@ -1,7 +1,7 @@
 export const shuraCouncil = {
   slug: 'shura',
   nameKey: 'org.shura',
-  banner: 'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?auto=format&fit=crop&w=1600&q=80',
+  banner: '/shura-council.png',
   tagline: {
     ar: 'الحوار – التشاور – الرؤية المشتركة – دعم القرار',
     fr: 'Dialogue – Concertation – Vision partagée – Appui à la décision',

@@ -34,7 +34,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHero :title="t('financePublic.subscriptionsTitle')" :subtitle="t('financePublic.subscriptionsSubtitle')" />
+    <PageHero :title="t('financePublic.subscriptionsTitle')" :subtitle="t('financePublic.subscriptionsSubtitle')" image="/heroes/wallet.png" />
     <section class="mx-auto max-w-3xl space-y-5 px-5 py-12 md:px-8">
       <p v-if="loading" class="text-sm text-slate-500">{{ t('admin.loading') }}</p>
 

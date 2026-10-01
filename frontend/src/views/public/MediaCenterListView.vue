@@ -56,7 +56,7 @@ onMounted(load)
 
 <template>
   <div>
-    <PageHero :title="t('mediaCenter.publicTitle')" :subtitle="t('mediaCenter.publicSubtitle')" />
+    <PageHero :title="t('mediaCenter.publicTitle')" :subtitle="t('mediaCenter.publicSubtitle')" image="/heroes/media.png" />
     <section class="mx-auto max-w-6xl space-y-8 px-5 py-12 md:px-8">
       <div class="flex flex-wrap gap-2">
         <button

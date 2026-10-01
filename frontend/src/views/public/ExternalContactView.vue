@@ -61,7 +61,7 @@ onMounted(async () => {
 
 <template>
   <div>
-    <PageHero :title="t('externalRel.publicTitle')" :subtitle="t('externalRel.publicSubtitle')" />
+    <PageHero :title="t('externalRel.publicTitle')" :subtitle="t('externalRel.publicSubtitle')" image="/heroes/external-relations.png" />
     <section class="mx-auto max-w-2xl px-5 py-12 md:px-8">
       <div v-if="submitted" class="rounded-xl bg-white p-6 text-[var(--rdp-forest)]">
         <p class="font-semibold">{{ t('externalRel.successTitle') }}</p>
