@@ -8,6 +8,7 @@ use App\Mail\MemberBroadcastMail;
 use App\Models\Member;
 use App\Models\MemberCity;
 use App\Services\MemberSubscriptionRevenueSync;
+use App\Services\StatisticsChartsService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
@@ -17,6 +18,16 @@ use Throwable;
 
 class AdminStatisticsMemberController extends Controller
 {
+    public function charts(Request $request, StatisticsChartsService $charts): JsonResponse
+    {
+        $user = $request->user();
+        if (! $user?->hasPermission('statistics.view') && ! $user?->hasPermission('member.view')) {
+            abort(403);
+        }
+
+        return response()->json($charts->dashboard());
+    }
+
     public function index(Request $request): AnonymousResourceCollection
     {
         $this->authorizePermission($request, 'member.view');

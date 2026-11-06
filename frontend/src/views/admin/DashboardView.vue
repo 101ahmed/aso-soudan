@@ -14,6 +14,9 @@ const departments = ref([])
 const visitStats = ref(null)
 
 const canSeeInbox = computed(() => auth.hasPermission('inbox.view'))
+const canSeeStatisticsCharts = computed(
+  () => auth.hasPermission('statistics.view') || auth.hasPermission('member.view'),
+)
 const canManageContent = computed(
   () => auth.hasPermission('news.view') || auth.hasPermission('announcement.view'),
 )
@@ -157,6 +160,13 @@ onMounted(async () => {
               class="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-700"
             >
               {{ t('secretariatAdmin.home') }}
+            </RouterLink>
+            <RouterLink
+              v-if="dept.code === 'statistics' && canSeeStatisticsCharts"
+              to="/admin/secretariats/statistics/charts"
+              class="rounded border border-slate-300 px-3 py-1.5 text-xs text-slate-700"
+            >
+              {{ t('secretariatAdmin.charts') }}
             </RouterLink>
             <RouterLink
               v-if="auth.hasPermission('report.view')"

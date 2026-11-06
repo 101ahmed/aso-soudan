@@ -112,6 +112,13 @@ const cards = computed(() => {
       label: t('secretariatAdmin.members'),
       hint: t('secretariatAdmin.membersHint'),
     })
+    if (auth.hasPermission('statistics.view') || auth.hasPermission('member.view')) {
+      items.unshift({
+        to: `/admin/secretariats/statistics/charts`,
+        label: t('secretariatAdmin.charts'),
+        hint: t('secretariatAdmin.chartsHint'),
+      })
+    }
   }
   if (code.value === 'finance') {
     items.unshift(

@@ -472,7 +472,10 @@
       "members": "Membres",
       "students": "Élèves",
       "teachers": "Enseignants",
+      "volunteers": "Bénévoles",
       "events": "Événements",
+      "activities": "Activités",
+      "initiatives": "Initiatives",
       "classes": "Classes",
       "programs": "Programmes"
     }
@@ -755,6 +758,30 @@
       "married": "Marié(e)",
       "divorced": "Divorcé(e)",
       "widowed": "Veuf / veuve"
+    }
+  },
+  "statisticsCharts": {
+    "title": "Tableau de bord graphique",
+    "hint": "Indicateurs agrégés, sans données personnelles, à partir des adhérents et de l’activité publiée.",
+    "forbidden": "Permission statistics.view ou member.view requise.",
+    "empty": "Pas assez de données pour afficher le graphique.",
+    "unknown": "Non renseigné",
+    "other": "Autres",
+    "membersTotal": "Total des adhérents",
+    "donutTitle": "Répartition des adhérents (Donut)",
+    "barTitle": "Adhérents par ville (Bar)",
+    "areaTitle": "Inscriptions mensuelles (Area)",
+    "publicDonutTitle": "Répartition de la communauté (Donut)",
+    "publicDonutCenter": "Total des indicateurs",
+    "publicBarTitle": "Activité publique (Bar)",
+    "publicAreaTitle": "Événements mensuels (Area)",
+    "kpis": {
+      "membersTotal": "Total des adhérents",
+      "membersActive": "Adhérents actifs",
+      "students": "Élèves actifs",
+      "teachersVolunteers": "Enseignants et bénévoles",
+      "events": "Événements publiés",
+      "initiatives": "Initiatives"
     }
   },
   "teacherAdmin": {
@@ -1231,6 +1258,8 @@
     "examsHint": "Créer les examens et saisir les notes par matière.",
     "achievement": "Résultats scolaires",
     "achievementHint": "Moyennes de la classe et bulletin de chaque élève.",
+    "charts": "Graphiques",
+    "chartsHint": "Donut, Area et Bar pour suivre les adhérents, les villes et les inscriptions mensuelles.",
     "members": "Base des adhérents",
     "membersHint": "Rechercher, filtrer les adhérents et leur envoyer un message.",
     "financeMembers": "Base des adhérents et cotisations",

@@ -284,6 +284,7 @@ Route::middleware(['auth:sanctum'])->group(function () {
     });
 
     Route::prefix('admin/statistics')->group(function () {
+        Route::get('/charts', [AdminStatisticsMemberController::class, 'charts']);
         Route::get('/members', [AdminStatisticsMemberController::class, 'index']);
         Route::post('/members', [AdminStatisticsMemberController::class, 'store']);
         Route::post('/members/message', [AdminStatisticsMemberController::class, 'message']);

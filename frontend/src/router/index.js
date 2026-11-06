@@ -63,6 +63,7 @@ import AcademicExamSheetView from '@/views/admin/academic/AcademicExamSheetView.
 import AcademicAchievementView from '@/views/admin/academic/AcademicAchievementView.vue'
 import AcademicStudentAchievementView from '@/views/admin/academic/AcademicStudentAchievementView.vue'
 import StatisticsMembersView from '@/views/admin/statistics/StatisticsMembersView.vue'
+import StatisticsChartsView from '@/views/admin/statistics/StatisticsChartsView.vue'
 import SocialHelpRequestsView from '@/views/admin/secretariat/SocialHelpRequestsView.vue'
 import SocialVisitsView from '@/views/admin/secretariat/SocialVisitsView.vue'
 import WomenMembersView from '@/views/admin/secretariat/WomenMembersView.vue'
@@ -369,6 +370,12 @@ const router = createRouter({
               name: 'admin.secretariat.members',
               component: StatisticsMembersView,
               meta: { permission: 'member.view' },
+            },
+            {
+              path: 'charts',
+              name: 'admin.secretariat.charts',
+              component: StatisticsChartsView,
+              meta: { anyPermission: ['statistics.view', 'member.view'] },
             },
             {
               path: 'help-requests',

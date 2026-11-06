@@ -103,6 +103,11 @@ class PublicStatsTest extends TestCase
             ->assertJsonPath('initiatives', 1)
             ->assertJsonPath('programs', 1)
             ->assertJsonPath('academic_events', 1)
-            ->assertJsonPath('activities', 1);
+            ->assertJsonPath('activities', 1)
+            ->assertJsonPath('charts.community.0.key', 'members')
+            ->assertJsonPath('charts.community.0.total', 2)
+            ->assertJsonPath('charts.activity.0.key', 'events')
+            ->assertJsonPath('charts.activity.0.total', 2)
+            ->assertJsonFragment(['key' => now()->format('Y-m'), 'total' => 2]);
     }
 }

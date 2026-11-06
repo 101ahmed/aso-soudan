@@ -472,7 +472,10 @@
       "members": "Members",
       "students": "Students",
       "teachers": "Teachers",
+      "volunteers": "Volunteers",
       "events": "Events",
+      "activities": "Activities",
+      "initiatives": "Initiatives",
       "classes": "Classes",
       "programs": "Programmes"
     }
@@ -755,6 +758,30 @@
       "married": "Married",
       "divorced": "Divorced",
       "widowed": "Widowed"
+    }
+  },
+  "statisticsCharts": {
+    "title": "Charts dashboard",
+    "hint": "Aggregated indicators, without personal data, based on members and published activity.",
+    "forbidden": "Permission statistics.view or member.view is required.",
+    "empty": "Not enough data to display the chart.",
+    "unknown": "Unspecified",
+    "other": "Other",
+    "membersTotal": "Total members",
+    "donutTitle": "Members breakdown (Donut)",
+    "barTitle": "Members by city (Bar)",
+    "areaTitle": "Monthly registrations (Area)",
+    "publicDonutTitle": "Community breakdown (Donut)",
+    "publicDonutCenter": "Indicator total",
+    "publicBarTitle": "Public activity (Bar)",
+    "publicAreaTitle": "Monthly events (Area)",
+    "kpis": {
+      "membersTotal": "Total members",
+      "membersActive": "Active members",
+      "students": "Active students",
+      "teachersVolunteers": "Teachers and volunteers",
+      "events": "Published events",
+      "initiatives": "Initiatives"
     }
   },
   "teacherAdmin": {
@@ -1231,6 +1258,8 @@
     "examsHint": "Create exams and enter grades by subject.",
     "achievement": "Academic results",
     "achievementHint": "Class averages and each student’s report.",
+    "charts": "Charts",
+    "chartsHint": "Donut, Area and Bar charts for members, cities and monthly registrations.",
     "members": "Members database",
     "membersHint": "Search, filter members and send them a message.",
     "financeMembers": "Members and subscriptions",

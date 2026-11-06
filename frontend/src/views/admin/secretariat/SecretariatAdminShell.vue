@@ -73,6 +73,9 @@ const links = computed(() => {
     items.push({ to: `${base.value}/exams`, label: t('secretariatAdmin.exams') })
     items.push({ to: `${base.value}/achievement`, label: t('secretariatAdmin.achievement') })
   }
+  if (props.code === 'statistics' && (auth.hasPermission('statistics.view') || auth.hasPermission('member.view'))) {
+    items.push({ to: `${base.value}/charts`, label: t('secretariatAdmin.charts') })
+  }
   if (props.code === 'statistics' && auth.hasPermission('member.view')) {
     items.push({ to: `${base.value}/members`, label: t('secretariatAdmin.members') })
   }

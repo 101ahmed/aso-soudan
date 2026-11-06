@@ -472,7 +472,10 @@
       "members": "الأعضاء",
       "students": "الطلاب",
       "teachers": "المعلمون",
+      "volunteers": "المتطوعون",
       "events": "الفعاليات",
+      "activities": "الأنشطة",
+      "initiatives": "المبادرات",
       "classes": "الفصول",
       "programs": "البرامج"
     }
@@ -755,6 +758,30 @@
       "married": "متزوج",
       "divorced": "مطلق",
       "widowed": "أرمل"
+    }
+  },
+  "statisticsCharts": {
+    "title": "لوحة الرسوم البيانية",
+    "hint": "مؤشرات عامة دون بيانات شخصية، مبنية على قاعدة الأعضاء والنشاط المنشور.",
+    "forbidden": "صلاحية statistics.view أو member.view مطلوبة.",
+    "empty": "لا توجد بيانات كافية لعرض الرسم.",
+    "unknown": "غير محدد",
+    "other": "أخرى",
+    "membersTotal": "إجمالي الأعضاء",
+    "donutTitle": "توزيع الأعضاء (Donut)",
+    "barTitle": "الأعضاء حسب المدينة (Bar)",
+    "areaTitle": "التسجيلات الشهرية (Area)",
+    "publicDonutTitle": "توزيع المجتمع (Donut)",
+    "publicDonutCenter": "إجمالي المؤشرات",
+    "publicBarTitle": "النشاط العام (Bar)",
+    "publicAreaTitle": "الفعاليات الشهرية (Area)",
+    "kpis": {
+      "membersTotal": "إجمالي الأعضاء",
+      "membersActive": "أعضاء نشطون",
+      "students": "طلاب نشطون",
+      "teachersVolunteers": "معلمون ومتطوعون",
+      "events": "فعاليات منشورة",
+      "initiatives": "مبادرات"
     }
   },
   "teacherAdmin": {
@@ -1231,6 +1258,8 @@
     "examsHint": "إنشاء الامتحانات وإدخال الدرجات حسب المادة.",
     "achievement": "التحصيل الدراسي",
     "achievementHint": "معدلات الصف وكشف درجات كل طالب.",
+    "charts": "الرسوم البيانية",
+    "chartsHint": "Donut و Area و Bar لمتابعة الأعضاء والمدن والتسجيلات الشهرية.",
     "members": "قاعدة الأعضاء",
     "membersHint": "بحث وتصنيف الأعضاء وإرسال رسائل إليهم.",
     "financeMembers": "قاعدة الأعضاء والاشتراكات",

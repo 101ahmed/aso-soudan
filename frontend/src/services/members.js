@@ -1,5 +1,10 @@
 import api from '@/services/api'
 
+export async function fetchStatisticsCharts() {
+  const { data } = await api.get('/admin/statistics/charts')
+  return data
+}
+
 export async function fetchMembers(params = {}) {
   const { data } = await api.get('/admin/statistics/members', { params })
   return data

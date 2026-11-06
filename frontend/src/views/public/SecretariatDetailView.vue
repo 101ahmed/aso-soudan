@@ -17,6 +17,7 @@ import { mergePublicStats, secretariatStatAliases } from '@/utils/publicStats'
 import { pickName } from '@/utils/localized'
 import EventStarRating from '@/components/public/EventStarRating.vue'
 import PhotoGallerySection from '@/components/public/PhotoGallerySection.vue'
+import PublicStatisticsCharts from '@/components/public/PublicStatisticsCharts.vue'
 
 const route = useRoute()
 const { t, locale } = useI18n()
@@ -626,6 +627,9 @@ watch(
             <p class="text-2xl font-bold text-[var(--rdp-forest)]">{{ stat.value }}</p>
             <p class="mt-1 text-sm text-slate-600">{{ t(`secretariat.statLabels.${stat.key}`) }}</p>
           </div>
+        </div>
+        <div v-if="route.params.slug === 'statistics' && liveStats" class="mt-6">
+          <PublicStatisticsCharts :stats="liveStats" />
         </div>
         <p v-if="secretariat.chartsNote" class="mt-3 text-sm text-slate-500">
           {{ localized(secretariat.chartsNote) }}
