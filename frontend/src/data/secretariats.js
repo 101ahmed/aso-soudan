@@ -516,10 +516,6 @@ export const secretariats = [
       { key: 'events', value: '+35' },
       { key: 'programs', value: '+20' },
     ],
-    chartsNote: {
-      ar: 'هذه رسوم عامة مجمّعة دون بيانات شخصية. لوحة الأعضاء التفصيلية متاحة بعد تسجيل الدخول وبصلاحية مناسبة.',
-      fr: 'Graphiques publics agrégés, sans données personnelles. Le tableau de bord détaillé des adhérents nécessite une connexion et une permission adaptée.',
-    },
     officer: {
       name: { ar: 'يُعلن لاحقاً', fr: 'À annoncer' },
       title: { ar: 'أمين أمانة الإحصاء', fr: 'Secrétaire statistiques' },

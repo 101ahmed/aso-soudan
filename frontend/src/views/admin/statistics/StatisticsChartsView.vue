@@ -9,10 +9,6 @@ import AreaChart from '@/components/charts/AreaChart.vue'
 
 const PALETTE = ['#1f4d3a', '#c4a35a', '#0f766e', '#be123c', '#0369a1', '#b45309', '#7c3aed', '#64748b', '#0e7490', '#a16207']
 
-defineProps({
-  embedded: { type: Boolean, default: false },
-})
-
 const { t, locale } = useI18n()
 const auth = useAuthStore()
 const loading = ref(false)
@@ -121,7 +117,7 @@ onMounted(load)
   </div>
 
   <div v-else class="space-y-6">
-    <div v-if="!embedded">
+    <div>
       <h2 class="text-lg font-semibold text-[var(--rdp-forest)]">{{ t('statisticsCharts.title') }}</h2>
       <p class="mt-1 text-sm text-slate-600">{{ t('statisticsCharts.hint') }}</p>
     </div>
